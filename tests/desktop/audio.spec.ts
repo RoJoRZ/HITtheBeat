@@ -93,6 +93,16 @@ test('DSP preserves pitch at different speeds and shifts pitch at fixed speed', 
       return cases;
     });
     console.log('DSP measurements', results);
+    const segment = await page.evaluate(async () => { const { segmentProbe } = await import('/tests/audio/segment-probe.ts'); return segmentProbe(); });
+    expect(segment.during).toBeGreaterThan(.03);
+    expect(segment.after).toBeLessThan(.00001);
+    expect(segment.end).toBeCloseTo(.6, 3);
+    expect(segment.ended).toBe(true);
+    expect(segment.loopPosition).toBeGreaterThanOrEqual(.1);
+    expect(segment.loopPosition).toBeLessThan(.3);
+    expect(segment.loopEnded).toBe(false);
+    expect(segment.loopRms).toBeGreaterThan(.03);
+
     for (const result of results) {
       expect(Math.abs(result.frequency - result.expectedFrequency)).toBeLessThan(8);
       expect(Math.abs(result.end - result.expectedEnd)).toBeLessThan(result.rate === .25 && !result.loop ? .25 : .2);

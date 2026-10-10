@@ -1,6 +1,6 @@
 # HITtheBeat — Ontwikkelplan
 
-Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 heeft een audioproef (v0.0.2) met automatische Mac-controles; muzikale luisterbeoordeling en de Windows-gebruikstest staan open. Zie `docs/FASE-1.md`. De gebruiker heeft vervolgens het bereik 25–300% gekozen en opdracht gegeven verder te gaan. Fase 2 levert doorloopbare voorbeeldschermen in v0.0.3; zie `docs/FASE-2.md`. De gebruiker heeft daarna de rondje-afspeellijst verduidelijkt en opdracht gegeven door te gaan. V0.0.4 biedt een eigen bibliotheek met eerste BPM-detector; zie `docs/FASE-3.md`. De gebruiker heeft opdracht gegeven door te gaan. V0.0.5 levert de eigen rondje-editor; zie `docs/FASE-4.md`. Editorfeedback staat open vóór fase 5; beoordeling op echte muziek blijft open.
+Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 heeft een audioproef (v0.0.2) met automatische Mac-controles; muzikale luisterbeoordeling en de Windows-gebruikstest staan open. Zie `docs/FASE-1.md`. De gebruiker heeft vervolgens het bereik 25–300% gekozen en opdracht gegeven verder te gaan. Fase 2 levert doorloopbare voorbeeldschermen in v0.0.3; zie `docs/FASE-2.md`. De gebruiker heeft daarna de rondje-afspeellijst verduidelijkt en opdracht gegeven door te gaan. V0.0.4 biedt een eigen bibliotheek met eerste BPM-detector; zie `docs/FASE-3.md`. De gebruiker heeft opdracht gegeven door te gaan. V0.0.5 levert de eigen rondje-editor; zie `docs/FASE-4.md`. De gebruiker heeft de editor goedgekeurd en opdracht gegeven verder te gaan. V0.0.6 biedt de rondjespeler en tijdelijke fragmenttraining; zie `docs/FASE-5.md`. Spelerfeedback staat open vóór fase 6; beoordeling op echte muziek blijft open.
 
 ## 1. Uitgangspunten
 
@@ -84,6 +84,8 @@ Controleer ook een rondje met meerdere verschillende oefeningen: alle oefeningen
 Controle: de voorbeeldopbouw speelt exact vier keer in de juiste volgorde. Onderbreek de tweede speelbeurt, verander fragment, tempo en toonhoogte, en keer terug: de oorspronkelijke instellingen worden hersteld en de onderbroken speelbeurt begint opnieuw. Fragmentloops tellen niet als geplande herhalingen. Controleer pauzeren, de laatste herhaling, meerdere onderbrekingen en toetsenbediening tijdens echte audio. Tijdregistratie scheidt afspelen, pauze en fragmenttraining.
 
 Demo: de gebruiker voert een compleet eigen rondje uit. Dit is het belangrijkste moment om het dagelijkse gebruik te beoordelen. Tot fase 6 kan een eenvoudige tijdelijke ‘Verder’-actie de overgang na een oefening verzorgen; deze wordt niet als definitieve evaluatie opgeleverd.
+
+Stand 10 oktober 2026: v0.0.6 verbindt echte rondjes met de speler en vrije fragmenttraining. De terugblik gebruikt de geplande tijdelijke Verder-actie; resultaten worden nog niet opgeslagen. Zie `docs/FASE-5.md` voor bediening, controles en beperkingen. Stem evaluatiekeuzes en tijdregistratie af vóór fase 6.
 
 ### Fase 6 — Evaluatie en sessiehistorie
 

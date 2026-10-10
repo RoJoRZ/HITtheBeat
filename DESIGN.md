@@ -139,3 +139,11 @@ Eigen gegevens hebben een herkenbaar andere melding dan de voorbeeldomgeving. De
 De eigen rondjes gebruiken dezelfde Studio donker/Mandarijn-stijl. Boven de tabel staan de rondjekeuze, naam en geplande totale duur. Iedere oefening heeft een eigen blokkop met bronkeuze, origineel tempo en verplaats-/verwijderknoppen. Daaronder staan de stappen met volledige track of fragment, A/B-seconden, herhalingen en BPM. Acties hebben zichtbare knoppen en afzonderlijke toegankelijke labels.
 
 De tabel kan binnen haar paneel horizontaal scrollen op kleinere vensters; de hele pagina hoort niet horizontaal te verschuiven. De geplande duur blijft buiten dat scrolldeel zichtbaar. Ongeldige invoer toont een melding en geen misleidende tijd. Onder de tabel staan de wijzigingsstatus en de primaire actie ‘Rondje opslaan’. Een dialoog voorkomt onbedoeld verlies bij het wisselen van concept of verwijderen van een opgeslagen rondje. De toonhoogtekolom blijft een voorstel in de voorbeelden en wordt nog niet aan de echte editor toegevoegd.
+
+## Eigen rondjespeler in v0.0.6
+
+Een gestart rondje heeft een rustige spelermodus met de rondjenaam, een compacte lijst van alle oefenblokken en de huidige oefening als eigen titel. De huidige kaart heeft een mandarijnrand. Statuswoorden onderscheiden Huidige oefening, Hierna, Afgerond en Overgeslagen; kleur is niet de enige aanwijzing.
+
+Tablatuur en opdracht staan boven de brede speler. Stap/herhaling, BPM en oorspronkelijk fragment blijven zichtbaar. De primaire transportknop bedient afspelen/pauzeren. Fragmenttraining heeft een duidelijke eigen titel en een vaste actie ‘Terug naar rondje’; extra A/B-, tempo- en toonhoogtevelden verschijnen alleen in die vrije modus. Het rondje-overzicht blijft daarbij in beeld.
+
+Na ieder oefenblok verschijnt een rustige terugblik met ‘Deze oefening opnieuw’ en ‘Verder’. Dit is herkenbaar tijdelijk, zonder fictief opgeslagen evaluatieresultaat. De tijdstrook onderscheidt rondje-afspelen, vrije training en pauze. Navigatie uit een onvoltooid rondje toont een bevestigingsdialoog en laat de sessie bij annuleren gepauzeerd beschikbaar.

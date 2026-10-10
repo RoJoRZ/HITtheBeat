@@ -142,3 +142,15 @@ Bewaren valideert eerst het gehele rondje tegen de actuele brontempi en trackdur
 Het zuivere module `electron/routine-model.mjs` wordt zowel door de renderer als de opslag gebruikt voor validatie en duurberekening. Het bevat geen Electron- of bestandstoegang. Het productieproces vertrouwt geen meegestuurde duur. Volledige track is `start=null,end=null`; een fragment bewaart bronseconden. Stappen hebben absolute BPM’s; zij wijzigen het brontempo van de oefening niet.
 
 `RoutineScreen` bewaart een concept in React-toestand. De editor blijft gemount bij navigatie zodat terugkeren het concept behoudt; bibliotheekoefeningen worden bij activering opnieuw geladen. Bewaren levert het opgeslagen rondje terug en wist de wijzigingsmarkering pas na succes. Wisselen van concept heeft een dialoog voor verwerpen/doorbewerken. Concepten bij app-afsluiting automatisch herstellen en gelijktijdige bewerking vanuit meerdere appvensters zijn niet geïmplementeerd.
+
+## 14. Rondje-uitvoering (v0.0.6)
+
+`src/session/runner.ts` bevat de zuivere sessietoestand: momentopname, oefenblok, stap, herhaling, fase, afgeronde speelbeurten en blokstatussen. Alleen een audio-eindegebeurtenis in de fase playing verhoogt de teller. Vrije training, pauze en terugblik verwerken die gebeurtenis niet als een geplande herhaling. Een revisienummer identificeert een nieuw voorbereide speelbeurt; terugkeren uit vrije training verhoogt de revisie met behoud van stap/herhaling.
+
+`AudioEngine.playSegment` begrenst een eenmalige speelbeurt op bron A/B. GainNode-automatisering sluit geluid op de audioklok af bij B; de positie en ended-toestand volgen dezelfde grens. De bestaande configure/loop-bediening blijft een aparte vrije modus en wist de eenmalige segmentbegrenzing. Expliciet pauzeren voorkomt dat een toggle per ongeluk audio herstart tijdens een overgang.
+
+`SessionPlayer` koppelt de toestand aan de engine. Zij gebruikt een directe toestandsreferentie en vergrendelt een overgang voordat React de volgende speelbeurt voorbereidt, zodat dezelfde ended-toestand niet tweemaal meetelt. Generatietokens negeren verouderde bestands-/decodeerresultaten; unmount ruimt context, timer en Blob-URL’s op. Bronbuffer/worklet blijven binnen hetzelfde oefenblok beschikbaar; een volgend blok krijgt een nieuwe engine. De ontwikkelproef controleert ook de effectlevenscyclus onder React StrictMode.
+
+Geluid eindigt onafhankelijk van de 50-ms-UI-timer. Die timer verwerkt de overgang naar de volgende speelbeurt; de app garandeert daarmee nog geen naadloze, sample-aansluitende overgang. Bij achtergrondvertraging kan de volgende speelbeurt later beginnen, terwijl de vorige wel op B is begrensd. Luisterbeoordeling van overgangen blijft nodig.
+
+Tijd wordt per audioklokinterval verdeeld over gepland afspelen, vrije training en expliciete pauze. Het laatste interval vóór het segment-/trackeinde wordt begrensd tot de resterende afspeelduur. Laden, terugblik en wisselen vallen buiten deze drie tellers. Deze tijdelijke telling is geen opgeslagen sessiehistorie; tijddefinitie, resultaten en herstel na afsluiten volgen bij fase 6. Er is geen databasewijziging nodig voor fase 5.

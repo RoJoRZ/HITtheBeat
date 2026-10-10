@@ -13,6 +13,9 @@ export class AudioEngine {
   private anchorPosition = 0;
   private queue: Promise<unknown> = Promise.resolve();
   private disposed = false;
+  private segmentStart = 0;
+  private segmentEnd: number | null = null;
+  get clock() { return this.context.currentTime; }
   duration = 0;
   playing = false;
   rate = 1;
@@ -29,9 +32,9 @@ export class AudioEngine {
   get position() {
     let value = this.anchorPosition + (this.playing ? (this.context.currentTime - this.anchorTime) * this.rate : 0);
     if (this.loop && value >= this.b) value = this.a + (value - this.a) % (this.b - this.a);
-    return Math.max(0, Math.min(this.duration, value));
+    return Math.max(0, Math.min(this.segmentEnd ?? this.duration, value));
   }
-  get ended() { return this.playing && !this.loop && this.position >= this.duration; }
+  get ended() { return this.playing && !this.loop && this.position >= (this.segmentEnd ?? this.duration); }
   async load(bytes: ArrayBuffer) {
     const buffer = await this.context.decodeAudioData(bytes);
     await this.loadBuffer(buffer);
@@ -68,7 +71,7 @@ export class AudioEngine {
     // Gate the output on the audio clock, including in background windows.
     this.gain.gain.cancelScheduledValues(this.anchorTime);
     this.gain.gain.setValueAtTime(this.playing ? 1 : 0, this.context.currentTime);
-    if (this.playing && !this.loop) this.gain.gain.setValueAtTime(0, this.anchorTime + (this.duration - this.anchorPosition) / this.rate);
+    if (this.playing && !this.loop) this.gain.gain.setValueAtTime(0, this.anchorTime + ((this.segmentEnd ?? this.duration) - this.anchorPosition) / this.rate);
   }
   playPause() {
     return this.serialize(async () => {
@@ -77,13 +80,13 @@ export class AudioEngine {
       this.anchorPosition = this.position;
       if (ended) this.playing = false;
       this.playing = !this.playing;
-      if (this.playing && (this.anchorPosition >= this.duration || (this.loop && (this.anchorPosition < this.a || this.anchorPosition >= this.b)))) this.anchorPosition = this.loop ? this.a : 0;
+      if (this.playing && (this.anchorPosition >= (this.segmentEnd ?? this.duration) || (this.loop && (this.anchorPosition < this.a || this.anchorPosition >= this.b)))) this.anchorPosition = this.loop ? this.a : this.segmentStart;
       await this.schedule();
     });
   }
   seek(position: number) {
     return this.serialize(async () => {
-      this.anchorPosition = Math.max(this.loop ? this.a : 0, Math.min(this.loop ? this.b - .001 : this.duration, position));
+      this.anchorPosition = Math.max(this.loop ? this.a : this.segmentStart, Math.min(this.loop ? this.b - .001 : this.segmentEnd ?? this.duration, position));
       await this.schedule();
     });
   }
@@ -93,9 +96,24 @@ export class AudioEngine {
       const ended = this.ended;
       this.anchorPosition = this.position;
       if (ended) this.playing = false;
+      this.segmentStart = 0; this.segmentEnd = null;
       this.rate = rate; this.semitones = semitones; this.a = a; this.b = b; this.loop = loop;
       if (loop && (this.anchorPosition < a || this.anchorPosition >= b)) this.anchorPosition = a;
       await this.schedule();
+    });
+  }
+  pause() {
+    return this.serialize(async () => {
+      this.anchorPosition = this.position; this.playing = false; await this.schedule();
+    });
+  }
+  playSegment(a: number, b: number, rate: number, semitones = 0, playing = true) {
+    return this.serialize(async () => {
+      validateAudioSettings(rate, semitones, a, b, this.duration);
+      if (playing) await this.context.resume();
+      this.segmentStart = a; this.segmentEnd = b;
+      this.a = a; this.b = b; this.rate = rate; this.semitones = semitones; this.loop = false;
+      this.anchorPosition = a; this.playing = playing; await this.schedule();
     });
   }
   dispose() {

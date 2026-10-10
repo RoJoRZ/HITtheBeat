@@ -327,3 +327,13 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .block-toolbar label { display: grid; gap: 6px; min-width: 260px; }
 .block-toolbar > .row-actions { margin-left: auto; }
 .routine-editor .detail-footer { flex-wrap: wrap; }
+.queue-item { min-height: 56px; display: grid; gap: 4px; background: var(--raised); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; }
+.queue-item small { color: var(--muted); }
+.round-playlist li[aria-current] .queue-item { border-color: var(--accent); background: #30291f; }
+.session-exercise-title { font-size: 24px; margin: 0; }
+.session-pass { display: flex; justify-content: space-between; gap: 20px; }
+.session-pass > span { color: var(--accent); font-weight: 700; font-size: 22px; }
+.session-transport { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+.session-times { display: flex; flex-wrap: wrap; gap: 16px 36px; color: var(--muted); }
+.session-times strong { margin-left: 8px; color: #f2f4f6; }
+.session-review .row-actions { flex-wrap: wrap; }

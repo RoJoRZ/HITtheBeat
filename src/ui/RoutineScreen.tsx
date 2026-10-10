@@ -13,7 +13,7 @@ function Numeric({ label, value, change, step = .1, min, max }: { label: string;
   return <input aria-label={label} type="number" step={step} min={min} max={max} value={Number.isFinite(value) ? value : ''} onChange={event => change(event.target.value.trim() ? event.target.valueAsNumber : NaN)} />;
 }
 
-export function RoutineScreen({ active, library }: { active: boolean; library: () => void }) {
+export function RoutineScreen({ active, library, start }: { active: boolean; library: () => void; start: (routine: Routine, exercises: Exercise[]) => void }) {
   const [items, setItems] = useState<Routine[]>([]), [exercises, setExercises] = useState<Exercise[]>([]);
   const [draft, setDraft] = useState<RoutineInput | null>(null), [dirty, setDirty] = useState(false);
   const [loading, setLoading] = useState(true), [saving, setSaving] = useState(false);
@@ -69,8 +69,8 @@ export function RoutineScreen({ active, library }: { active: boolean; library: (
         <tr><td colSpan={6}><button className="text-button" onClick={() => blockChange(block.id, { steps: [...block.steps, newStep(block.steps.at(-1)!.bpm)] })}><Plus size={17} />Stap toevoegen aan oefening {blockIndex + 1}</button></td></tr></tbody>;
       })}</table></div><div className="table-footer"><button className="secondary" disabled={!exercises.length || draft.blocks.length >= 100} onClick={() => edit({ ...draft, blocks: [...draft.blocks, newBlock(exercises[0])] })}><Plus size={18} />Oefening toevoegen aan rondje</button><span className="caption">Iedere oefening heeft hier haar eigen opbouw.</span></div></section>
       {invalid && <p role="alert" className="error">{invalid}</p>}
-      <div className="detail-footer"><span role="status">{status || (dirty ? 'Wijzigingen nog niet opgeslagen.' : 'Opgeslagen rondje')}</span><div className="row-actions">{draft.id && <button className="secondary" onClick={() => { setDeleting(true); dialog.current?.showModal(); }}>Rondje verwijderen</button>}<button className="primary" disabled={Boolean(invalid) || !dirty} onClick={() => void save()}>Rondje opslaan</button></div></div>
-      <p className="caption">Automatisch afspelen van het hele rondje volgt in de volgende fase. Toonhoogte per stap is nog een open keuze.</p>
+      <div className="detail-footer"><span role="status">{status || (dirty ? 'Wijzigingen nog niet opgeslagen.' : 'Opgeslagen rondje')}</span><div className="row-actions">{draft.id && <button className="secondary" onClick={() => { setDeleting(true); dialog.current?.showModal(); }}>Rondje verwijderen</button>}<button className="primary" disabled={Boolean(invalid) || !dirty} onClick={() => void save()}>Rondje opslaan</button><button className="primary" disabled={Boolean(invalid) || dirty || !draft.id} onClick={() => start(draft as Routine, exercises)}>Rondje starten</button></div></div>
+      <p className="caption">Sla je wijzigingen op voordat je het rondje start. Toonhoogte per stap is nog een open keuze.</p>
     </fieldset>}
     <dialog ref={dialog} className="tab-dialog" onCancel={() => { pending.current = null; }}><h2>{deleting ? 'Rondje verwijderen?' : 'Je hebt nog wijzigingen'}</h2><p>{deleting ? 'De oefeningen in je bibliotheek blijven bewaard.' : 'Sla eerst op om deze opbouw te bewaren, of verwerp je wijzigingen.'}</p><div className="row-actions"><button className="secondary" onClick={() => { pending.current = null; dialog.current?.close(); }}>Verder bewerken</button><button className="primary" onClick={async () => {
       if (deleting && draft?.id) {

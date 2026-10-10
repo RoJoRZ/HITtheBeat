@@ -5,7 +5,7 @@ import { AudioEngine, validateAudioSettings } from '../audio/engine';
 
 const time = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
 
-function NumberField({ label, value, change, disabled, step }: { label: string; value: number; change: (value: number) => void; disabled: boolean; step: number }) {
+export function NumberField({ label, value, change, disabled, step }: { label: string; value: number; change: (value: number) => void; disabled: boolean; step: number }) {
   const id = useId();
   const formatted = String(Number(value.toFixed(3)));
   const [draft, setDraft] = useState(formatted);
