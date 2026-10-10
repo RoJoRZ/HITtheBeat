@@ -2,6 +2,10 @@
 
 interface Window {
   hitthebeat?: {
+    startSession(id: string): Promise<import('./library/types').SessionRecord>;
+    listSessions(): Promise<import('./library/types').SessionRecord[]>;
+    saveSession(id: string, progress: import('./library/types').SessionProgress, status: 'running'|'stopped'|'completed'|'partial'): Promise<import('./library/types').SessionRecord>;
+    reviewSession(id: string, evaluation: import('./library/types').Evaluation): Promise<import('./library/types').SessionRecord>;
     listRoutines(): Promise<import('./library/types').Routine[]>;
     saveRoutine(input: import('./library/types').RoutineInput): Promise<import('./library/types').Routine>;
     deleteRoutine(id: string): Promise<void>;

@@ -29,6 +29,7 @@ export function RoutineScreen({ active, library, start }: { active: boolean; lib
       if (!alive) return;
       setItems(rounds); setExercises(sources);
       if (!initialized.current) { setDraft(rounds[0] ?? null); initialized.current = true; }
+      else if (!dirty) setDraft(current => current?.id ? rounds.find(item => item.id === current.id) ?? rounds[0] ?? null : current);
     }).catch(reason => { if (alive) setError(errorText(reason)); }).finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, [active]);

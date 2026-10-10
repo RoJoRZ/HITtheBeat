@@ -1,3 +1,4 @@
+import { sessionId, validateProgress, validateEvaluation } from './session-model.mjs';
 import { validateRoutine } from './routine-model.mjs';
 import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
@@ -39,7 +40,7 @@ export async function openLibrary(root) {
   const db = new DatabaseSync(path.join(root, 'library.sqlite'));
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;');
   const version = /** @type {{user_version:number}} */ (db.prepare('PRAGMA user_version').get()).user_version;
-  if (version > 2) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
+  if (version > 3) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
   if (version === 0) db.exec(`BEGIN IMMEDIATE;
     CREATE TABLE exercises (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL,
       bpm REAL NOT NULL CHECK(bpm>0), detected_bpm REAL, analysis_status TEXT NOT NULL, duration REAL NOT NULL,
@@ -54,6 +55,21 @@ export async function openLibrary(root) {
       position INTEGER NOT NULL, repetitions INTEGER NOT NULL CHECK(repetitions>0), bpm REAL NOT NULL CHECK(bpm>0),
       start REAL, end REAL) STRICT;
     PRAGMA user_version=2; COMMIT;`);
+  if (version < 3) db.exec(`BEGIN IMMEDIATE;
+    CREATE TABLE sessions (id TEXT PRIMARY KEY, started_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+      ended_at TEXT, status TEXT NOT NULL, snapshot TEXT NOT NULL, progress TEXT NOT NULL,
+      evaluations TEXT NOT NULL, routine_version TEXT NOT NULL) STRICT;
+    PRAGMA user_version=3; COMMIT;`);
+  // An unclosed run is preserved, never promoted to a completed session.
+  db.prepare("UPDATE sessions SET status='interrupted', ended_at=updated_at WHERE status='running'").run();
+  /** @param {string} id */
+  const sessionRow = id => {
+    const row = db.prepare('SELECT * FROM sessions WHERE id=?').get(sessionId(id));
+    if (!row) throw new Error('Deze sessie bestaat niet meer.');
+    return row;
+  };
+  /** @param {Record<string, any>} row */
+  const sessionFrom = row => ({ id: String(row.id), startedAt: String(row.started_at), updatedAt: String(row.updated_at), endedAt: row.ended_at, status: String(row.status), ...JSON.parse(String(row.snapshot)), progress: JSON.parse(String(row.progress)), evaluations: JSON.parse(String(row.evaluations)) });
   /** @param {Record<string, any>} row */
   const routineFrom = row => ({ id: String(row.id), title: String(row.title), updatedAt: String(row.updated_at),
     blocks: db.prepare('SELECT * FROM routine_blocks WHERE routine_id=? ORDER BY position').all(String(row.id)).map(block => ({
@@ -130,7 +146,7 @@ export async function openLibrary(root) {
       if (clean.id && !db.prepare('SELECT id FROM routines WHERE id=?').get(id)) throw new Error('Dit rondje bestaat niet meer.');
       db.exec('BEGIN IMMEDIATE;');
       try {
-        db.prepare('INSERT INTO routines VALUES (?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, updated_at=excluded.updated_at').run(id, clean.title, new Date().toISOString());
+        db.prepare('INSERT INTO routines VALUES (?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, updated_at=excluded.updated_at').run(id, clean.title, new Date(Math.max(Date.now(), Date.parse(String(db.prepare('SELECT updated_at FROM routines WHERE id=?').get(id)?.updated_at ?? '1970-01-01')) + 1)).toISOString());
         db.prepare('DELETE FROM routine_blocks WHERE routine_id=?').run(id);
         clean.blocks.forEach((block, index) => {
           db.prepare('INSERT INTO routine_blocks VALUES (?,?,?,?)').run(block.id, id, block.exerciseId, index);
@@ -142,6 +158,64 @@ export async function openLibrary(root) {
     },
     /** @param {string} id */
     deleteRoutine(id) { const result = db.prepare('DELETE FROM routines WHERE id=?').run(validId(id)); if (!result.changes) throw new Error('Dit rondje bestaat niet meer.'); },
+    /** @param {string} routineId */
+    startSession(routineId) {
+      const row = db.prepare('SELECT * FROM routines WHERE id=?').get(validId(routineId));
+      if (!row) throw new Error('Dit rondje bestaat niet meer.');
+      const routine = routineFrom(row), exercises = this.list().filter(item => routine.blocks.some(block => block.exerciseId === item.id));
+      validateRoutine(routine, exercises);
+      const id = randomUUID(), now = new Date().toISOString();
+      const progress = { seq: 0, block: 0, step: 0, repetition: 0, phase: 'ready', passes: 0, statuses: routine.blocks.map(() => 'pending'), times: { planned: 0, fragment: 0, pause: 0 }, played: [] };
+      db.prepare('INSERT INTO sessions VALUES (?,?,?,?,?,?,?,?,?)').run(id, now, now, null, 'running', JSON.stringify({ routine, exercises }), JSON.stringify(progress), '[]', routine.updatedAt);
+      return sessionFrom(sessionRow(id));
+    },
+    listSessions() { return db.prepare('SELECT * FROM sessions ORDER BY started_at DESC, id').all().map(sessionFrom); },
+    /** @param {string} id @param {import('./session-model.mjs').Progress} input @param {'running'|'stopped'|'completed'|'partial'} [status] */
+    saveSession(id, input, status = 'running') {
+      const row = sessionRow(id);
+      const old = JSON.parse(String(row.progress));
+      if (!['running','stopped','completed','partial'].includes(status)) throw new Error('Ongeldige sessiestatus.');
+      if (row.status !== 'running') return sessionFrom(row);
+      const progress = validateProgress(input, JSON.parse(String(row.snapshot)));
+      if (progress.seq <= old.seq) return sessionFrom(row);
+      if (progress.passes < old.passes || ['planned','fragment','pause'].some(key => progress.times[/** @type {keyof typeof progress.times} */ (key)] < old.times[key] - 1e-6)) throw new Error('Sessieresultaten mogen niet teruglopen.');
+      if ((status === 'completed' || status === 'partial') && (progress.phase !== 'complete' || progress.statuses.includes('pending') || (status === 'completed' && progress.statuses.includes('skipped')) || (status === 'partial' && !progress.statuses.includes('skipped')))) throw new Error('Dit rondje is nog niet volledig doorlopen.');
+      const now = new Date().toISOString();
+      db.prepare('UPDATE sessions SET progress=?, status=?, updated_at=?, ended_at=? WHERE id=?').run(JSON.stringify(progress), status, now, status === 'running' ? null : now, id);
+      return sessionFrom(sessionRow(id));
+    },
+    /** Save evaluation and its future tempo adjustment atomically, once per ID.
+     * @param {string} id @param {import('./session-model.mjs').Evaluation} input */
+    reviewSession(id, input) {
+      const row = sessionRow(id), evaluations = JSON.parse(String(row.evaluations));
+      sessionId(input?.id);
+      if (evaluations.some((/** @type {{id:string}} */ item) => item.id === input.id)) return sessionFrom(row);
+      if (row.status !== 'running') throw new Error('Deze sessie is al afgesloten.');
+      const snapshot = JSON.parse(String(row.snapshot)), progress = JSON.parse(String(row.progress));
+      const evaluation = validateEvaluation(input, snapshot, progress);
+      db.exec('BEGIN IMMEDIATE;');
+      try {
+        let routineVersion = String(row.routine_version);
+        if (evaluation.delta !== 0) {
+          const saved = db.prepare('SELECT * FROM routines WHERE id=?').get(snapshot.routine.id);
+          if (!saved || saved.updated_at !== routineVersion) throw new Error('Het rondje is intussen gewijzigd. Bewaar deze evaluatie zonder BPM-aanpassing en pas het rondje daarna aan in de editor.');
+          const routine = routineFrom(saved);
+          const block = routine.blocks.find(item => item.id === snapshot.routine.blocks[evaluation.block].id);
+          if (!block) throw new Error('Deze oefening staat niet meer in het rondje.');
+          block.steps = block.steps.map(step => ({ ...step, bpm: Math.round((step.bpm + evaluation.delta) * 1000000) / 1000000 }));
+          validateRoutine(routine, this.list());
+          // Monotonic version even when two saves happen in the same millisecond.
+          routineVersion = new Date(Math.max(Date.now(), Date.parse(routineVersion) + 1)).toISOString();
+          db.prepare('UPDATE routines SET updated_at=? WHERE id=?').run(routineVersion, routine.id);
+          block.steps.forEach(step => db.prepare('UPDATE routine_steps SET bpm=? WHERE id=? AND block_id=?').run(step.bpm, step.id, block.id));
+        }
+        const savedEvaluation = { ...evaluation, savedAt: new Date().toISOString() };
+        db.prepare('UPDATE sessions SET evaluations=?, routine_version=?, updated_at=? WHERE id=?').run(JSON.stringify([...evaluations, savedEvaluation]), routineVersion, savedEvaluation.savedAt, id);
+        db.exec('COMMIT;');
+      } catch (error) { db.exec('ROLLBACK;'); throw error; }
+      return sessionFrom(sessionRow(id));
+    },
+    interruptSessions() { db.prepare("UPDATE sessions SET status='interrupted', ended_at=updated_at WHERE status='running'").run(); },
     close() { db.close(); },
   };
 }

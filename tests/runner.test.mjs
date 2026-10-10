@@ -37,3 +37,29 @@ test('restart does not complete a pass, skip is distinct from completion and sna
   run = advance(restarted, 'skip'); assert.equal(run.block, 1); assert.equal(run.statuses[0], 'skipped');
   run = advance(run, 'skip'); assert.equal(run.phase, 'complete'); assert.equal(run.passes, 0); assert.deepEqual(run.statuses, ['skipped','skipped']);
 });
+
+test('a review occurs at a new fragment, tempo-only steps form one series, repeat restarts only that series', () => {
+  const custom = structuredClone(routine);
+  custom.blocks[0].steps = [
+    ...steps,
+    { ...steps[0], id: randomUUID(), start: 30, end: 40 },
+    { ...steps[0], id: randomUUID(), start: 30, end: 40, bpm: 90 },
+  ];
+  let run = advance(createRun(custom, [exercise]), 'play');
+  for (let i = 0; i < 4; i++) run = advance(run, 'ended');
+  assert.equal(run.phase, 'review'); assert.equal(run.step, 2); assert.equal(run.statuses[0], 'pending');
+  const remaining = remainingSeconds(run);
+  assert.ok(Math.abs(remaining - (10 * 120 / 75 + 10 * 120 / 90 + 10 * 120 / 60)) < 1e-8);
+  run = advance(run, 'next'); assert.equal(run.step, 3);
+  run = advance(advance(run, 'ended'), 'ended'); assert.equal(run.phase, 'review');
+  run = advance(run, 'repeat'); assert.equal(run.step, 3); assert.equal(run.passes, 6);
+  run = advance(advance(run, 'ended'), 'ended');
+  run = advance(run, 'next'); assert.equal(run.block, 1); assert.equal(run.step, 0);
+});
+
+test('explicit full-range fragment and full track are the same series', () => {
+  const custom = structuredClone(routine);
+  custom.blocks[0].steps = [{ ...steps[0], start: null, end: null }, { ...steps[1], start: 0, end: 60 }];
+  let run = advance(createRun(custom, [exercise]), 'play');
+  run = advance(run, 'ended'); assert.equal(run.phase, 'playing'); assert.equal(run.step, 1);
+});

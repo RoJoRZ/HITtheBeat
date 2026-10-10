@@ -11,6 +11,7 @@ const development = !app.isPackaged && process.env.HITTHEBEAT_DEV === '1';
 const entryUrl = development ? 'http://127.0.0.1:5173/' : productionUrl;
 /** @type {BrowserWindow | null} */
 let window = null;
+let interruptSessions = () => {};
 
 protocol.registerSchemesAsPrivileged([
   { scheme: 'hitthebeat', privileges: { standard: true, secure: true, supportFetchAPI: true } },
@@ -44,7 +45,7 @@ async function createWindow() {
   current.webContents.on('will-navigate', (event, destination) => {
     if (destination !== entryUrl) event.preventDefault();
   });
-  current.on('closed', () => { if (window === current) window = null; });
+  current.on('closed', () => { if (window === current) { window = null; interruptSessions(); } });
   await current.loadURL(entryUrl);
   current.show();
 }
@@ -62,7 +63,8 @@ app.whenReady().then(async () => {
     }
   });
   const library = await openLibrary(path.join(app.getPath('userData'), 'library'));
-  app.on('will-quit', () => library.close());
+  interruptSessions = () => library.interruptSessions();
+  app.on('will-quit', () => { interruptSessions(); library.close(); });
   /** @param {Electron.IpcMainInvokeEvent} event */
   function authorize(event) {
     if (!window || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame || event.senderFrame.url !== entryUrl) {
@@ -70,6 +72,10 @@ app.whenReady().then(async () => {
     }
   }
   ipcMain.handle('app:info', event => { authorize(event); return { version: app.getVersion(), platform: process.platform }; });
+  ipcMain.handle('sessions:start', (event, id) => { authorize(event); return library.startSession(id); });
+  ipcMain.handle('sessions:list', event => { authorize(event); return library.listSessions(); });
+  ipcMain.handle('sessions:save', (event, id, progress, status) => { authorize(event); return library.saveSession(id, progress, status); });
+  ipcMain.handle('sessions:review', (event, id, evaluation) => { authorize(event); return library.reviewSession(id, evaluation); });
   ipcMain.handle('routines:list', event => { authorize(event); return library.listRoutines(); });
   ipcMain.handle('routines:save', (event, input) => { authorize(event); return library.saveRoutine(input); });
   ipcMain.handle('routines:delete', (event, id) => { authorize(event); return library.deleteRoutine(id); });

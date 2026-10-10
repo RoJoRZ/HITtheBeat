@@ -14,6 +14,17 @@ export function current(run: Run) {
   const block = run.routine.blocks[run.block], step = block.steps[run.step];
   return { block, step, exercise: run.exercises.find(item => item.id === block.exerciseId)! };
 }
+export function sameFragment(run: Run, a: number, b: number) {
+  const { block, exercise } = current(run), first = block.steps[a], second = block.steps[b];
+  return (first.start ?? 0) === (second.start ?? 0) && (first.end ?? exercise.duration) === (second.end ?? exercise.duration);
+}
+export function series(run: Run) {
+  let start = run.step, end = run.step;
+  const { block } = current(run);
+  while (start > 0 && sameFragment(run, start - 1, run.step)) start--;
+  while (end + 1 < block.steps.length && sameFragment(run, end + 1, run.step)) end++;
+  return { start, end };
+}
 export type Action = 'play' | 'pause' | 'ended' | 'restart' | 'fragment' | 'return' | 'next' | 'skip' | 'repeat';
 export function advance(run: Run, action: Action): Run {
   const { block, step } = current(run);
@@ -25,11 +36,12 @@ export function advance(run: Run, action: Action): Run {
   if (action === 'ended' && run.phase === 'playing') {
     const next = { ...run, passes: run.passes + 1, revision: run.revision + 1 };
     if (run.repetition + 1 < step.repetitions) return { ...next, repetition: run.repetition + 1 };
-    if (run.step + 1 < block.steps.length) return { ...next, step: run.step + 1, repetition: 0 };
+    if (run.step + 1 < block.steps.length) return sameFragment(run, run.step, run.step + 1) ? { ...next, step: run.step + 1, repetition: 0 } : { ...next, phase: 'review' };
     return { ...next, phase: 'review', statuses: run.statuses.map((status, index) => index === run.block ? 'completed' : status) };
   }
-  if (action === 'repeat' && run.phase === 'review') return { ...run, step: 0, repetition: 0, phase: 'playing', revision: run.revision + 1, statuses: run.statuses.map((status, index) => index === run.block ? 'pending' : status) };
+  if (action === 'repeat' && run.phase === 'review') return { ...run, step: series(run).start, repetition: 0, phase: 'playing', revision: run.revision + 1, statuses: run.statuses.map((status, index) => index === run.block ? 'pending' : status) };
   if ((action === 'next' && run.phase === 'review') || (action === 'skip' && ['ready', 'playing', 'paused'].includes(run.phase))) {
+    if (action === 'next' && run.step + 1 < block.steps.length) return { ...run, step: run.step + 1, repetition: 0, phase: 'playing', revision: run.revision + 1 };
     const statuses = run.statuses.map((status, index) => index === run.block && action === 'skip' ? 'skipped' as const : status);
     return { ...run, block: Math.min(run.block + 1, run.routine.blocks.length - 1), step: 0, repetition: 0, phase: run.block + 1 === run.routine.blocks.length ? 'complete' : 'playing', revision: run.revision + 1, statuses };
   }
@@ -39,9 +51,9 @@ export function remainingSeconds(run: Run, position = 0) {
   if (run.phase === 'complete') return 0;
   let total = 0;
   for (let b = run.block; b < run.routine.blocks.length; b++) {
-    if (b === run.block && run.phase === 'review') continue;
+    if (b === run.block && run.phase === 'review' && run.step + 1 === current(run).block.steps.length) continue;
     const block = run.routine.blocks[b], exercise = run.exercises.find(item => item.id === block.exerciseId)!;
-    for (let s = b === run.block ? run.step : 0; s < block.steps.length; s++) {
+    for (let s = b === run.block ? run.step + (run.phase === 'review' ? 1 : 0) : 0; s < block.steps.length; s++) {
       const step = block.steps[s];
       if (b === run.block && s === run.step) {
         total += plannedSeconds({ ...step, repetitions: step.repetitions - run.repetition }, exercise);

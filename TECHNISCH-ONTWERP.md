@@ -154,3 +154,16 @@ Het zuivere module `electron/routine-model.mjs` wordt zowel door de renderer als
 Geluid eindigt onafhankelijk van de 50-ms-UI-timer. Die timer verwerkt de overgang naar de volgende speelbeurt; de app garandeert daarmee nog geen naadloze, sample-aansluitende overgang. Bij achtergrondvertraging kan de volgende speelbeurt later beginnen, terwijl de vorige wel op B is begrensd. Luisterbeoordeling van overgangen blijft nodig.
 
 Tijd wordt per audioklokinterval verdeeld over gepland afspelen, vrije training en expliciete pauze. Het laatste interval vóór het segment-/trackeinde wordt begrensd tot de resterende afspeelduur. Laden, terugblik en wisselen vallen buiten deze drie tellers. Deze tijdelijke telling is geen opgeslagen sessiehistorie; tijddefinitie, resultaten en herstel na afsluiten volgen bij fase 6. Er is geen databasewijziging nodig voor fase 5.
+
+
+## 15. Fase 6 — Fragmentseries en sessiehistorie
+
+De runner groepeert aaneengesloten stappen op genormaliseerde A/B-grenzen binnen één oefenblok. Een volledige track en een expliciet fragment 0–trackduur vormen dezelfde serie. Na de laatste herhaling van de serie volgt `review`; alleen bij de laatste serie krijgt het oefenblok de status completed. Herhalen start bij de eerste stap van die serie; Verder start de volgende serie of het volgende oefenblok.
+
+SQLite schema 3 voegt `sessions` toe zonder oefeningen of rondjes te vervangen. Iedere sessie bevat een vaste JSON-momentopname van rondje en gebruikte oefeningen, een voortgangscheckpoint, evaluaties en de verwachte versie van het toekomstige rondje. Afgespeelde tijd en afgeronde speelbeurten worden geaggregeerd per oefenblok, stap, modus, A/B, BPM en toonhoogte. Hierdoor blijft vrije training herkenbaar en worden gedeeltelijk gespeelde stukken niet als afgeronde herhalingen voorgesteld.
+
+De geïsoleerde preload biedt start/list/save/review voor sessies; de main-framecontrole blijft van toepassing. Het hoofdproces valideert de gegevens en afspeelcontext tegen de vaste momentopname. Checkpoints krijgen oplopende volgordenummers en worden in de renderer in volgorde verzonden. Verouderde berichten worden genegeerd; afgesloten sessies worden niet opnieuw geopend. Controles bewaken tellers, totalen en grenzen.
+
+Een evaluatie heeft een UUID. Evaluatie en BPM-aanpassing worden in één SQLite-transactie opgeslagen, met een controle op de opgeslagen rondjeversie. Een identieke evaluatie-ID wordt slechts één keer verwerkt. De BPM-aanpassing werkt op het bedoelde blok en valideert de hele resulterende opbouw. De snapshot van de lopende sessie verandert niet. Een schone editor ververst zijn opgeslagen rondje bij terugkeer; niet-opgeslagen concepten blijven bewaard.
+
+De speler schrijft iedere seconde en bij overgangen een checkpoint. Normaal stoppen wacht op bewaren. Bij venstersluiten of opnieuw openen worden nog actieve records als interrupted aangemerkt. Dit is historieherstel tot het laatste checkpoint, geen garantie op het allerlaatste audio-interval en geen hervatting van de afspeelpositie. Tijd wordt gemeten via de audioklok; evaluatie en laden vallen buiten de oefentijd. Het dashboard met grafieken is fase 7.

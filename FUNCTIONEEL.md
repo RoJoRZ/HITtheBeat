@@ -68,7 +68,7 @@ Een oefenrondje kan via een bewerkbare tabel worden ingevoerd. Iedere rij beschr
 
 Voorstel: voeg een kolom toe voor de toonhoogteverschuiving per stap, uitgedrukt in halve tonen, met standaardwaarde 0 (oorspronkelijke toonhoogte). Hiermee kan dezelfde oefening in verschillende stappen ook een andere toonhoogte hebben. Deze keuze is nog niet definitief vastgesteld.
 
-Rijen voor dezelfde oefening vormen samen de tempo-opbouw; de evaluatie volgt na de laatste stap van die oefening. De precieze weergave van deze groepering wordt nog uitgewerkt.
+Rijen binnen één oefenblok vormen samen de tempo-opbouw. Aaneengesloten rijen met hetzelfde fragment vormen één serie; de evaluatie volgt na alle tempo’s en herhalingen van die serie. Bij wisselen van fragment of oefening volgt dus een evaluatie, bij alleen een BPM-wissel niet.
 
 ### 4.3 Geplande duur
 
@@ -90,7 +90,7 @@ De speler toont:
 - De huidige speelbeurt en het aantal speelbeurten, bijvoorbeeld ‘Speelbeurt 3 van 4 · 95 BPM’.
 - De resterende geplande oefentijd.
 
-De muzikant kan starten, pauzeren, hervatten, de huidige speelbeurt opnieuw beginnen en een oefening overslaan. Na het voltooien van een oefening volgt een korte evaluatie voordat de volgende oefening begint.
+De muzikant kan starten, pauzeren, hervatten, de huidige speelbeurt opnieuw beginnen en een oefening overslaan. Na een fragmentserie volgt een korte evaluatie voordat een ander fragment of de volgende oefening begint.
 
 Het speelscherm geeft vooral ruimte aan de speler en de tablatuur of bladmuziek. De geschreven opdracht en aandachtspunten staan in een eigen, duidelijk leesbaar tekstvak bij de oefening. Voorstel voor de schermopbouw: een groot tablatuurvlak met de opdracht ernaast en een brede speler eronder. De tabel voor het samenstellen van een rondje hoort bij de editor en neemt geen prominente ruimte in het speelscherm in.
 
@@ -122,11 +122,13 @@ Dit staat los van het tijdelijk onderbreken voor vrije fragmenttraining.
 
 ## 7. Korte evaluatie
 
-Na iedere oefening kan de muzikant aangeven wat er nu of de volgende keer moet gebeuren:
+Na iedere fragmentserie volgt een korte evaluatie. Een serie bestaat uit de aaneengesloten stappen met hetzelfde fragment binnen één oefenblok, inclusief alle ingestelde tempo’s en herhalingen. Alleen een BPM-wissel onderbreekt die serie niet. Bij een ander fragment of de volgende oefening stopt de speler voor de evaluatie. Ook na de laatste serie volgt een evaluatie voordat het rondje wordt afgerond.
+
+De muzikant kan aangeven wat er nu of de volgende keer moet gebeuren:
 
 | Actie | Gedrag |
 | --- | --- |
-| Nog een keer | Dezelfde oefening met dezelfde opbouw direct opnieuw uitvoeren. |
+| Nog een keer | De zojuist gespeelde fragmentserie met dezelfde opbouw direct opnieuw uitvoeren. |
 | Volgende keer hetzelfde | De huidige opbouw behouden. |
 | Volgende keer sneller | De opbouw voor de volgende sessie verhogen met een gekozen aantal BPM. |
 | Volgende keer rustiger | De opbouw voor de volgende sessie verlagen met een gekozen aantal BPM. |
@@ -135,9 +137,9 @@ Na iedere oefening kan de muzikant aangeven wat er nu of de volgende keer moet g
 
 Vastgesteld: een tempoverhoging of -verlaging geldt voor één gekozen oefenblok binnen het gebruikte rondje. Alle stappen en herhalingen van dat blok verschuiven met hetzelfde aantal BPM. Bijvoorbeeld: +5 BPM maakt 75/95/85 BPM tot 80/100/90 BPM. De overige oefeningen van dit rondje en dezelfde oefening in andere rondjes veranderen niet. Voor het opslaan toont de tool de nieuwe opbouw ter bevestiging, bijvoorbeeld ‘75 → 80 · 95 → 100 · 85 → 90 BPM’.
 
-Voorstel voor een korte beoordeling: **Nog lastig · Ging goed · Voelt vertrouwd**, met een optionele notitie. Zo kan de voortgang onderscheid maken tussen een tempo spelen en dat tempo beheersen. De exacte evaluatiekeuzes worden nog definitief vastgesteld.
+Voorstel voor een korte beoordeling: **Nog lastig · Ging goed · Voelt vertrouwd**, met een optionele notitie. Zo kan de voortgang onderscheid maken tussen een tempo spelen en dat tempo beheersen. Deze aanvullende beoordelingslabels blijven een open keuze; de acties en het evaluatiemoment zijn vastgesteld.
 
-Evaluatiepauzes tellen niet mee als werkelijk geoefende tijd. De gebruiker wil een evaluatie tussen series, bij het wisselen van fragment. Nog af te stemmen: dit betekent een evaluatie na alle tempo’s en herhalingen van hetzelfde fragment, of na iedere tabelrij afzonderlijk. Deze wijziging wordt pas in de speler verwerkt zodra dit onderscheid is verduidelijkt.
+Vastgesteld: evaluatiepauzes tellen niet mee als werkelijk geoefende tijd. De gebruiker heeft bevestigd dat de evaluatie volgt na alle tempo’s en herhalingen van hetzelfde fragment, bij de overgang naar een ander fragment of een volgende oefening.
 
 ## 8. Voortgang en motiverend dashboard
 
@@ -175,7 +177,7 @@ Mogelijke latere uitbreidingen zijn labels voor oefeningen, rondjes samenstellen
 - Toonhoogteverschuiving per tabelrij en de groepering van stappen in de tabel.
 - De definitieve toetsindeling en het precieze gedrag van terug naar het begin.
 - Pauzes en aftellen voor speelbeurten.
-- De definitieve evaluatiekeuzes en de manier waarop een BPM-wijziging op meerdere stappen wordt toegepast.
+- Eventuele aanvullende beoordelingslabels naast de evaluatieacties; het moment van evalueren en de BPM-aanpassing per oefenblok zijn vastgesteld.
 - De concrete presentatie en vergelijkingen in het dashboard.
 
 Deze punten worden functioneel uitgewerkt voordat ze als definitieve eisen worden behandeld.
@@ -245,3 +247,18 @@ De resterende geplande tijd omvat de nog te spelen herhalingen. In vrije trainin
 Voorlopige toetsen blijven spatie voor afspelen/pauzeren en 1 voor het begin van de actuele herhaling, of A bij een vrije loop. Invoervelden, knoppen en dialogen houden hun eigen toetsenbediening. Navigeren uit een lopend rondje vraagt bevestiging en pauzeert de speler; ‘Verder oefenen’ behoudt de sessie gepauzeerd. Stoppen behoudt het opgeslagen rondje. Sessies worden nog niet hersteld na sluiten van venster of app.
 
 Er is in deze proef geen aftellen en geen ingestelde extra pauze tussen speelbeurten. Korte technische overgangen kunnen voorkomen. Toonhoogte per geplande tabelrij, definitieve toetskeuzes, pauzes/aftellen en evaluatieopslag blijven open. De vrije toonhoogtebediening beslist de keuze voor toonhoogte per tabelrij niet.
+
+
+## 16. Fase 6 — Evaluatie en bewaarde sessies (v0.0.7)
+
+De gebruiker heeft de rondjespeler in gebruik getest en opdracht gegeven verder te gaan. De evaluatie verschijnt aan het einde van iedere fragmentserie, zoals beschreven in hoofdstuk 7. ‘Deze serie opnieuw’ herhaalt alleen die serie, met de oorspronkelijke instellingen. ‘Hetzelfde’, ‘Sneller’ en ‘Rustiger’ bepalen de opbouw voor een volgende sessie. Een optionele notitie wordt bij deze serie bewaard. De voorgestelde aanvullende beoordelingslabels blijven een open keuze en zijn nog niet toegevoegd.
+
+Een BPM-aanpassing verschuift alle stappen van dit ene oefenblok binnen dit rondje, inclusief andere fragmenten van datzelfde blok. De speler toont alle oude en nieuwe BPM-waarden vóór bewaren. Andere oefenblokken, ook met dezelfde bibliotheekoefening, en andere rondjes blijven ongewijzigd. De lopende sessie blijft de oorspronkelijke opbouw spelen. Meerdere aanpassingen binnen één sessie tellen op voor de volgende sessie; een directe herhaling veroorzaakt geen tempoaanpassing. Een aanpassing buiten 25–300% wordt geweigerd; er wordt niet stilzwijgend afgeroomd op de grens. Bij een intussen gewijzigd rondje verschijnt een fout en blijft de evaluatie open; bewaren zonder BPM-aanpassing is dan mogelijk.
+
+Werkelijk geoefende tijd is afgespeelde tijd in het rondje plus vrije fragmenttraining. Pauzes, laden, evalueren en wisselen tellen niet mee. Opnieuw afgespeelde stukken tellen als extra oefentijd. Pauze wordt afzonderlijk getoond. Vrije training bewaart haar eigen fragment, BPM en toonhoogte en telt niet als afgeronde geplande speelbeurten.
+
+Bij Voortgang staat nu een sessiehistorie met datum, rondje, status, oefentijd, gespeelde instellingen, aantallen afgeronde speelbeurten, evaluaties en notities. De gegevens zijn momentopnamen: later bewerken of verwijderen van een rondje verandert oude resultaten niet. Grafieken en vergelijkingen volgen in fase 7.
+
+Ook eerder stoppen bewaart resultaten, herkenbaar als ‘Gestopt’. Een doorlopen rondje met overgeslagen oefeningen is niet volledig afgerond en krijgt een eigen status. Afsluiten van het venster of een onverwachte onderbreking bewaart de laatst opgeslagen voortgang als ‘Onderbroken bij afsluiten’. Er zijn periodieke opslagmomenten van één seconde en extra opslag bij overgangen; het laatste onopgeslagen stukje kan bij afsluiten verloren gaan. Een onderbroken sessie kan in deze fase niet op haar oude afspeelpositie worden hervat. Een rondje starten maakt een nieuwe sessie.
+
+Bewaren van evaluatie en toekomstige tempo-opbouw gebeurt samen. Herhaald klikken of opnieuw proberen met dezelfde evaluatie veroorzaakt geen dubbele aanpassing. Bij een opslagfout blijft de speler beschikbaar om opnieuw te proberen; bewust stoppen verlaat de speler pas nadat bewaren is gelukt.

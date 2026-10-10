@@ -147,3 +147,10 @@ Een gestart rondje heeft een rustige spelermodus met de rondjenaam, een compacte
 Tablatuur en opdracht staan boven de brede speler. Stap/herhaling, BPM en oorspronkelijk fragment blijven zichtbaar. De primaire transportknop bedient afspelen/pauzeren. Fragmenttraining heeft een duidelijke eigen titel en een vaste actie ‘Terug naar rondje’; extra A/B-, tempo- en toonhoogtevelden verschijnen alleen in die vrije modus. Het rondje-overzicht blijft daarbij in beeld.
 
 Na ieder oefenblok verschijnt een rustige terugblik met ‘Deze oefening opnieuw’ en ‘Verder’. Dit is herkenbaar tijdelijk, zonder fictief opgeslagen evaluatieresultaat. De tijdstrook onderscheidt rondje-afspelen, vrije training en pauze. Navigatie uit een onvoltooid rondje toont een bevestigingsdialoog en laat de sessie bij annuleren gepauzeerd beschikbaar.
+
+
+## Fase 6: evaluatie en sessiehistorie
+
+De evaluatie staat in het bestaande spelerpaneel, na de gehele fragmentserie. Toon de oefennaam, stapnummers en fragmentgrenzen; bied dezelfde serie opnieuw of Verder aan. De keuze Hetzelfde/Sneller/Rustiger, BPM-aanpassing, zichtbare voor/na-opbouw en optionele notitie staan bij elkaar. Benoem expliciet dat een wijziging voor de volgende sessie en voor de hele gekozen oefening geldt. Behoud Studio donker en Mandarijn.
+
+Voortgang toont in deze fase rustige kaarten met echte sessiehistorie. Iedere kaart heeft datum, rondje, een expliciete status en werkelijk geoefende tijd. Fragmenten, tempo’s, toonhoogte, afgeronde speelbeurten en evaluaties zijn uitklapbaar. Gestopt, onderbroken en overgeslagen mogen niet de indruk van een volledig afgerond rondje geven. Grafieken volgen in fase 7.

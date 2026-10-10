@@ -26,7 +26,7 @@ test('real routine restores interrupted pass, plays repeats in order and advance
       for (const title of ['Wisselslag', 'Akkoorden']) sources.push(await window.hitthebeat!.saveExercise({ title, description: 'Speel ontspannen. Let op de timing.', bpm: 120, detectedBpm: null, analysisStatus: 'unavailable', duration: 6, audio: { name: `${title}.mp3`, bytes: new Uint8Array(bytes) }, image: title === 'Wisselslag' ? image : undefined }));
       const step = (bpm: number, repetitions = 1, end = .6) => ({ id: crypto.randomUUID(), bpm, repetitions, start: .2, end });
       await window.hitthebeat!.saveRoutine({ title: 'Mijn hele rondje', blocks: [
-        { id: crypto.randomUUID(), exerciseId: sources[0].id, steps: [step(75), step(95, 2, 2.2), step(85)] },
+        { id: crypto.randomUUID(), exerciseId: sources[0].id, steps: [step(75, 1, 2.2), step(95, 2, 2.2), step(85, 1, 2.2)] },
         { id: crypto.randomUUID(), exerciseId: sources[1].id, steps: [step(120, 1, 2.2)] },
       ] });
     }, [...track()]);
@@ -77,6 +77,11 @@ test('real routine restores interrupted pass, plays repeats in order and advance
     await page.getByRole('button', { name: 'Rondje afronden', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Rondje afgerond', exact: true })).toBeVisible();
     await expect(page.getByText('5 speelbeurten afgerond. 0 oefeningen overgeslagen.')).toBeVisible();
+    await expect(page.getByText('Je resultaten zijn bewaard bij Voortgang.', { exact: true })).toBeVisible();
+    const history = await page.evaluate(async () => (await window.hitthebeat!.listSessions())[0]);
+    expect(history.status).toBe('completed'); expect(history.progress.passes).toBe(5);
+    expect(history.progress.played.some(item => item.mode === 'fragment' && item.a === .4 && item.b === .9 && item.bpm === 60 && item.pitch === 3 && item.seconds > .5 && item.completed === 0)).toBe(true);
+    expect(history.progress.times.planned + history.progress.times.fragment).toBeGreaterThan(history.progress.times.planned);
     await page.getByRole('button', { name: 'Terug naar mijn rondjes', exact: true }).click();
     await expect(page.getByLabel('Naam van het rondje')).toHaveValue('Mijn hele rondje');
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();

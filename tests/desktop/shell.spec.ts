@@ -17,7 +17,7 @@ test('desktop loads offline, exposes only its narrow bridge, navigates and reope
         await page.context().setOffline(true);
         await page.reload();
         await expect(page.getByRole('heading', { name: 'Mijn oefenrondjes', exact: true })).toBeVisible();
-        await expect(page.getByText('HITtheBeat · v0.0.6')).toBeVisible();
+        await expect(page.getByText('HITtheBeat · v0.0.7')).toBeVisible();
         await page.getByRole('button', { name: 'Eigen bibliotheek bekijken' }).click();
         await expect(page.getByRole('button', { name: 'Oefenrondje maken' })).toBeDisabled();
         expect(await page.evaluate(() => typeof (window as unknown as { require?: unknown }).require)).toBe('undefined');

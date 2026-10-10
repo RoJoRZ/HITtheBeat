@@ -2,6 +2,10 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // Only this narrow API crosses the isolated renderer boundary.
 contextBridge.exposeInMainWorld('hitthebeat', Object.freeze({
+  startSession: (/** @type {string} */ id) => ipcRenderer.invoke('sessions:start', id),
+  listSessions: () => ipcRenderer.invoke('sessions:list'),
+  saveSession: (/** @type {string} */ id, /** @type {import('./session-model.mjs').Progress} */ progress, /** @type {string} */ status) => ipcRenderer.invoke('sessions:save', id, progress, status),
+  reviewSession: (/** @type {string} */ id, /** @type {import('./session-model.mjs').Evaluation} */ evaluation) => ipcRenderer.invoke('sessions:review', id, evaluation),
   listRoutines: () => ipcRenderer.invoke('routines:list'),
   saveRoutine: (/** @type {import('./routine-model.mjs').RoutineInput} */ input) => ipcRenderer.invoke('routines:save', input),
   deleteRoutine: (/** @type {string} */ id) => ipcRenderer.invoke('routines:delete', id),

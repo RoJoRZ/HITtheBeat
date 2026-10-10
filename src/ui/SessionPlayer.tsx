@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { Play, Pause, RotateCcw, Expand, X } from 'lucide-react';
 import { AudioEngine, validateAudioSettings } from '../audio/engine';
-import { advance, createRun, current, remainingSeconds, type Run } from '../session/runner';
-import type { Exercise, Routine } from '../library/types';
+import { advance, createRun, current, remainingSeconds, series, type Run } from '../session/runner';
+import type { Exercise, SessionRecord, Played, SessionProgress, Evaluation } from '../library/types';
 import { NumberField } from './AudioLab';
 import { durationLabel } from './controls';
 const readable = (reason: unknown) => (reason instanceof Error ? reason.message : 'Afspelen is niet gelukt.').replace(/^Error invoking remote method '[^']+': (?:Error: )?/, '');
@@ -25,7 +25,8 @@ function Notation({ item }: { item: Exercise }) {
   </div>;
 }
 
-export function SessionPlayer({ routine, exercises, active, leave, finished }: { routine: Routine; exercises: Exercise[]; active: boolean; leave: () => void; finished: () => void }) {
+export function SessionPlayer({ session, active, leave, finished, stopRef }: { session: SessionRecord; active: boolean; leave: () => void; finished: () => void; stopRef: MutableRefObject<(() => Promise<void>) | null> }) {
+  const { routine, exercises } = session;
   const [run, setRun] = useState(() => createRun(routine, exercises));
   const state = useRef(run), audioRef = useRef<AudioEngine | null>(null), assetId = useRef('');
   const activeRef = useRef(active); activeRef.current = active;
@@ -35,17 +36,48 @@ export function SessionPlayer({ routine, exercises, active, leave, finished }: {
   const [free, setFree] = useState<Free>({ a: 0, b: 1, bpm: 90, pitch: 0, loop: true });
   const freeRef = useRef(free), [freePlaying, setFreePlaying] = useState(false);
   const totals = useRef<Totals>({ planned: 0, fragment: 0, pause: 0 }), [times, setTimes] = useState(totals.current);
-  const last = useRef<{ audio: AudioEngine; clock: number; bucket: keyof Totals | null; remaining: number } | null>(null);
+  const last = useRef<{ audio: AudioEngine; clock: number; bucket: keyof Totals | null; remaining: number; settings: Omit<Played, 'seconds'|'completed'> } | null>(null);
+  const played = useRef<Played[]>([]), sequence = useRef(0), saving = useRef<Promise<unknown>>(Promise.resolve());
+  const [reviewError, setReviewError] = useState('');
+  const [saveError, setSaveError] = useState(''), [evaluations, setEvaluations] = useState<Evaluation[]>([]);
+  const [choice, setChoice] = useState<'same'|'faster'|'slower'>('same'), [delta, setDelta] = useState(5), [note, setNote] = useState('');
+  const evaluationId = useRef(crypto.randomUUID());
   const { exercise, step, block } = current(run);
+  function entry(settings: Omit<Played, 'seconds'|'completed'>) {
+    let item = played.current.find(item => item.mode === settings.mode && item.block === settings.block && item.step === settings.step && item.a === settings.a && item.b === settings.b && item.bpm === settings.bpm && item.pitch === settings.pitch);
+    if (!item) { item = { ...settings, seconds: 0, completed: 0 }; played.current.push(item); }
+    return item;
+  }
+  function settings(snapshot: Run, audio: AudioEngine): Omit<Played, 'seconds'|'completed'> {
+    const selection = current(snapshot), isFree = snapshot.phase === 'fragment';
+    return { mode: isFree ? 'fragment' : 'planned', block: snapshot.block, step: snapshot.step, a: isFree ? freeRef.current.loop ? freeRef.current.a : 0 : selection.step.start ?? 0, b: isFree ? freeRef.current.loop ? freeRef.current.b : selection.exercise.duration : selection.step.end ?? selection.exercise.duration, bpm: isFree ? freeRef.current.bpm : selection.step.bpm, pitch: isFree ? freeRef.current.pitch : 0 };
+  }
+  function persist(status: 'running'|'stopped'|'completed'|'partial' = 'running') {
+    measure();
+    const snapshot = state.current;
+    const progress: SessionProgress = { seq: ++sequence.current, block: snapshot.block, step: snapshot.step, repetition: snapshot.repetition, phase: snapshot.phase, passes: snapshot.passes, statuses: [...snapshot.statuses], times: { ...totals.current }, played: structuredClone(played.current) };
+    const task = saving.current.catch(() => {}).then(() => window.hitthebeat!.saveSession(session.id, progress, status));
+    saving.current = task;
+    return task.then(value => { if (alive.current) setSaveError(''); return value; }, reason => { if (alive.current) setSaveError(readable(reason)); throw reason; });
+  }
+  useEffect(() => {
+    stopRef.current = async () => { await audioRef.current?.pause(); measure(); await persist('stopped'); };
+    const timer = setInterval(() => { if (state.current.phase !== 'complete') void persist().catch(() => {}); }, 1000);
+    return () => { clearInterval(timer); stopRef.current = null; };
+  }, []);
   function commit(next: Run) { if (next.revision !== state.current.revision) { locked.current = true; setBusy(true); } state.current = next; setRun(next); }
   function measure() {
     const audio = audioRef.current; if (!audio) return;
     const before = last.current;
-    if (before?.audio === audio && before.bucket) totals.current = { ...totals.current, [before.bucket]: totals.current[before.bucket] + Math.max(0, Math.min(audio.clock - before.clock, before.remaining)) };
+    if (before?.audio === audio && before.bucket) {
+      const elapsed = Math.max(0, Math.min(audio.clock - before.clock, before.remaining));
+      totals.current = { ...totals.current, [before.bucket]: totals.current[before.bucket] + elapsed };
+      if (before.bucket !== 'pause' && elapsed > 0) entry(before.settings).seconds += elapsed;
+    }
     const snapshot = state.current, selection = current(snapshot);
     const bucket = audio.playing && !audio.ended ? snapshot.phase === 'fragment' ? 'fragment' : snapshot.phase === 'playing' ? 'planned' : null : snapshot.phase === 'paused' || snapshot.phase === 'fragment' ? 'pause' : null;
     const end = snapshot.phase === 'fragment' ? audio.duration : selection.step.end ?? audio.duration;
-    last.current = { audio, clock: audio.clock, bucket, remaining: bucket === 'pause' || audio.loop ? Infinity : Math.max(0, (end - audio.position) / audio.rate) };
+    last.current = { audio, clock: audio.clock, bucket, remaining: bucket === 'pause' || audio.loop ? Infinity : Math.max(0, (end - audio.position) / audio.rate), settings: settings(snapshot, audio) };
     setTimes(totals.current);
   }
   useEffect(() => {
@@ -53,14 +85,19 @@ export function SessionPlayer({ routine, exercises, active, leave, finished }: {
     const timer = setInterval(() => {
       const audio = audioRef.current; if (!audio) return;
       measure(); setPosition(audio.position); setFreePlaying(audio.playing && !audio.ended);
-      if (!locked.current && state.current.phase === 'playing' && audio.ended) commit(advance(state.current, 'ended'));
+      if (!locked.current && state.current.phase === 'playing' && audio.ended) { entry(settings(state.current, audio)).completed++; commit(advance(state.current, 'ended')); }
     }, 50);
     return () => { alive.current = false; generation.current++; clearInterval(timer); audioRef.current?.dispose(); };
   }, []);
 
   useEffect(() => {
     const snapshot = state.current;
-    if (snapshot.phase === 'review' || snapshot.phase === 'complete') { setError(''); setBusy(false); locked.current = false; if (snapshot.phase === 'complete') finished(); return; }
+    if (snapshot.phase === 'review' || snapshot.phase === 'complete') {
+      setError(''); setReviewError(''); setChoice('same'); setDelta(5); setNote(''); evaluationId.current = crypto.randomUUID();
+      locked.current = snapshot.phase === 'complete'; setBusy(snapshot.phase === 'complete');
+      void persist(snapshot.phase === 'complete' ? snapshot.statuses.includes('skipped') ? 'partial' : 'completed' : 'running').then(() => { if (snapshot.phase === 'complete' && alive.current) finished(); }).catch(() => {}).finally(() => { if (alive.current && state.current.revision === snapshot.revision) { locked.current = false; setBusy(false); } });
+      return;
+    }
     const selected = current(snapshot), token = ++generation.current;
     locked.current = true; setBusy(true); setError('');
     void (async () => {
@@ -82,6 +119,7 @@ export function SessionPlayer({ routine, exercises, active, leave, finished }: {
       if (!alive.current || token !== generation.current) return;
       if (!activeRef.current && state.current.phase === 'playing') { await audio.pause(); commit(advance(state.current, 'pause')); }
       setPosition(audio.position); measure();
+      void persist().catch(() => {});
     })().catch(reason => {
       if (alive.current && token === generation.current) { setError(readable(reason)); setLoaded(false); commit(advance(state.current, 'pause')); }
     }).finally(() => { if (alive.current && token === generation.current) { locked.current = false; setBusy(false); } });
@@ -117,7 +155,8 @@ export function SessionPlayer({ routine, exercises, active, leave, finished }: {
     const next = { ...freeRef.current, ...change };
     try { validateAudioSettings(next.bpm / exercise.bpm, next.pitch, next.a, next.b, audio.duration); }
     catch (reason) { setError(readable(reason)); return; }
-    freeRef.current = next; setFree(next); setError(''); measure();
+    measure(); freeRef.current = next; setFree(next); setError('');
+    if (last.current) last.current.settings = settings(state.current, audio);
     // The engine serializes configuration and transport. Leaving an input
     // must not swallow the subsequent Play or Return click.
     void audio.configure(next.bpm / exercise.bpm, next.pitch, next.a, next.b, next.loop)
@@ -127,6 +166,18 @@ export function SessionPlayer({ routine, exercises, active, leave, finished }: {
   function move(action: 'skip' | 'next' | 'repeat') {
     if (action === 'skip' && !loaded && !locked.current) { commit(advance(state.current, 'skip')); return; }
     void operate(async audio => { await audio.pause(); commit(advance(state.current, action)); });
+  }
+  async function evaluate(action: Evaluation['action']) {
+    if (locked.current || !active) return;
+    locked.current = true; setBusy(true); setReviewError('');
+    try {
+      const range = series(state.current), adjustment = action === 'faster' ? delta : action === 'slower' ? -delta : 0;
+      if ((action === 'faster' || action === 'slower') && (!Number.isFinite(delta) || delta <= 0)) throw new Error('Kies een positieve BPM-aanpassing.');
+      await persist();
+      const result = await window.hitthebeat!.reviewSession(session.id, { id: evaluationId.current, block: state.current.block, fromStep: range.start, toStep: range.end, action, delta: adjustment, note });
+      setEvaluations(result.evaluations);
+      commit(advance(state.current, action === 'repeat' ? 'repeat' : 'next'));
+    } catch (reason) { if (alive.current) { setReviewError(readable(reason)); locked.current = false; setBusy(false); } }
   }
   useEffect(() => {
     if (active) return;
@@ -141,14 +192,21 @@ export function SessionPlayer({ routine, exercises, active, leave, finished }: {
     window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key);
   });
   const isFree = run.phase === 'fragment', review = run.phase === 'review', complete = run.phase === 'complete';
+  const range = series(run), lastSeries = run.step + 1 === block.steps.length;
+  const previousDelta = evaluations.filter(item => item.block === run.block).reduce((sum, item) => sum + item.delta, 0);
+  const adjustment = choice === 'faster' ? delta : choice === 'slower' ? -delta : 0;
+  const preview = block.steps.map(item => ({ before: item.bpm + previousDelta, after: item.bpm + previousDelta + adjustment }));
+  const invalidAdjustment = choice !== 'same' && (!Number.isFinite(delta) || delta <= 0 || preview.some(item => item.after < exercise.bpm * .25 || item.after > exercise.bpm * 3));
   const a = isFree ? free.a : step.start ?? 0, b = isFree ? free.b : step.end ?? exercise.duration;
   const field = (label: string, value: number, change: (value: number) => void, increment = 1) => <NumberField label={label} value={value} change={change} step={increment} disabled={busy || !active} />;
   return <div className="screen-stack session-player">
     <div className="player-context"><span>{routine.title} · Oefening {run.block + 1} van {routine.blocks.length}</span><button className="text-button" onClick={leave}>{complete ? 'Terug naar rondjes' : 'Rondje stoppen'}</button></div>
     <section className="panel round-playlist" aria-label="Oefeningen in dit rondje"><h2>Het hele oefenrondje</h2><ol>{routine.blocks.map((item, index) => <li key={item.id} aria-current={index === run.block && !complete ? 'step' : undefined}><div className="queue-item"><strong>{index + 1}. {exercises.find(source => source.id === item.exerciseId)!.title}</strong><small>{run.statuses[index] === 'completed' ? 'Afgerond' : run.statuses[index] === 'skipped' ? 'Overgeslagen' : index === run.block ? isFree ? 'Huidig · fragmenttraining' : 'Huidige oefening' : 'Hierna'}</small></div></li>)}</ol></section>
+    {reviewError && <p role="alert" className="error">{reviewError}</p>}
+    {saveError && <div role="alert" className="error"><p>Bewaren is niet gelukt: {saveError}</p><button className="secondary" disabled={busy} onClick={() => { void persist(complete ? run.statuses.includes('skipped') ? 'partial' : 'completed' : 'running').then(() => { if (complete) finished(); }).catch(() => {}); }}>Opnieuw bewaren</button></div>}
     {error && <div role="alert" className="error"><p>{error}</p><button className="secondary" onClick={() => commit({ ...state.current, phase: 'paused', revision: state.current.revision + 1 })}>Audio opnieuw laden</button><button className="text-button" onClick={leave}>Terug naar rondjes</button></div>}
-    {complete ? <section className="panel"><h2>{run.statuses.includes('skipped') ? 'Rondje beëindigd' : 'Rondje afgerond'}</h2><p>{run.passes} speelbeurten afgerond. {run.statuses.filter(value => value === 'skipped').length} oefeningen overgeslagen.</p><p>Goed moment om even je handen te ontspannen.</p><button className="primary" onClick={leave}>Terug naar mijn rondjes</button></section> : <><h2 className="session-exercise-title">{exercise.title}</h2><Notation item={exercise} />
-    {review ? <section className="panel session-review"><h2>Oefening afgerond</h2><p>De hele opbouw van {exercise.title} is gespeeld. Evaluaties bewaren volgt in de volgende fase.</p><div className="row-actions"><button className="secondary" disabled={busy} onClick={() => move('repeat')}>Deze oefening opnieuw</button><button className="primary" disabled={busy} onClick={() => move('next')}>{run.block + 1 === routine.blocks.length ? 'Rondje afronden' : 'Verder met volgende oefening'}</button></div></section> : <section className="audio-lab audio-embedded" aria-label="Rondjespeler"><div className="player-card" aria-busy={busy}>
+    {complete ? <section className="panel"><h2>{run.statuses.includes('skipped') ? 'Rondje beëindigd' : 'Rondje afgerond'}</h2><p>{run.passes} speelbeurten afgerond. {run.statuses.filter(value => value === 'skipped').length} oefeningen overgeslagen.</p><p>{busy ? 'Resultaten bewaren…' : saveError ? 'Bewaar je resultaten voordat je dit scherm verlaat.' : 'Je resultaten zijn bewaard bij Voortgang.'}</p><button className="primary" disabled={busy || Boolean(saveError)} onClick={leave}>Terug naar mijn rondjes</button></section> : <><h2 className="session-exercise-title">{exercise.title}</h2><Notation item={exercise} />
+    {review ? <section className="panel session-review"><h2>{lastSeries ? 'Oefening afgerond' : 'Fragmentserie afgerond'}</h2><p>{exercise.title} · Stappen {range.start + 1}–{range.end + 1} · {step.start === null ? 'Volledige track' : `Fragment ${step.start}–${step.end} seconden`}</p><p>Hoe wil je deze oefening de volgende keer spelen?</p><fieldset disabled={busy || !active} className="evaluation-fields"><legend>Volgende keer</legend><label>Tempo-opbouw<select aria-label="Tempo volgende keer" value={choice} onChange={event => setChoice(event.target.value as typeof choice)}><option value="same">Hetzelfde</option><option value="faster">Sneller</option><option value="slower">Rustiger</option></select></label>{choice !== 'same' && <><label>Aanpassing in BPM<input type="number" min=".1" step="1" value={Number.isFinite(delta) ? delta : ''} onChange={event => setDelta(event.target.valueAsNumber)} /></label><p data-testid="tempo-preview">{preview.map(item => `${item.before} → ${Number.isFinite(item.after) ? item.after : '—'}`).join(' · ')} BPM</p><p className="caption">Geldt voor alle stappen en herhalingen van alleen deze oefening in dit rondje. Dit huidige rondje blijft op de oorspronkelijke tempo’s spelen.</p>{invalidAdjustment && <p role="alert" className="error">Kies een aanpassing waarmee alle stappen binnen 25–300% van het originele BPM blijven.</p>}</>}<label>Notitie (optioneel)<textarea maxLength={2000} value={note} onChange={event => setNote(event.target.value)} /></label></fieldset><div className="row-actions"><button className="secondary" disabled={busy || !active} onClick={() => void evaluate('repeat')}>Deze serie opnieuw</button><button className="primary" disabled={busy || !active || invalidAdjustment} onClick={() => void evaluate(choice)}>{!lastSeries ? 'Verder met volgende fragment' : run.block + 1 === routine.blocks.length ? 'Rondje afronden' : 'Verder met volgende oefening'}</button></div></section> : <section className="audio-lab audio-embedded" aria-label="Rondjespeler"><div className="player-card" aria-busy={busy}>
       <div className="session-pass"><strong>{isFree ? 'Vrij fragment oefenen' : `Stap ${run.step + 1} van ${block.steps.length} · Herhaling ${run.repetition + 1} van ${step.repetitions}`}</strong><span data-testid="session-bpm">{isFree ? free.bpm : step.bpm} BPM</span></div>
       {!isFree && <p className="caption" data-testid="planned-settings">{step.start === null ? 'Volledige track' : `Fragment ${step.start}–${step.end} seconden`} · Toonhoogte origineel</p>}
       <p className="caption">{busy ? 'Audio voorbereiden…' : isFree ? 'Je plek in het rondje blijft bewaard. Vrije loops tellen niet mee als herhalingen.' : 'De volgende herhaling en stap beginnen automatisch.'}</p>
@@ -158,6 +216,6 @@ export function SessionPlayer({ routine, exercises, active, leave, finished }: {
       {isFree && <><div className="audio-settings">{field('Speeltempo BPM', free.bpm, bpm => freeSettings({ bpm }))}{field('Toonhoogte (halve tonen)', free.pitch, pitch => freeSettings({ pitch }))}<button className="secondary" aria-pressed={free.loop} onClick={() => freeSettings({ loop: !free.loop })} disabled={busy}>Loop</button></div><div className="loop-settings">{field('Begin A (seconden)', free.a, a => freeSettings({ a }), .1)}<button className="secondary" disabled={busy} onClick={() => freeSettings({ a: position })}>A hier</button>{field('Einde B (seconden)', free.b, b => freeSettings({ b }), .1)}<button className="secondary" disabled={busy} onClick={() => freeSettings({ b: position })}>B hier</button></div></>}
     </div></section>}</>}
     <section className="panel session-times" aria-label="Tijd in deze sessie"><span>Rondje afgespeeld <strong data-testid="time-planned">{durationLabel(times.planned)}</strong></span><span>Fragmenttraining <strong data-testid="time-fragment">{durationLabel(times.fragment)}</strong></span><span>Gepauzeerd <strong>{durationLabel(times.pause)}</strong></span></section>
-    <p className="caption">Spatie: afspelen/pauzeren · 1: herhaling opnieuw, in vrije loop naar A. Toetsen blijven beschikbaar voor invoervelden en knoppen. Tijden en resultaten worden in deze proef nog niet bewaard. Er is nog geen aftellen of extra pauze tussen herhalingen.</p>
+    <p className="caption">Spatie: afspelen/pauzeren · 1: herhaling opnieuw, in vrije loop naar A. Toetsen blijven beschikbaar voor invoervelden en knoppen. Oefentijd is rondje-afspelen plus fragmenttraining; pauzes en evaluaties tellen niet mee. Er is nog geen aftellen of extra pauze tussen herhalingen.</p>
   </div>;
 }

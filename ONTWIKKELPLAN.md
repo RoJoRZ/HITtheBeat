@@ -1,6 +1,6 @@
 # HITtheBeat — Ontwikkelplan
 
-Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 heeft een audioproef (v0.0.2) met automatische Mac-controles; muzikale luisterbeoordeling en de Windows-gebruikstest staan open. Zie `docs/FASE-1.md`. De gebruiker heeft vervolgens het bereik 25–300% gekozen en opdracht gegeven verder te gaan. Fase 2 levert doorloopbare voorbeeldschermen in v0.0.3; zie `docs/FASE-2.md`. De gebruiker heeft daarna de rondje-afspeellijst verduidelijkt en opdracht gegeven door te gaan. V0.0.4 biedt een eigen bibliotheek met eerste BPM-detector; zie `docs/FASE-3.md`. De gebruiker heeft opdracht gegeven door te gaan. V0.0.5 levert de eigen rondje-editor; zie `docs/FASE-4.md`. De gebruiker heeft de editor goedgekeurd en opdracht gegeven verder te gaan. V0.0.6 biedt de rondjespeler en tijdelijke fragmenttraining; zie `docs/FASE-5.md`. Spelerfeedback staat open vóór fase 6; beoordeling op echte muziek blijft open.
+Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 heeft een audioproef (v0.0.2) met automatische Mac-controles; muzikale luisterbeoordeling en de Windows-gebruikstest staan open. Zie `docs/FASE-1.md`. De gebruiker heeft vervolgens het bereik 25–300% gekozen en opdracht gegeven verder te gaan. Fase 2 levert doorloopbare voorbeeldschermen in v0.0.3; zie `docs/FASE-2.md`. De gebruiker heeft daarna de rondje-afspeellijst verduidelijkt en opdracht gegeven door te gaan. V0.0.4 biedt een eigen bibliotheek met eerste BPM-detector; zie `docs/FASE-3.md`. De gebruiker heeft opdracht gegeven door te gaan. V0.0.5 levert de eigen rondje-editor; zie `docs/FASE-4.md`. De gebruiker heeft de editor goedgekeurd en opdracht gegeven verder te gaan. V0.0.6 biedt de rondjespeler en tijdelijke fragmenttraining; zie `docs/FASE-5.md`. De gebruiker heeft de speler in gebruik getest en goedgekeurd. V0.0.7 levert evaluatie per fragmentserie en sessiehistorie; zie `docs/FASE-6.md`. Feedback op deze fase staat open vóór het dashboard van fase 7; verdere beoordeling op echte muziek blijft open.
 
 ## 1. Uitgangspunten
 
@@ -85,7 +85,7 @@ Controle: de voorbeeldopbouw speelt exact vier keer in de juiste volgorde. Onder
 
 Demo: de gebruiker voert een compleet eigen rondje uit. Dit is het belangrijkste moment om het dagelijkse gebruik te beoordelen. Tot fase 6 kan een eenvoudige tijdelijke ‘Verder’-actie de overgang na een oefening verzorgen; deze wordt niet als definitieve evaluatie opgeleverd.
 
-Stand 10 oktober 2026: v0.0.6 verbindt echte rondjes met de speler en vrije fragmenttraining. De terugblik gebruikt de geplande tijdelijke Verder-actie; resultaten worden nog niet opgeslagen. Zie `docs/FASE-5.md` voor bediening, controles en beperkingen. Stem evaluatiekeuzes en tijdregistratie af vóór fase 6.
+Stand 10 oktober 2026: v0.0.6 verbindt echte rondjes met de speler en vrije fragmenttraining. De terugblik gebruikt de geplande tijdelijke Verder-actie; resultaten worden nog niet opgeslagen. Zie `docs/FASE-5.md` voor bediening, controles en beperkingen. De gebruiker heeft daarna het evaluatiemoment, de BPM-aanpassing per oefenblok en uitsluiting van evaluatiepauzes afgestemd; zie fase 6.
 
 ### Fase 6 — Evaluatie en sessiehistorie
 
@@ -94,6 +94,8 @@ Maak de korte evaluatie, direct herhalen en aanpassen van de volgende sessie. Be
 Controle: ‘Nog een keer’ voert dezelfde opbouw opnieuw uit. ‘Volgende keer sneller’ beïnvloedt alleen het bedoelde oefenblok binnen het gebruikte rondje. Een tweede rondje met dezelfde oefening blijft gelijk. Voorkom dubbel opslaan bij herhaald klikken. Test afsluiten en heropenen na bewaren. Leg ook onvoltooide sessies herkenbaar vast; laat ze niet als volledig afgerond meetellen.
 
 Demo: de gebruiker evalueert, sluit de app, opent opnieuw en ziet de gekozen opbouw voor de volgende sessie. Stem vóór deze fase de definitieve beoordelingskeuzes, BPM-aanpassing en definitie van werkelijk geoefende tijd af in `FUNCTIONEEL.md`.
+
+Stand 10 oktober 2026: v0.0.7 biedt de evaluaties en sessiehistorie. Een serie bestaat uit aaneengesloten stappen van hetzelfde fragment, met alle tempo’s en herhalingen. BPM-aanpassing geldt voor alle stappen van één oefenblok in dit rondje; de lopende sessie houdt haar momentopname. Werkelijk oefenen is rondje-afspelen plus vrije fragmenttraining, zonder pauzes, evaluatie of laden. Zie `docs/FASE-6.md` voor controles en beperkingen. Beoordeel deze fase vóór het dashboard.
 
 ### Fase 7 — Motiverend dashboard
 
@@ -141,7 +143,7 @@ Rond een fase pas af als de betreffende acceptatiepunten aantoonbaar zijn gecont
 - Start: definitieve technische richting en beschikbare Mac/Windows-testomgeving.
 - Audio en editor: ondersteund tempo-/toonhoogtebereik, halve tonen en toonhoogte per stap.
 - Rondje: pauzes en aftellen, definitieve sneltoetsen en tijdregistratie.
-- Evaluatie: exacte keuzes en welke stappen een BPM-aanpassing beïnvloedt.
+- Evaluatie: aanvullende beoordelingslabels zijn nog open. Het evaluatiemoment en de BPM-aanpassing per oefenblok zijn vastgesteld.
 - Distributie: ondersteunde OS-versies, ondertekening en eventueel backup/export.
 
 Bespreek de resterende keuzes bij de fase waar ze nodig zijn en leg de uitkomst vast. De gebruiker heeft inmiddels opdracht gegeven te beginnen; de fases blijven afzonderlijk beoordeelbaar.
