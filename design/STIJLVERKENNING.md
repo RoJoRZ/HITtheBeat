@@ -1,6 +1,6 @@
 # HITtheBeat — Stijlverkenning
 
-Datum: 10 oktober 2026. Status: vier voorstellen; nog geen stijl gekozen.
+Datum: 10 oktober 2026. Status: eerste vier voorstellen. De gebruiker heeft gevraagd het donkere thema verder te verkennen; zie [de vier donkere varianten](DONKERE-VARIANTEN.md). De definitieve kleur- en lettertypekeuze staat nog open.
 
 De gebruiker kiest eerst één richting. Daarna worden de bibliotheek, fragmentstand, evaluatie en het voortgangsdashboard in die stijl uitgewerkt. Pas daarna worden de definitieve designkeuzes vastgelegd in `DESIGN.md` als leidraad voor uniforme verdere ontwikkeling.
 
