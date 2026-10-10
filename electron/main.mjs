@@ -1,4 +1,5 @@
-import { app, BrowserWindow, ipcMain, Menu, net, protocol, session } from 'electron';
+import { openLibrary } from './library.mjs';
+import { app, BrowserWindow, ipcMain, Menu, net, protocol, session, shell } from 'electron';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { resolveAsset } from './local-assets.mjs';
@@ -15,9 +16,11 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'hitthebeat', privileges: { standard: true, secure: true, supportFetchAPI: true } },
 ]);
 
-if (process.env.HITTHEBEAT_TEST_DATA && !app.isPackaged) {
+const explicitData = app.commandLine.getSwitchValue('user-data-dir');
+if (explicitData) app.setPath('userData', path.resolve(explicitData));
+else if (process.env.HITTHEBEAT_TEST_DATA && !app.isPackaged) {
   app.setPath('userData', path.resolve(process.env.HITTHEBEAT_TEST_DATA));
-}
+} else app.setPath('userData', path.join(app.getPath('appData'), 'HITtheBeat'));
 
 async function createWindow() {
   const current = new BrowserWindow({
@@ -58,12 +61,20 @@ app.whenReady().then(async () => {
       return new Response('Not found', { status: 404 });
     }
   });
-  ipcMain.handle('app:info', (event) => {
+  const library = await openLibrary(path.join(app.getPath('userData'), 'library'));
+  app.on('will-quit', () => library.close());
+  /** @param {Electron.IpcMainInvokeEvent} event */
+  function authorize(event) {
     if (!window || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame || event.senderFrame.url !== entryUrl) {
       throw new Error('Unknown application frame');
     }
-    return { version: app.getVersion(), platform: process.platform };
-  });
+  }
+  ipcMain.handle('app:info', event => { authorize(event); return { version: app.getVersion(), platform: process.platform }; });
+  ipcMain.handle('library:list', event => { authorize(event); return library.list(); });
+  ipcMain.handle('library:save', (event, input) => { authorize(event); return library.save(input); });
+  ipcMain.handle('library:audio', (event, id) => { authorize(event); return library.read(id, 'audio'); });
+  ipcMain.handle('library:image', (event, id) => { authorize(event); return library.read(id, 'image'); });
+  ipcMain.handle('library:folder', async event => { authorize(event); const error = await shell.openPath(library.root); if (error) throw new Error('De bibliotheekmap kan niet worden geopend.'); });
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     ...(process.platform === 'darwin' ? [{ label: 'HITtheBeat', submenu: [{ role: /** @type {const} */ ('about') }, { type: /** @type {const} */ ('separator') }, { role: /** @type {const} */ ('quit') }] }] : []),
     { label: 'Bewerken', submenu: [{ role: 'undo' }, { role: 'redo' }, { type: 'separator' }, { role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' }] },

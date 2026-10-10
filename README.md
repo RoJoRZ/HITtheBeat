@@ -11,12 +11,13 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 - [Voortgang en controles van fase 0](docs/FASE-0.md)
 - [Audioproef en teststappen van fase 1](docs/FASE-1.md)
 - [Voorbeeldschermen en nieuw tempobereik van fase 2](docs/FASE-2.md)
+- [Eigen bibliotheek en BPM-proef van fase 3](docs/FASE-3.md)
 
 ## Eerste proefversie
 
-Versie 0.0.3 biedt doorloopbare **voorbeeldschermen** voor de rondjetabel, bibliotheek, speler, evaluatie en dashboard. De vaste voorbeeldmelding voorkomt verwarring met eigen gegevens. Via ‘Lege schermen bekijken’ zie je de lege toestanden. Wijzigingen worden nog niet opgeslagen.
+Versie 0.0.4 biedt een **eigen bibliotheek**: MP3 importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. Kies ‘Eigen bibliotheek bekijken’ en vervolgens ‘Oefeningen’. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
 
-De afzonderlijke **Audioproef** ondersteunt: MP3/WAV laden, onafhankelijk tempo (25–300%) en toonhoogte aanpassen, zoeken, pauzeren en A/B-loopen. Probeer de ingebouwde voorbeeldmelodie of een eigen bestand. Automatische BPM-herkenning en het opslaan van oefeningen, rondjes en voortgang volgen later. De nog niet aangesloten bibliotheek- en rondjeknoppen zijn zichtbaar als niet-actieve bediening; er worden geen fictieve resultaten als eigen voortgang getoond.
+De **voorbeeldschermen** tonen daarnaast een rondjetabel, het gehele rondje in de speler, evaluatie en dashboard. Voorbeeldwijzigingen worden niet opgeslagen. Rondjes bewaren en automatisch uitvoeren, evaluaties en echte voortgang volgen in de volgende fases. De losse Audioproef blijft beschikbaar.
 
 ## Ontwikkelen
 
@@ -39,7 +40,7 @@ pnpm test:desktop
 pnpm start
 ```
 
-De desktoptests controleren de ontwikkelserver en het gebouwde scherm uit `dist/`. Daarom komt `pnpm build` vóór `pnpm test:desktop`. De tests van de gebouwde app controleren navigatie, offline audio, MP3-import, de geïsoleerde desktopkoppeling en de route door de voorbeeldschermen, inclusief duurberekening en kleinere vensters. De ontwikkeltest meet daarnaast tempo/transpositie en loops in een OfflineAudioContext. Ontwikkeltests gebruiken een tijdelijke gebruikersmap. Screenshots staan in `test-results/` en gaan niet automatisch naar Git. Met de omgevingsvariabele `HITTHEBEAT_TEST_EXECUTABLE` kun je dezelfde test op een verpakte executable richten; de ontwikkelservertest en de DSP-bronmoduletest worden dan overgeslagen. Een verpakte app gebruikt haar normale appgegevensmap.
+De desktoptests controleren de ontwikkelserver en het gebouwde scherm uit `dist/`. Daarom komt `pnpm build` vóór `pnpm test:desktop`. De tests van de gebouwde app controleren navigatie, offline audio, MP3-import, de geïsoleerde desktopkoppeling en de route door de voorbeeldschermen, inclusief duurberekening en kleinere vensters. De ontwikkeltest meet daarnaast tempo/transpositie en loops in een OfflineAudioContext. Ontwikkeltests gebruiken een tijdelijke gebruikersmap. Screenshots staan in `test-results/` en gaan niet automatisch naar Git. Met de omgevingsvariabele `HITTHEBEAT_TEST_EXECUTABLE` kun je dezelfde test op een verpakte executable richten; de ontwikkelservertest en de DSP-bronmoduletest worden dan overgeslagen. De bibliotheek- en heropentests gebruiken een tijdelijke gebruikersmap via `--user-data-dir`, ook in de verpakte app.
 
 Een browservoorvertoning is mogelijk met `pnpm preview`; dit is geen vervanging voor de Electron-test en toont geen informatie uit het desktopproces.
 
@@ -52,7 +53,7 @@ pnpm package:win
 
 Output staat in `release/` en wordt niet gecommit. Het Mac-zipbestand bevat een `.app`; pak het uit en open de app. Het Windows-zipbestand bevat een map met `HITtheBeat.exe` en benodigde bestanden; pak de hele map uit voordat je de executable opent. Dit zijn proefpakketten zonder installatieprogramma. De Mac-build gebruikt lokale ad-hocondertekening, zonder Apple Developer-certificaat of notarisatie. Windows is niet ondertekend. Windows moet ook op Windows worden gestart en beoordeeld; een geslaagde cross-build bewijst dat niet.
 
-Meegeleverde fonts en schermcode werken zonder netwerkverbinding. Persoonlijke audio, tablatuur en databasebestanden horen later in de lokale appbibliotheek en niet in deze Git-repository.
+Meegeleverde fonts en schermcode werken zonder netwerkverbinding. Persoonlijke audio, tablatuur en databasebestanden staan in de lokale appbibliotheek en niet in deze Git-repository.
 
 ## Licenties
 

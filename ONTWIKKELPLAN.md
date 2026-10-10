@@ -1,6 +1,6 @@
 # HITtheBeat — Ontwikkelplan
 
-Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 heeft een audioproef (v0.0.2) met automatische Mac-controles; muzikale luisterbeoordeling en de Windows-gebruikstest staan open. Zie `docs/FASE-1.md`. De gebruiker heeft vervolgens het bereik 25–300% gekozen en opdracht gegeven verder te gaan. Fase 2 levert doorloopbare voorbeeldschermen in v0.0.3; zie `docs/FASE-2.md`. Schermfeedback staat open vóór fase 3.
+Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 heeft een audioproef (v0.0.2) met automatische Mac-controles; muzikale luisterbeoordeling en de Windows-gebruikstest staan open. Zie `docs/FASE-1.md`. De gebruiker heeft vervolgens het bereik 25–300% gekozen en opdracht gegeven verder te gaan. Fase 2 levert doorloopbare voorbeeldschermen in v0.0.3; zie `docs/FASE-2.md`. De gebruiker heeft daarna de rondje-afspeellijst verduidelijkt en opdracht gegeven door te gaan. V0.0.4 biedt een eigen bibliotheek met eerste BPM-detector; zie `docs/FASE-3.md`. Bibliotheekfeedback en beoordeling op echte muziek staan open vóór fase 4.
 
 ## 1. Uitgangspunten
 
@@ -62,6 +62,8 @@ Voeg MP3-import, optionele afbeelding, geschreven opdracht en het brontempo toe.
 Controle: importeer meerdere eigen oefeningen, sluit de app en open opnieuw. Verplaats het originele bronbestand en controleer of de bibliotheekkopie nog werkt. Test zonder afbeelding, met lange tekst, een onleesbaar bestand en mislukte BPM-analyse. De gebruiker kan bij mislukte analyse een tempo invoeren. Vergelijk bekende tempi met herkende waarden, inclusief mogelijke half/dubbeltellingen. Test dat analyse de interface niet blokkeert.
 
 Demo: de gebruiker bouwt een kleine eigen bibliotheek en beluistert oefeningen met de engine uit fase 1. Opslag van rondjes en voortgang is nog niet nodig om deze fase te beoordelen.
+
+Stand 10 oktober 2026: v0.0.4 levert de eigen bibliotheek en een eerste BPM-detector. Zie `docs/FASE-3.md` voor proefstappen en automatische controles. Een vergelijking met meerdere echte oefeningen, muzikale luisterbeoordeling en de Windows-gebruikstest blijven open; de detector is nog niet als algemeen betrouwbaar geaccepteerd. De gebruiker kan nu de bibliotheek proberen voordat fase 4 wordt gebouwd.
 
 ### Fase 4 — Rondjes samenstellen in de tabel
 

@@ -282,3 +282,38 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .playing-layout .example-banner { padding-top: 10px; padding-bottom: 10px; }
 .preview-next { flex-wrap: wrap; }
 .routine-table th { position: relative; }
+
+.library-fields { display: grid; gap: 16px; border: 0; padding: 0; min-width: 0; }
+.library-fields label { display: grid; gap: 6px; }
+.library-fields input, .library-fields textarea { width: 100%; }
+.exercise-form { max-width: 860px; padding: 28px; }
+.saved-instruction { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 350px; overflow: auto; }
+.round-playlist { padding: 16px 22px; }
+.round-playlist h2 { font-size: 18px; }
+.round-playlist ol { display: flex; gap: 12px; padding: 0; list-style: none; overflow-x: auto; }
+.round-playlist li { flex: 1 0 230px; }
+.round-playlist button { display: grid; text-align: left; gap: 4px; width: 100%; }
+.round-playlist button[aria-current] { border-color: var(--accent); background: #30291f; }
+/* Keep the routine overview compact so notation and transport remain central. */
+.round-playlist { padding: 10px 16px; }
+.round-playlist h2 { font-size: 14px; margin: 0 0 8px; color: var(--muted); }
+.round-playlist ol { margin: 0; }
+.round-playlist button { padding: 8px 12px; min-height: 58px; text-align: left; justify-content: start; }
+.round-playlist button > .caption { display: none; }
+.round-playlist > .caption { margin: 6px 0 0; font-size: 12px; }
+.playing-layout .practice-top .tab-panel img { max-height: 180px; object-fit: contain; }
+.playing-layout .practice-top .assignment-scroll { max-height: 170px; }
+.round-playlist > h2, .round-playlist > .caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.playing-layout .player-context .text-button { padding: 4px 0; }
+.playing-layout .practice-top .tab-panel img { max-height: 140px; }
+.playing-layout .practice-top .assignment-scroll { max-height: 140px; }
+/* Give notation more height by reducing the surrounding preview chrome. */
+.playing-layout main { padding-top: 20px; }
+.playing-layout .page-header { margin-bottom: 10px; }
+.playing-layout .page-header .header-mark { display: none; }
+.playing-layout .example-banner { padding: 6px 14px; margin-bottom: 12px; }
+.playing-layout .example-banner > div { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.playing-layout .example-banner .secondary { min-height: 34px; padding: 6px 12px; }
+.playing-layout .screen-stack { gap: 12px; }
+.playing-layout .practice-top .tab-panel img { max-height: 210px; }
+.playing-layout .practice-top .assignment-scroll { max-height: 210px; }

@@ -8,7 +8,7 @@ test('desktop loads offline, exposes only its narrow bridge, navigates and reope
   try {
     for (let launch = 0; launch < 2; launch++) {
       const executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-      const desktop = await electron.launch({ executablePath, args: executablePath ? [] : ['.'], env: { ...process.env, HITTHEBEAT_TEST_DATA: data, HITTHEBEAT_DEV: '0' } });
+      const desktop = await electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${data}`], env: { ...process.env, HITTHEBEAT_TEST_DATA: data, HITTHEBEAT_DEV: '0' } });
       try {
         const page = await desktop.firstWindow();
         const errors: string[] = [];
@@ -17,8 +17,8 @@ test('desktop loads offline, exposes only its narrow bridge, navigates and reope
         await page.context().setOffline(true);
         await page.reload();
         await expect(page.getByRole('heading', { name: 'Mijn oefenrondjes', exact: true })).toBeVisible();
-        await expect(page.getByText('HITtheBeat · v0.0.3')).toBeVisible();
-        await page.getByRole('button', { name: 'Lege schermen bekijken' }).click();
+        await expect(page.getByText('HITtheBeat · v0.0.4')).toBeVisible();
+        await page.getByRole('button', { name: 'Eigen bibliotheek bekijken' }).click();
         await expect(page.getByRole('button', { name: 'Oefenrondje maken' })).toBeDisabled();
         expect(await page.evaluate(() => typeof (window as unknown as { require?: unknown }).require)).toBe('undefined');
         const preferences = await desktop.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getLastWebPreferences());

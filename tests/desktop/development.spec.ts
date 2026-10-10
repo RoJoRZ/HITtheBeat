@@ -14,7 +14,7 @@ test('development server loads desktop bridge, local font and injected styles', 
     try {
       const page = await desktop.firstWindow();
       await expect(page.getByRole('heading', { name: 'Mijn oefenrondjes', exact: true })).toBeVisible();
-      await expect(page.getByText('HITtheBeat · v0.0.3')).toBeVisible();
+      await expect(page.getByText('HITtheBeat · v0.0.4')).toBeVisible();
       expect(await page.locator('.app-shell').evaluate(element => getComputedStyle(element).display)).toBe('grid');
       await page.evaluate(() => document.fonts.ready);
       expect(await page.evaluate(() => document.fonts.check('16px "Source Sans 3"'))).toBe(true);

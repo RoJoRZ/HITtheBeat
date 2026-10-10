@@ -2,7 +2,7 @@
 
 Datum: 10 oktober 2026.
 
-Status: de gebruiker heeft op 10 oktober 2026 opdracht gegeven om volgens het ontwikkelplan te beginnen. Electron, React en TypeScript worden in fase 0 als technische basis geïmplementeerd. Audio-engine, BPM-detector en opslag worden in hun eigen fases gevalideerd. De functionele eisen staan in `FUNCTIONEEL.md`.
+Status: de gebruiker heeft op 10 oktober 2026 opdracht gegeven om volgens het ontwikkelplan te beginnen. Electron, React en TypeScript worden in fase 0 als technische basis geïmplementeerd. V0.0.4 bevat de audio-engine, eigen bibliotheek en een eerste BPM-detector. Automatische Mac-controles zijn uitgevoerd; kwaliteit op echte muziek en Windows-gebruik blijven open. De functionele eisen staan in `FUNCTIONEEL.md`.
 
 ## 1. Aanbevolen richting
 
@@ -20,7 +20,7 @@ Tauri is een goed alternatief voor een kleinere installatie. Tauri gebruikt de w
 | Interface | React + TypeScript | Bibliotheek, bewerkbare tabel, speler, evaluatie en dashboard. |
 | Vormgeving | Centrale CSS-tokens en herbruikbare componenten; in fase 0 gewone CSS | Een consistente, strakke interface met zichtbare focus en goede toetsenbediening. Tailwind is voor deze basis niet nodig. |
 | Audio | Web Audio + AudioWorklet + Signalsmith Stretch (WebAssembly) | Tempo en toonhoogte onafhankelijk veranderen en fragmenten herhalen. |
-| BPM-analyse | Achtergrondtaak op gedecodeerde audio | Tempo schatten bij import zonder de interface te blokkeren; bibliotheek nog te selecteren. |
+| BPM-analyse | Achtergrondtaak op gedecodeerde audio | Tempo schatten bij import zonder de interface te blokkeren; eerste eigen detector in v0.0.4; kwaliteit op echte oefeningen nog te beoordelen. |
 | Gegevens | SQLite, met schemawijzigingen per versie | Rondjes, stappen, sessies, beoordelingen en voortgang lokaal bewaren. |
 | Bestanden | Eigen lokale mediamap van de app | MP3 en afbeeldingen bij import kopiëren zodat verplaatsen van het origineel geen oefening breekt. |
 
@@ -120,3 +120,15 @@ Automatische Mac-metingen bevestigen onafhankelijke tempo-/toonhoogteverwerking,
 Het door de gebruiker gekozen tempobereik is nu 0,25–3,0 maal de bron. Enginevalidatie en beide spelers volgen dit bereik. De DSP-proef omvat de nieuwe grenzen afzonderlijk en gecombineerd met transpositie. Bronduur en audioklok blijven leidend; luisterkwaliteit op echt materiaal blijft een afzonderlijke acceptatie.
 
 Fase 2 gebruikt een gedeelde voorbeeldomgeving met tijdelijke React-toestand, voorbeelddata, getalbediening en het bestaande audiocomponent in een compacte spelervariant. De tabel gebruikt bronduur/BPM voor de geplande duur. Toonhoogte per rij blijft uitgeschakeld omdat deze keuze nog openstaat. Voorbeeldgegevens gaan niet naar opslag en schrijven geen sessiehistorie. De componenten vormen de basis voor de echte bibliotheek en editor in volgende fases; de voorbeeldomgeving blijft herkenbaar gescheiden van eigen gegevens.
+
+## 12. Bibliotheek en BPM-proef (v0.0.4)
+
+De bibliotheek gebruikt `node:sqlite` (`DatabaseSync`) uit de gebundelde Electron-runtime, zonder extra native module. Beschikbaarheid is gecontroleerd in Electron 44.7.0 met Node 24.21.0. `electron/library.mjs` beheert een STRICT-schema met `user_version=1`, WAL en gebonden SQL-parameters. Een nieuwere schemaversie wordt geweigerd. Metadata voor media en bevestigd/geschat BPM worden gescheiden opgeslagen. De huidige versie voegt het eerste schema toe; migratie met bestaande rondjes/historie is nog niet aan de orde.
+
+Gegevens staan onder Electron `appData/HITtheBeat/library`: `library.sqlite` en een map `media`. Op macOS is dit normaal `~/Library/Application Support/HITtheBeat/library`; op Windows `%APPDATA%/HITtheBeat/library`. Media krijgen willekeurige interne UUID-namen. De oorspronkelijke naam is alleen metadata. Alleen vaste IPC-methoden mogen oefeningen bewaren of media via een geldig oefening-ID lezen. Renderer-toegang tot willekeurige paden blijft uitgesloten; dezelfde controle op afzender en hoofdframe geldt voor alle bibliotheekmethoden. Afbeeldingen worden als Blob-URL getoond; de CSP staat daarom `blob:` uitsluitend bij `img-src` toe.
+
+Bestanden worden vóór de enkele atomaire metadata-mutatie geschreven; mislukte writes/SQL ruimen nieuw aangemaakte media op. Een abrupte proces- of stroomuitval tussen bestand en metadata kan een ongebruikt mediabestand achterlaten. Een backup-/herstelvoorziening is nog niet gebouwd. Wijzigen van een oefening kan naam, opdracht, bevestigd BPM en afbeelding aanpassen; vervangen van de audiotrack gebeurt voorlopig via een nieuwe oefening. De desktoptests gebruiken `--user-data-dir` voor geïsoleerde testbibliotheken, ook in de verpakte app.
+
+`analyze.ts` decodeert MP3 via OfflineAudioContext op 22.050 Hz en kiest het energierijkste kanaal om stereofase-uitdoving te voorkomen. Maximaal 90 seconden gaan naar een lokale module-Worker. `bpm.ts` schat een puls uit positieve RMS-energieveranderingen, genormaliseerde autocorrelatie en een voorkeur voor de eerste sterke periodiciteit. Dit is een eigen eenvoudige implementatie zonder aanvullende detectorlicentie. Analyse kan worden geannuleerd; een timeout of Workerfout levert geen schatting op en laat handmatige invoer beschikbaar. Een decodeerfout blokkeert import van onleesbare audio.
+
+Referentie voor de algemene combinatie onsetsterkte/autocorrelatie: [Ellis, eenvoudige beat-tracker](https://www.ee.columbia.edu/~dpwe/LabROSA/matlab/beat_simple/). De proef implementeert niet zijn volledige algoritme. [Node-documentatie voor SQLite](https://nodejs.org/api/sqlite.html) beschrijft de runtime-API. Synthetische klik- en geplukte signalen en een gecomprimeerde MP3 worden gecontroleerd; een vergelijking met diverse echte oefeningen en de muzikale keuze tussen halve/dubbele puls blijven nodig voordat deze detector als voldoende betrouwbaar wordt geaccepteerd.
