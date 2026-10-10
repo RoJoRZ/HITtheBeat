@@ -350,3 +350,10 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .history-evaluation p { white-space: pre-wrap; }
 
 .evaluation-fields input[type=number] { background: var(--inset); color: #f2f4f6; border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; min-height: 44px; }
+
+.volume-control { display: flex; align-items: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.volume-control label { font-weight: 600; }
+.volume-control input[type=range] { width: 160px; max-width: 100%; accent-color: var(--accent); }
+.volume-control output { color: var(--muted); min-width: 65px; font-variant-numeric: tabular-nums; }
+.normalization-choice { display: flex !important; flex-direction: row !important; align-items: center; gap: 10px; }
+.normalization-choice input[type=checkbox] { width: auto; accent-color: var(--accent); }

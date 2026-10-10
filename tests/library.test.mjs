@@ -39,3 +39,36 @@ test('reject invalid identifiers, metadata and media without partial records', a
     assert.equal(library.list().length, 0); assert.equal((await readdir(path.join(root, 'media'))).length, 0);
   } finally { library.close(); await rm(root, { recursive: true, force: true }); }
 });
+
+test('normalization metadata survives edits and reopen, original bytes remain intact, invalid gain is rejected', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-normalization-store-')); let library = await openLibrary(root);
+  try {
+    const saved = await library.save({ ...input, normalizationDb: 5.25, normalizeAudio: true });
+    const changed = await library.save({ ...saved, title: 'Nieuw', normalizeAudio: false });
+    assert.equal(changed.normalizationDb, 5.25); assert.equal(changed.normalizeAudio, false);
+    const edited = await library.save({ id: saved.id, title: 'Ook gewijzigd', description: '', bpm: 118, detectedBpm: null, analysisStatus: 'unavailable', duration: 12 });
+    assert.equal(edited.normalizationDb, 5.25); assert.equal(edited.normalizeAudio, false);
+    library.close(); library = await openLibrary(root);
+    assert.equal(library.list()[0].normalizationDb, 5.25); assert.deepEqual((await library.read(saved.id, 'audio')).bytes, audio.bytes);
+    for (const value of [NaN, Infinity, 13, -61, 'loud']) await assert.rejects(library.save({ ...edited, normalizationDb: value }), /volumenormalisatie/);
+    assert.equal(library.list()[0].normalizationDb, 5.25);
+  } finally { library.close(); await rm(root, { recursive: true, force: true }); }
+});
+
+test('schema 3 upgrade preserves library, routines and session history without changing existing audio levels', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-volume-migrate-')); let library = await openLibrary(root);
+  try {
+    const exercise = await library.save(input);
+    const { randomUUID } = await import('node:crypto');
+    const routine = library.saveRoutine({ title: 'Voor upgrade', blocks: [{ id: randomUUID(), exerciseId: exercise.id, steps: [{ id: randomUUID(), start: null, end: null, bpm: 118, repetitions: 1 }] }] });
+    const session = library.startSession(routine.id); library.interruptSessions();
+    const history = library.listSessions(); library.close();
+    const { DatabaseSync } = await import('node:sqlite'); const db = new DatabaseSync(path.join(root, 'library.sqlite'));
+    db.exec('ALTER TABLE exercises DROP COLUMN normalization_db; ALTER TABLE exercises DROP COLUMN normalize_audio; PRAGMA user_version=3;'); db.close();
+    library = await openLibrary(root);
+    assert.equal(library.list()[0].normalizationDb, null); assert.equal(library.list()[0].normalizeAudio, true);
+    assert.deepEqual(library.listRoutines()[0], routine); assert.deepEqual(library.listSessions(), history);
+    assert.equal(library.listSessions()[0].id, session.id);
+    assert.deepEqual((await library.read(exercise.id, 'audio')).bytes, audio.bytes);
+  } finally { library.close(); await rm(root, { recursive: true, force: true }); }
+});

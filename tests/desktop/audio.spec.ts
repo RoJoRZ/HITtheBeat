@@ -1,9 +1,13 @@
 import { test, expect, _electron as electron } from '@playwright/test';
 import { Mp3Encoder } from '@breezystack/lamejs';
 import { createServer } from 'vite';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
 test('audio controls load MP3 offline, validate loops, and respect keyboard focus', async () => {
-  const desktop = await electron.launch({ executablePath: process.env.HITTHEBEAT_TEST_EXECUTABLE, args: process.env.HITTHEBEAT_TEST_EXECUTABLE ? [] : ['.'], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-audio-controls-'));
+  const desktop = await electron.launch({ executablePath: process.env.HITTHEBEAT_TEST_EXECUTABLE, args: [...(process.env.HITTHEBEAT_TEST_EXECUTABLE ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   try {
     const page = await desktop.firstWindow();
     const errors: string[] = [];
@@ -18,9 +22,9 @@ test('audio controls load MP3 offline, validate loops, and respect keyboard focu
     await page.locator('h1').click();
     await page.keyboard.press('Space');
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeVisible();
-    const stopped = Number(await page.getByRole('slider').inputValue());
+    const stopped = Number(await page.getByRole('slider', { name: 'Afspeelpositie', exact: true }).inputValue());
     await page.waitForTimeout(200);
-    expect(Number(await page.getByRole('slider').inputValue())).toBeCloseTo(stopped, 1);
+    expect(Number(await page.getByRole('slider', { name: 'Afspeelpositie', exact: true }).inputValue())).toBeCloseTo(stopped, 1);
     await page.getByLabel('Speeltempo BPM', { exact: true }).fill('22.5');
     await page.keyboard.press('Enter');
     await expect(page.getByLabel('Speeltempo BPM', { exact: true })).toHaveValue('22.5');
@@ -43,7 +47,7 @@ test('audio controls load MP3 offline, validate loops, and respect keyboard focu
     await expect(page.getByRole('button', { name: 'Loop', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await page.waitForTimeout(1900);
-    const loopPosition = Number(await page.getByRole('slider').inputValue());
+    const loopPosition = Number(await page.getByRole('slider', { name: 'Afspeelpositie', exact: true }).inputValue());
     expect(loopPosition).toBeGreaterThanOrEqual(1);
     expect(loopPosition).toBeLessThan(2);
     await page.getByLabel('Begin A (seconden)', { exact: true }).fill('3');
@@ -54,7 +58,7 @@ test('audio controls load MP3 offline, validate loops, and respect keyboard focu
     await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeVisible();
     await page.locator('h1').click();
     await page.keyboard.press('1');
-    await expect.poll(async () => Number(await page.getByRole('slider').inputValue())).toBeLessThan(1.2);
+    await expect.poll(async () => Number(await page.getByRole('slider', { name: 'Afspeelpositie', exact: true }).inputValue())).toBeLessThan(1.2);
     await page.getByRole('button', { name: 'Pauzeren', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeVisible();
     await page.screenshot({ path: 'test-results/audio-player.png', fullPage: true });
@@ -74,14 +78,15 @@ test('audio controls load MP3 offline, validate loops, and respect keyboard focu
     await page.getByRole('button', { name: 'Audioproef', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeDisabled();
     expect(errors).toEqual([]);
-  } finally { await desktop.close(); }
+  } finally { await desktop.close(); await rm(root, { recursive: true, force: true }); }
 });
 
 test('DSP preserves pitch at different speeds and shifts pitch at fixed speed', async () => {
   test.skip(Boolean(process.env.HITTHEBEAT_TEST_EXECUTABLE), 'DSP harness uses source modules; packaged controls tested separately.');
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-dsp-'));
   const server = await createServer();
   await server.listen();
-  const desktop = await electron.launch({ args: ['.'], env: { ...process.env, HITTHEBEAT_DEV: '1' } });
+  const desktop = await electron.launch({ args: ['.', `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '1' } });
   try {
     const page = await desktop.firstWindow();
     await expect(page.locator('h1')).toBeVisible();
@@ -103,10 +108,22 @@ test('DSP preserves pitch at different speeds and shifts pitch at fixed speed', 
     expect(segment.loopEnded).toBe(false);
     expect(segment.loopRms).toBeGreaterThan(.03);
 
+    const levels = await page.evaluate(async () => { const { volumeProbe } = await import('/tests/audio/volume-probe.ts'); return volumeProbe(); });
+    expect(levels.quiet.full / levels.loud.full).toBeCloseTo(1, 1);
+    for (const level of [levels.quiet, levels.loud]) {
+      expect(level.initialMuted).toBeLessThan(.00001);
+      expect(level.full).toBeGreaterThan(.08); expect(level.full).toBeLessThan(.15);
+      expect(level.half / level.full).toBeCloseTo(.5, 1);
+      expect(level.muted).toBeLessThan(.00001);
+      expect(level.restored / level.full).toBeCloseTo(.5, 1);
+      expect(level.afterEnd).toBeLessThan(.00001);
+      expect(level.loop).toBeGreaterThan(.02); expect(level.loopMuted).toBeLessThan(.00001);
+    }
+
     for (const result of results) {
       expect(Math.abs(result.frequency - result.expectedFrequency)).toBeLessThan(8);
       expect(Math.abs(result.end - result.expectedEnd)).toBeLessThan(result.rate === .25 && !result.loop ? .25 : .2);
       expect(result.minimumRms).toBeGreaterThan(.02);
     }
-  } finally { await desktop.close(); await server.close(); }
+  } finally { await desktop.close(); await server.close(); await rm(root, { recursive: true, force: true }); }
 });

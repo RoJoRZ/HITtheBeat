@@ -1,12 +1,15 @@
+import { normalizationLevel } from '../audio/normalization';
 import type { TempoEstimate } from '../audio/bpm';
 
 export async function analyzeAudio(bytes: ArrayBuffer, signal: AbortSignal) {
-  const context = new OfflineAudioContext(1, 1, 22050);
+  const context = new OfflineAudioContext(2, 1, 44100);
   let buffer: AudioBuffer;
   try { buffer = await context.decodeAudioData(bytes); }
   catch { throw new Error('Deze MP3 kan niet worden gelezen. Kies een ander bestand.'); }
   if (signal.aborted) throw new DOMException('Geannuleerd', 'AbortError');
   if (buffer.duration < .1) throw new Error('De audiotrack is te kort.');
+  const normalization = normalizationLevel(Array.from({ length: buffer.numberOfChannels }, (_, index) => buffer.getChannelData(index)), buffer.sampleRate);
+  if (signal.aborted) throw new DOMException('Geannuleerd', 'AbortError');
   const length = Math.min(buffer.length, buffer.sampleRate * 90);
   const samples = new Float32Array(length);
   // Choose the loudest channel to avoid cancellation between stereo channels.
@@ -27,5 +30,5 @@ export async function analyzeAudio(bytes: ArrayBuffer, signal: AbortSignal) {
     worker.onerror = () => { finish(); resolve({ bpm: null, strength: 0 }); };
     worker.postMessage({ samples, sampleRate: buffer.sampleRate }, [samples.buffer]);
   });
-  return { duration: buffer.duration, estimate };
+  return { duration: buffer.duration, estimate, normalization };
 }

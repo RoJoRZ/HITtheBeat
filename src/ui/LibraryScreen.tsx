@@ -12,6 +12,9 @@ function ExerciseForm({ initial, done, cancel }: { initial?: Exercise; done: (it
   const [bpm, setBpm] = useState(String(initial?.bpm ?? ''));
   const [detected, setDetected] = useState(initial?.detectedBpm ?? null);
   const [duration, setDuration] = useState(initial?.duration ?? 0);
+  const [normalizationDb, setNormalizationDb] = useState<number | null>(initial?.normalizationDb ?? null);
+  const [normalizeAudio, setNormalizeAudio] = useState(initial?.normalizeAudio ?? true);
+  const [levelNote, setLevelNote] = useState('');
   const [audio, setAudio] = useState<Asset>();
   const [image, setImage] = useState<Asset | null | undefined>();
   const [busy, setBusy] = useState(false);
@@ -25,13 +28,14 @@ function ExerciseForm({ initial, done, cancel }: { initial?: Exercise; done: (it
     abort.current?.abort();
     const controller = new AbortController(); abort.current = controller;
     setBusy(true); setError('');
-    if (file) { setAudio(undefined); setDuration(0); setDetected(null); }
+    if (file) { setAudio(undefined); setDuration(0); setDetected(null); setNormalizationDb(null); setLevelNote(''); }
     try {
       if (file && (!file.name.toLowerCase().endsWith('.mp3') || file.size > 50 * 1024 * 1024)) throw new Error('Kies een MP3 van maximaal 50 MB.');
       const bytes = file ? new Uint8Array(await file.arrayBuffer()) : new Uint8Array((await window.hitthebeat!.readAudio(initial!.id)).bytes);
       const result = await analyzeAudio(bytes.slice().buffer, controller.signal);
       if (controller.signal.aborted) return;
-      setDuration(result.duration); setDetected(result.estimate.bpm);
+      setDuration(result.duration); setDetected(result.estimate.bpm); setNormalizationDb(result.normalization.db);
+      setLevelNote(result.normalization.quiet ? 'Stilte of vrijwel onhoorbare audio: het niveau blijft ongewijzigd.' : result.normalization.limited ? 'Aanpassing begrensd om pieken en sterke versterking te beperken.' : 'Het geluidsniveau is gemeten.');
       if (file) { setAudio({ name: file.name, bytes }); setTitle(current => current.trim() ? current : file.name.replace(/\.mp3$/i, '')); }
       if (!manual.current && result.estimate.bpm) setBpm(String(result.estimate.bpm));
     } catch (reason) { if (!controller.signal.aborted) setError(message(reason)); }
@@ -49,7 +53,7 @@ function ExerciseForm({ initial, done, cancel }: { initial?: Exercise; done: (it
   return <section className="panel exercise-form" aria-label={initial ? 'Oefening bewerken' : 'Nieuwe oefening'}><h2>{initial ? 'Oefening bewerken' : 'Nieuwe oefening'}</h2><form onSubmit={async event => {
     event.preventDefault(); setSaving(true); setError('');
     try {
-      const item = await window.hitthebeat!.saveExercise({ id: initial?.id, title, description, bpm: Number(bpm), detectedBpm: detected, analysisStatus: detected ? 'estimated' : 'unavailable', duration, audio, image });
+      const item = await window.hitthebeat!.saveExercise({ id: initial?.id, title, description, bpm: Number(bpm), detectedBpm: detected, analysisStatus: detected ? 'estimated' : 'unavailable', duration, audio, image, normalizationDb, normalizeAudio });
       done(item);
     } catch (reason) { setError(message(reason)); }
     finally { setSaving(false); }
@@ -57,6 +61,7 @@ function ExerciseForm({ initial, done, cancel }: { initial?: Exercise; done: (it
     {!initial && <label>MP3-bestand<input type="file" accept=".mp3,audio/mpeg" onChange={event => { const file = event.target.files?.[0]; if (file) void analyze(file); }} /></label>}
     {initial && <p>{initial.audioName} <button type="button" className="secondary" disabled={busy} onClick={() => void analyze()}>BPM opnieuw analyseren</button></p>}
     <p role="status">{busy ? 'Audio lezen en tempo analyseren…' : duration ? detected ? `Geschat tempo: ${detected} BPM · controleer dit met je gehoor.` : 'Geen duidelijk tempo gevonden. Vul het BPM zelf in.' : 'Kies een MP3 om te beginnen.'}</p>
+    <div className="normalization-setting"><label className="normalization-choice"><input type="checkbox" checked={normalizeAudio} onChange={event => setNormalizeAudio(event.target.checked)} />Geluidsniveau normaliseren</label><p className="caption">{normalizationDb === null ? 'Het geluidsniveau wordt bij het toevoegen gemeten.' : `Gemeten aanpassing: ${normalizationDb >= 0 ? '+' : ''}${normalizationDb.toFixed(1)} dB.`} {levelNote} Het originele MP3-bestand blijft bewaard.</p>{initial && <button type="button" className="secondary" disabled={busy} onClick={() => { setNormalizeAudio(true); void analyze(); }}>Volume normaliseren</button>}</div>
     <label>Naam<input required maxLength={160} value={title} onChange={event => setTitle(event.target.value)} /></label>
     <label>Origineel BPM<input type="number" required min="0.1" max="1000" step="0.1" value={bpm} onChange={event => { manual.current = true; setBpm(event.target.value); }} /></label>
     {detected !== null && <button type="button" className="text-button" onClick={() => { manual.current = true; setBpm(String(detected)); }}>Gebruik schatting ({detected} BPM)</button>}
@@ -79,7 +84,7 @@ function Detail({ item, edit }: { item: Exercise; edit: () => void }) {
     }).catch(reason => { if (active) setError(message(reason)); });
     return () => { active = false; if (objectUrl) URL.revokeObjectURL(objectUrl); };
   }, [item.id, item.updatedAt]);
-  return <div className="screen-stack"><section className="panel exercise-detail"><div className="panel-heading"><h2>{item.title}</h2><button className="secondary" onClick={edit}>Bewerken</button></div><dl className="exercise-metadata"><div><dt>Audiobestand</dt><dd>{item.audioName}</dd></div><div><dt>Origineel tempo</dt><dd>{item.bpm} BPM</dd></div><div><dt>BPM-analyse</dt><dd>{item.detectedBpm ? `${item.detectedBpm} BPM geschat` : 'Geen schatting beschikbaar'}</dd></div><div><dt>Trackduur</dt><dd>{durationLabel(item.duration)}</dd></div></dl><div className={`practice-top${url ? '' : ' without-tab'}`}>
+  return <div className="screen-stack"><section className="panel exercise-detail"><div className="panel-heading"><h2>{item.title}</h2><button className="secondary" onClick={edit}>Bewerken</button></div><dl className="exercise-metadata"><div><dt>Audiobestand</dt><dd>{item.audioName}</dd></div><div><dt>Origineel tempo</dt><dd>{item.bpm} BPM</dd></div><div><dt>BPM-analyse</dt><dd>{item.detectedBpm ? `${item.detectedBpm} BPM geschat` : 'Geen schatting beschikbaar'}</dd></div><div><dt>Trackduur</dt><dd>{durationLabel(item.duration)}</dd></div><div><dt>Geluidsniveau</dt><dd>{item.normalizationDb == null ? 'Nog niet gemeten' : item.normalizeAudio === false ? 'Normalisatie uit' : `Genormaliseerd (${item.normalizationDb >= 0 ? '+' : ''}${item.normalizationDb.toFixed(1)} dB)`}</dd></div></dl><div className={`practice-top${url ? '' : ' without-tab'}`}>
     {url && <section className="tab-panel"><div className="panel-heading"><h3>Tablatuur</h3><button className="secondary" onClick={() => dialog.current?.showModal()}>Vergroten</button></div><img src={url} alt={`Tablatuur bij ${item.title}`} /><dialog ref={dialog} className="tab-dialog"><button className="secondary" onClick={() => dialog.current?.close()}>Sluiten</button><img src={url} alt="Vergrote tablatuur" /></dialog></section>}
     <section className="instruction-inset"><h3>Opdracht</h3><p className="saved-instruction">{item.description || 'Geen opdracht toegevoegd.'}</p></section></div>{error && <p role="alert" className="error">{error}</p>}
     {!item.imageName && <p className="caption">Geen tablatuur toegevoegd.</p>}</section><AudioLab key={item.id} saved={item} /></div>;

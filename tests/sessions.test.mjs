@@ -64,7 +64,7 @@ test('checkpoints ignore old sequences, reject invalid context and never label s
 }));
 test('migration from schema 2 preserves routines and exercises', async () => fixture(async ({ library, root, routine, reopen }) => {
   library.close();
-  const db = new DatabaseSync(path.join(root, 'library.sqlite')); db.exec('DROP TABLE sessions; PRAGMA user_version=2;'); db.close();
+  const db = new DatabaseSync(path.join(root, 'library.sqlite')); db.exec('DROP TABLE sessions; ALTER TABLE exercises DROP COLUMN normalization_db; ALTER TABLE exercises DROP COLUMN normalize_audio; PRAGMA user_version=2;'); db.close();
   // fixture reopen closes the already closed handle safely.
   library = await reopen();
   assert.equal(library.list().length, 1); assert.deepEqual(library.listRoutines().find(item => item.id === routine.id), routine);

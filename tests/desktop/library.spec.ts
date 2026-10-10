@@ -31,6 +31,7 @@ test('own library imports, estimates, corrects, edits and reopens copied media o
     await page.getByRole('button', { name: 'Oefening toevoegen', exact: true }).click();
     await page.getByLabel('MP3-bestand').setInputFiles(source);
     await expect(page.getByRole('status')).toContainText('Geschat tempo:', { timeout: 15000 });
+    await expect(page.getByLabel('Geluidsniveau normaliseren', { exact: true })).toBeChecked();
     const estimated = Number((await page.getByRole('status').innerText()).match(/tempo: ([\d.]+)/)![1]);
     expect(Math.abs(estimated - 120)).toBeLessThan(2);
     await page.getByRole('textbox', { name: 'Naam', exact: true }).fill('Mijn warming-up');
@@ -41,6 +42,7 @@ test('own library imports, estimates, corrects, edits and reopens copied media o
     await expect(page.getByText(/tab.png · PNG/)).toBeVisible();
     await page.getByRole('button', { name: 'Oefening opslaan' }).click();
     await expect(page.getByRole('heading', { name: 'Mijn warming-up', exact: true })).toBeVisible();
+    await expect(page.getByRole('definition').filter({ hasText: /^Genormaliseerd/ })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
     await expect(page.getByRole('img', { name: 'Tablatuur bij Mijn warming-up' })).toBeVisible();
     await page.getByRole('button', { name: 'Vergroten', exact: true }).click();

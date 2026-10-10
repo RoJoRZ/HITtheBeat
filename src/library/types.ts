@@ -1,12 +1,12 @@
 export interface Exercise {
   id: string; title: string; description: string; bpm: number; detectedBpm: number | null;
   analysisStatus: 'estimated' | 'unavailable' | 'failed'; duration: number;
-  audioName: string; imageName: string | null; imageMime: string | null; updatedAt: string;
+  audioName: string; imageName: string | null; imageMime: string | null; updatedAt: string; normalizationDb: number | null; normalizeAudio: boolean;
 }
 export interface Asset { name: string; bytes: Uint8Array }
 export interface SaveInput {
   id?: string; title: string; description: string; bpm: number; detectedBpm: number | null;
-  analysisStatus: Exercise['analysisStatus']; duration: number; audio?: Asset; image?: Asset | null;
+  analysisStatus: Exercise['analysisStatus']; duration: number; audio?: Asset; image?: Asset | null; normalizationDb?: number | null; normalizeAudio?: boolean;
 }
 
 export interface RoutineStep { id: string; repetitions: number; bpm: number; start: number | null; end: number | null }

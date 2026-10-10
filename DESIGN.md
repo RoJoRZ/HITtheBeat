@@ -154,3 +154,10 @@ Na ieder oefenblok verschijnt een rustige terugblik met ‘Deze oefening opnieuw
 De evaluatie staat in het bestaande spelerpaneel, na de gehele fragmentserie. Toon de oefennaam, stapnummers en fragmentgrenzen; bied dezelfde serie opnieuw of Verder aan. De keuze Hetzelfde/Sneller/Rustiger, BPM-aanpassing, zichtbare voor/na-opbouw en optionele notitie staan bij elkaar. Benoem expliciet dat een wijziging voor de volgende sessie en voor de hele gekozen oefening geldt. Behoud Studio donker en Mandarijn.
 
 Voortgang toont in deze fase rustige kaarten met echte sessiehistorie. Iedere kaart heeft datum, rondje, een expliciete status en werkelijk geoefende tijd. Fragmenten, tempo’s, toonhoogte, afgeronde speelbeurten en evaluaties zijn uitklapbaar. Gestopt, onderbroken en overgeslagen mogen niet de indruk van een volledig afgerond rondje geven. Grafieken volgen in fase 7.
+
+
+## Normalisatie en volumeregeling
+
+Zet een compacte rij met luidspreker-/dempenknop, label Volume, horizontale schuif en percentage direct onder de afspeelbediening. Gebruik Mandarijn voor de schuif en dezelfde focusstijl als de overige bediening. Maak gedempt zichtbaar met icoon, knoptekst voor hulptechnologie en de tekst Gedempt. Geef de schuif toetsenbordbediening zonder dat Spatie de speler start.
+
+In het import-/bewerkformulier staat Geluidsniveau normaliseren standaard aan voor nieuwe oefeningen. Toon de gemeten dB-correctie en eventuele begrenzing als toelichting. Bij bestaande oefeningen staat Volume normaliseren bij deze instelling; de gebruiker bewaart de wijziging met de gewone opslagknop. In de oefeningsdetails staat of normalisatie aan, uit of nog niet gemeten is.

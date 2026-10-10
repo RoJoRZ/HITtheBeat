@@ -8,6 +8,7 @@ export function validateAudioSettings(rate: number, semitones: number, a: number
 export class AudioEngine {
   private context = new AudioContext();
   private gain = this.context.createGain();
+  private output = this.context.createGain();
   private node?: StretchNode;
   private anchorTime = 0;
   private anchorPosition = 0;
@@ -35,18 +36,25 @@ export class AudioEngine {
     return Math.max(0, Math.min(this.segmentEnd ?? this.duration, value));
   }
   get ended() { return this.playing && !this.loop && this.position >= (this.segmentEnd ?? this.duration); }
-  async load(bytes: ArrayBuffer) {
+  async load(bytes: ArrayBuffer, normalizationDb: number | null = null) {
     const buffer = await this.context.decodeAudioData(bytes);
-    await this.loadBuffer(buffer);
+    await this.loadBuffer(buffer, normalizationDb);
     return buffer;
   }
-  async loadBuffer(buffer: AudioBuffer) {
+  async loadBuffer(buffer: AudioBuffer, normalizationDb: number | null = null) {
     if (this.disposed) return;
     this.node = await createStretch(this.context);
     if (this.disposed) { this.node.disconnect(); return; }
-    await this.node.addBuffers(Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i)));
+    const channels = Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i));
+    if (normalizationDb !== null) {
+      if (!Number.isFinite(normalizationDb) || normalizationDb < -60 || normalizationDb > 12 + 1e-9) throw new Error('Ongeldige volumenormalisatie.');
+      let peak = 0; for (const channel of channels) for (const sample of channel) peak = Math.max(peak, Math.abs(sample));
+      const gain = Math.min(Math.pow(10, normalizationDb / 20), peak ? Math.pow(10, -1 / 20) / peak : 1);
+      await this.node.addBuffers(channels.map(channel => Float32Array.from(channel, sample => sample * gain)));
+    } else await this.node.addBuffers(channels);
     this.node.connect(this.gain);
-    this.gain.connect(this.context.destination);
+    this.gain.connect(this.output);
+    this.output.connect(this.context.destination);
     this.duration = buffer.duration;
     this.b = buffer.duration;
   }
@@ -62,6 +70,15 @@ export class AudioEngine {
       channel[i] = .28 * Math.min(1, age * 200) * Math.exp(-age * 5) * (Math.sin(phase) + .25 * Math.sin(phase * 2));
     }
     return this.loadBuffer(buffer).then(() => buffer);
+  }
+  setVolume(value: number) {
+    if (!Number.isFinite(value) || value < 0 || value > 1) throw new Error('Kies een volume van 0–100%.');
+    if (this.disposed) return;
+    const now = this.context.currentTime;
+    this.output.gain.cancelAndHoldAtTime(now);
+    // A new or paused player must already be muted before audio starts.
+    if (!this.playing || this.ended || this.context.state !== 'running') this.output.gain.setValueAtTime(value, now);
+    else this.output.gain.setTargetAtTime(value, now, .005);
   }
   private async schedule() {
     if (!this.node) return;

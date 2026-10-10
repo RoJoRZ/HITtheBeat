@@ -1,3 +1,5 @@
+import { outputVolume, useOutput } from '../audio/output-volume';
+import { VolumeControl } from './VolumeControl';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Play, Pause, RotateCcw, Repeat2, Upload, Minus, Plus } from 'lucide-react';
 import type { Exercise } from '../library/types';
@@ -17,6 +19,7 @@ export interface DemoAudio { id: string; title: string; bpm: number; duration: n
 export function AudioLab({ demo, saved }: { demo?: DemoAudio; saved?: Exercise }) {
   const embedded = Boolean(demo || saved);
   const originalBpm = saved?.bpm ?? demo?.bpm ?? 90;
+  const output = useOutput();
   const engine = useRef<AudioEngine | null>(null);
   const generation = useRef(0);
   const [busy, setBusy] = useState(false);
@@ -42,6 +45,7 @@ export function AudioLab({ demo, saved }: { demo?: DemoAudio; saved?: Exercise }
     return () => { clearInterval(timer); generation.current++; engine.current?.dispose(); };
   }, []);
 
+  useEffect(() => { engine.current?.setVolume(outputVolume()); }, [output]);
   const command = (operation: Promise<unknown> | undefined) => { void operation?.catch(reason => setError(reason instanceof Error ? reason.message : 'Afspelen is niet gelukt.')); };
   const toggle = () => command(engine.current?.playPause());
   const restart = () => command(engine.current?.seek(loop ? a : 0));
@@ -60,11 +64,11 @@ export function AudioLab({ demo, saved }: { demo?: DemoAudio; saved?: Exercise }
     const id = ++generation.current;
     engine.current?.dispose();
     const audio = new AudioEngine();
-    engine.current = audio;
+    engine.current = audio; audio.setVolume(outputVolume());
     setBusy(true); setError(''); setDuration(0); setName(''); setWave([]); setPlaying(false); setPosition(0);
     try {
       if (file && file.size > 50 * 1024 * 1024) throw new Error('Kies voor deze proef een bestand van maximaal 50 MB.');
-      const buffer = saved ? await audio.load(new Uint8Array((await window.hitthebeat!.readAudio(saved.id)).bytes).buffer) : file ? await audio.load(await file.arrayBuffer()) : await audio.demo(demo?.duration, demo?.bpm);
+      const buffer = saved ? await audio.load(new Uint8Array((await window.hitthebeat!.readAudio(saved.id)).bytes).buffer, saved.normalizeAudio !== false ? saved.normalizationDb ?? null : null) : file ? await audio.load(await file.arrayBuffer()) : await audio.demo(demo?.duration, demo?.bpm);
       if (id !== generation.current) return;
       const data = buffer.getChannelData(0);
       const peaks = Array.from({ length: 220 }, (_, i) => {
@@ -111,6 +115,7 @@ export function AudioLab({ demo, saved }: { demo?: DemoAudio; saved?: Exercise }
       <div className="time-row"><span>{time(position)}</span><span>{time(duration)} · bij dit tempo {time(duration * source / target)}</span></div>
       <div className="playback-controls"><div className="transport"><button className="secondary" aria-label="Terug naar start" disabled={!duration || busy} onClick={restart}><RotateCcw size={21} /></button><button className="primary play-button" disabled={!duration || busy} onClick={toggle}>{playing ? <Pause size={23} /> : <Play size={23} />}{playing ? 'Pauzeren' : 'Afspelen'}</button><button className="secondary" aria-pressed={loop} disabled={!duration || busy} onClick={() => settings({ loop: !loop })}><Repeat2 size={21} /> Loop</button></div>
       <div className="audio-settings">{!embedded && field('Origineel BPM', source, value => settings({ source: value }))}{field('Speeltempo BPM', target, value => settings({ target: value }))}{field('Toonhoogte (halve tonen)', pitch, value => settings({ pitch: value }))}</div></div>
+      <VolumeControl />
       <div className="loop-settings">{field('Begin A (seconden)', a, value => settings({ a: value }), .1)}<button className="secondary" disabled={!duration || busy} onClick={() => settings({ a: position })}>A hier</button>{field('Einde B (seconden)', b, value => settings({ b: value }), .1)}<button className="secondary" disabled={!duration || busy} onClick={() => settings({ b: position })}>B hier</button></div>
     </div>
     <aside className="audio-note"><strong>{saved ? 'Oefen in je eigen tempo' : demo ? 'Voorbeeldaudio, vrij te bedienen' : 'Even proberen'}</strong><p>Spatie: afspelen / pauzeren · 1: terug naar start (bij een loop naar A). Klik eerst buiten een invoerveld of knop om deze toetsen te gebruiken.</p><p>{saved ? `Origineel tempo: ${saved.bpm} BPM. Pas dit aan via Bewerken.` : demo ? 'De melodie dient om de bediening te proberen en hoort niet bij de getoonde tablatuur.' : 'Origineel BPM vul je in deze proef zelf in.'} Bevestig getallen met Enter of verlaat het veld. Tempo: 25–300% · toonhoogte: −12 tot +12 halve tonen. {saved ? 'Deze oefening is opgeslagen in je lokale bibliotheek.' : 'Deze proef slaat het bestand niet op.'}</p></aside>

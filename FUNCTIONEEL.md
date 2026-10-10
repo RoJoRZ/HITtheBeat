@@ -35,6 +35,14 @@ De muzikant kan nieuwe oefeningen toevoegen en bestaande oefeningen gebruiken in
 
 De precieze bediening en stapgrootte van de toonhoogte-instelling worden nog uitgewerkt. Stappen van een halve toon zijn het huidige voorstel.
 
+### 3.1 Geluidsniveau en spelervolume
+
+Bij het toevoegen van een MP3 wordt het geluidsniveau automatisch gemeten. Normalisatie staat standaard aan en brengt zachte en luide oefeningen dichter bij elkaar. Eén vaste niveaucorrectie geldt voor de gehele MP3 en alle fragmenten daarvan; verschillen binnen de muziek blijven behouden. Het originele bestand blijft ongewijzigd bewaard. De muzikant kan normalisatie per oefening uitschakelen.
+
+Bestaande oefeningen worden niet ongemerkt aangepast. Via Bewerken → Volume normaliseren kan het niveau alsnog worden gemeten en met Oefening opslaan worden bewaard. De gemeten correctie is zichtbaar bij de oefening. Stilte en vrijwel onhoorbare audio worden niet versterkt; sterke versterking en audiopieken begrenzen de correctie. Daardoor hoeven alle bestanden niet exact even luid te klinken.
+
+De echte speler heeft een volumeschuif van 0–100% en een knop om te dempen en dempen op te heffen. Dit is het appvolume, onafhankelijk van het systeemvolume, de normalisatie, BPM en toonhoogte. De instelling geldt ook bij een andere oefening, vrije fragmenttraining en terugkeer naar het rondje. Volume en dempen worden op deze computer onthouden, ook na opnieuw openen. De volumeschuif bedienen heft dempen op; alleen dempen opheffen herstelt het laatst gekozen volume.
+
 ## 4. Mijn oefenrondje
 
 De muzikant kan een oefenrondje samenstellen, een naam geven, opslaan en opnieuw uitvoeren. Binnen het rondje kunnen oefeningen worden toegevoegd, verwijderd en verplaatst.
@@ -262,3 +270,8 @@ Bij Voortgang staat nu een sessiehistorie met datum, rondje, status, oefentijd, 
 Ook eerder stoppen bewaart resultaten, herkenbaar als ‘Gestopt’. Een doorlopen rondje met overgeslagen oefeningen is niet volledig afgerond en krijgt een eigen status. Afsluiten van het venster of een onverwachte onderbreking bewaart de laatst opgeslagen voortgang als ‘Onderbroken bij afsluiten’. Er zijn periodieke opslagmomenten van één seconde en extra opslag bij overgangen; het laatste onopgeslagen stukje kan bij afsluiten verloren gaan. Een onderbroken sessie kan in deze fase niet op haar oude afspeelpositie worden hervat. Een rondje starten maakt een nieuwe sessie.
 
 Bewaren van evaluatie en toekomstige tempo-opbouw gebeurt samen. Herhaald klikken of opnieuw proberen met dezelfde evaluatie veroorzaakt geen dubbele aanpassing. Bij een opslagfout blijft de speler beschikbaar om opnieuw te proberen; bewust stoppen verlaat de speler pas nadat bewaren is gelukt.
+
+
+## 17. Aanvulling na fase 6 — Normalisatie en volume (v0.0.8)
+
+De gebruiker heeft v0.0.7 in gebruik getest en vraagt vóór het dashboard om normalisatie bij het toevoegen en een volumeknop in de speler. Beide zijn toegevoegd volgens hoofdstuk 3.1. De regelaar werkt in de rondjespeler, vrije fragmenttraining, losse oefeningspeler en audioproef. De fictieve voorbeeldgrafieken blijven voorbeelden.

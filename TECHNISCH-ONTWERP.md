@@ -167,3 +167,14 @@ De geïsoleerde preload biedt start/list/save/review voor sessies; de main-frame
 Een evaluatie heeft een UUID. Evaluatie en BPM-aanpassing worden in één SQLite-transactie opgeslagen, met een controle op de opgeslagen rondjeversie. Een identieke evaluatie-ID wordt slechts één keer verwerkt. De BPM-aanpassing werkt op het bedoelde blok en valideert de hele resulterende opbouw. De snapshot van de lopende sessie verandert niet. Een schone editor ververst zijn opgeslagen rondje bij terugkeer; niet-opgeslagen concepten blijven bewaard.
 
 De speler schrijft iedere seconde en bij overgangen een checkpoint. Normaal stoppen wacht op bewaren. Bij venstersluiten of opnieuw openen worden nog actieve records als interrupted aangemerkt. Dit is historieherstel tot het laatste checkpoint, geen garantie op het allerlaatste audio-interval en geen hervatting van de afspeelpositie. Tijd wordt gemeten via de audioklok; evaluatie en laden vallen buiten de oefentijd. Het dashboard met grafieken is fase 7.
+
+
+## 16. Normalisatie en volumeregeling (v0.0.8)
+
+De importanalyse decodeert de MP3 op 44,1 kHz en meet alle kanalen over de gehele track. Een eigen RMS-meting met blokken van 400 ms negeert blokken onder −60 dBFS of 30 dB onder het luidste blok. Het streefniveau is −18 dBFS RMS; de vaste correctie wordt begrensd op +12 dB versterking en −1 dBFS gemeten samplepiek. Vrijwel stille audio blijft ongewijzigd. Dit is praktische niveaumatching, geen LUFS-/true-peaknorm en geen dynamische compressie. Verschillen in klankkleur en piekverhouding kunnen hoorbare luidheidsverschillen laten bestaan.
+
+Schema 4 voegt `normalization_db` en `normalize_audio` toe aan oefeningen. De import bewaart de originele MP3 en een afzonderlijke niveaucorrectie. Ontbrekende velden bij een metadatawijziging behouden bestaande instellingen; gain en aan/uit worden in het hoofdproces gevalideerd. Oude oefeningen krijgen geen gemeten gain. Opnieuw analyseren in Bewerken kan deze alsnog invullen. De BPM-worker blijft een zelfstandige analyse; een ontbrekende BPM-schatting verhindert volumenormalisatie niet.
+
+Bij het laden vermenigvuldigt de audio-engine een kopie van de PCM-kanalen vóór Signalsmith met de gekozen correctie. De engine begrenst opnieuw op de daadwerkelijk gedecodeerde samplepiek, omdat de afspeelsamplerate kan afwijken van de analyse. Bronbestanden en de oorspronkelijke AudioBuffer blijven intact.
+
+Een aparte GainNode ná de bestaande afspeelgate regelt het gebruikersvolume met een korte overgang. Zo verandert volume geen afspeelpositie en wist het geen geplande stilte bij fragmentpunt B. Een gedeelde React-store synchroniseert de echte spelers en bewaart volume/dempen als lokale voorkeur. Bij het aanmaken van een nieuwe engine wordt de huidige voorkeur direct toegepast. Sessietijd en BPM-historie veranderen niet door volume of dempen.

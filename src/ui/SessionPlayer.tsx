@@ -1,3 +1,5 @@
+import { outputVolume, useOutput } from '../audio/output-volume';
+import { VolumeControl } from './VolumeControl';
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { Play, Pause, RotateCcw, Expand, X } from 'lucide-react';
 import { AudioEngine, validateAudioSettings } from '../audio/engine';
@@ -27,6 +29,7 @@ function Notation({ item }: { item: Exercise }) {
 
 export function SessionPlayer({ session, active, leave, finished, stopRef }: { session: SessionRecord; active: boolean; leave: () => void; finished: () => void; stopRef: MutableRefObject<(() => Promise<void>) | null> }) {
   const { routine, exercises } = session;
+  const output = useOutput();
   const [run, setRun] = useState(() => createRun(routine, exercises));
   const state = useRef(run), audioRef = useRef<AudioEngine | null>(null), assetId = useRef('');
   const activeRef = useRef(active); activeRef.current = active;
@@ -43,6 +46,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   const [choice, setChoice] = useState<'same'|'faster'|'slower'>('same'), [delta, setDelta] = useState(5), [note, setNote] = useState('');
   const evaluationId = useRef(crypto.randomUUID());
   const { exercise, step, block } = current(run);
+  useEffect(() => { audioRef.current?.setVolume(outputVolume()); }, [output]);
   function entry(settings: Omit<Played, 'seconds'|'completed'>) {
     let item = played.current.find(item => item.mode === settings.mode && item.block === settings.block && item.step === settings.step && item.a === settings.a && item.b === settings.b && item.bpm === settings.bpm && item.pitch === settings.pitch);
     if (!item) { item = { ...settings, seconds: 0, completed: 0 }; played.current.push(item); }
@@ -105,10 +109,10 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
       if (!alive.current || token !== generation.current) return;
       let audio = audioRef.current;
       if (!audio || assetId.current !== selected.block.id || !loaded) {
-        audio?.dispose(); audio = new AudioEngine(); audioRef.current = audio; assetId.current = ''; setLoaded(false); setWave([]);
+        audio?.dispose(); audio = new AudioEngine(); audio.setVolume(outputVolume()); audioRef.current = audio; assetId.current = ''; setLoaded(false); setWave([]);
         const bytes = await window.hitthebeat!.readAudio(selected.exercise.id);
         if (!alive.current || token !== generation.current) return;
-        const buffer = await audio.load(new Uint8Array(bytes.bytes).buffer);
+        const buffer = await audio.load(new Uint8Array(bytes.bytes).buffer, selected.exercise.normalizeAudio !== false ? selected.exercise.normalizationDb ?? null : null);
         if (!alive.current || token !== generation.current) return;
         const data = buffer.getChannelData(0);
         const peaks = Array.from({ length: 220 }, (_, index) => { let peak = 0; for (let i = Math.floor(index * data.length / 220); i < Math.floor((index + 1) * data.length / 220); i++) peak = Math.max(peak, Math.abs(data[i])); return peak; });
@@ -213,6 +217,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
       <svg className="waveform" viewBox="0 0 880 140" role="img" aria-label="Golfvorm van de oefening" preserveAspectRatio="none"><rect x={a / exercise.duration * 880} y="0" width={(b - a) / exercise.duration * 880} height="140" fill="currentColor" opacity=".12" />{wave.map((peak, index) => <line key={index} x1={index * 4 + 2} x2={index * 4 + 2} y1={70 - Math.max(2, peak * 60)} y2={70 + Math.max(2, peak * 60)} stroke="currentColor" strokeWidth="2" opacity={index / 220 * exercise.duration <= position ? 1 : .38} />)}<line x1={position / exercise.duration * 880} x2={position / exercise.duration * 880} y1="0" y2="140" stroke="#f2f4f6" /></svg>
       <div className="time-row"><span>{durationLabel(position)} / {durationLabel(exercise.duration)}</span><span>Resterend rondje: <strong data-testid="session-remaining">{durationLabel(remainingSeconds(run, position))}</strong></span></div>
       <div className="session-transport"><button className="secondary" aria-label="Terug naar begin van de herhaling" disabled={busy || !loaded || !active} onClick={() => void restart()}><RotateCcw size={20} /></button><button className="primary play-button" disabled={busy || !loaded || !active} onClick={() => void toggle()}>{(isFree ? freePlaying : run.phase === 'playing') ? <Pause size={22} /> : <Play size={22} />}{(isFree ? freePlaying : run.phase === 'playing') ? 'Pauzeren' : 'Afspelen'}</button>{isFree ? <button className="secondary" disabled={busy || !active} onClick={() => void returnToRound()}>Terug naar rondje</button> : <><button className="secondary" disabled={busy || !loaded || !active} onClick={() => void enterFragment()}>Fragment oefenen</button><button className="text-button" disabled={busy || !active} onClick={() => move('skip')}>Oefening overslaan</button></>}</div>
+      <VolumeControl />
       {isFree && <><div className="audio-settings">{field('Speeltempo BPM', free.bpm, bpm => freeSettings({ bpm }))}{field('Toonhoogte (halve tonen)', free.pitch, pitch => freeSettings({ pitch }))}<button className="secondary" aria-pressed={free.loop} onClick={() => freeSettings({ loop: !free.loop })} disabled={busy}>Loop</button></div><div className="loop-settings">{field('Begin A (seconden)', free.a, a => freeSettings({ a }), .1)}<button className="secondary" disabled={busy} onClick={() => freeSettings({ a: position })}>A hier</button>{field('Einde B (seconden)', free.b, b => freeSettings({ b }), .1)}<button className="secondary" disabled={busy} onClick={() => freeSettings({ b: position })}>B hier</button></div></>}
     </div></section>}</>}
     <section className="panel session-times" aria-label="Tijd in deze sessie"><span>Rondje afgespeeld <strong data-testid="time-planned">{durationLabel(times.planned)}</strong></span><span>Fragmenttraining <strong data-testid="time-fragment">{durationLabel(times.fragment)}</strong></span><span>Gepauzeerd <strong>{durationLabel(times.pause)}</strong></span></section>
