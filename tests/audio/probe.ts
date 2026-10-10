@@ -12,7 +12,7 @@ export async function probe(rate: number, pitch: number, loop: boolean) {
   const rendered = await context.startRendering();
   const samples = rendered.getChannelData(0);
   let crossings = 0;
-  const start = Math.floor(.3 * sampleRate), end = Math.floor(.8 * sampleRate);
+  const start = Math.floor(.15 * sampleRate), end = Math.floor(Math.min(.55, 2 / rate - .1) * sampleRate);
   for (let i = start + 1; i < end; i++) if (samples[i - 1] <= 0 && samples[i] > 0) crossings++;
   let last = 0, minimumRms = 1;
   for (let i = 0; i < samples.length; i++) if (Math.abs(samples[i]) > .01) last = i;

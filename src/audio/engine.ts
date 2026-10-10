@@ -2,7 +2,7 @@ import { createStretch } from './stretch';
 import type { StretchNode } from 'signalsmith-stretch';
 
 export function validateAudioSettings(rate: number, semitones: number, a: number, b: number, duration: number) {
-  if (![rate, semitones, a, b].every(Number.isFinite) || rate < .5 || rate > 2 || Math.abs(semitones) > 12 || a < 0 || b > duration || b - a < .1) throw new Error('Kies een tempo van 50–200%, toonhoogte van −12 tot +12 en een fragment van minstens 0,1 seconde.');
+  if (![rate, semitones, a, b].every(Number.isFinite) || rate < .25 || rate > 3 || Math.abs(semitones) > 12 || a < 0 || b > duration || b - a < .1) throw new Error('Kies een tempo van 25–300%, toonhoogte van −12 tot +12 en een fragment van minstens 0,1 seconde.');
 }
 
 export class AudioEngine {
@@ -47,14 +47,14 @@ export class AudioEngine {
     this.duration = buffer.duration;
     this.b = buffer.duration;
   }
-  demo() {
-    const buffer = this.context.createBuffer(1, this.context.sampleRate * 8, this.context.sampleRate);
+  demo(duration = 8, bpm = 90) {
+    const buffer = this.context.createBuffer(1, this.context.sampleRate * duration, this.context.sampleRate);
     const channel = buffer.getChannelData(0);
     const notes = [220, 261.63, 329.63, 392, 329.63, 261.63];
     for (let i = 0; i < channel.length; i++) {
       const time = i / buffer.sampleRate;
-      const beat = time * 1.5;
-      const age = (beat % 1) / 1.5;
+      const beat = time * bpm / 60;
+      const age = (beat % 1) * 60 / bpm;
       const phase = 2 * Math.PI * notes[Math.floor(beat) % notes.length] * age;
       channel[i] = .28 * Math.min(1, age * 200) * Math.exp(-age * 5) * (Math.sin(phase) + .25 * Math.sin(phase * 2));
     }

@@ -43,3 +43,7 @@ Nog open: muzikale luistertest door de gebruiker, klank en klikgedrag van versch
 - Pakketten: Mac arm64 en x64, Windows x64 en arm64 gebouwd. Alleen Mac arm64 is uitgevoerd en getest; de overige architecturen/platformen zijn niet gebruiksgetest.
 
 ![Audioproef](screenshots/fase-1-audioproef.png)
+
+## Vervolg in v0.0.3
+
+Na deze proef heeft de gebruiker het bereik **25–300%** gekozen en opdracht gegeven verder te gaan. De oorspronkelijke 50–200%-grens hierboven beschrijft v0.0.2. Zie `FASE-2.md` voor de ruimere grensmetingen en nieuwe voorbeeldschermen. Muzikale luisterbeoordeling en Windows-gebruikstest blijven open.

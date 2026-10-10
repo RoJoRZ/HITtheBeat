@@ -1,3 +1,5 @@
+import { ExampleScreens, type ExamplePage } from './ExampleScreens';
+import { findExercise } from './examples';
 import { AudioLab } from './AudioLab';
 import { useEffect, useState } from 'react';
 import { AudioLines, ChartNoAxesColumnIncreasing, CirclePlay, FolderOpen, Headphones, Music2, Plus, ArrowUpRight } from 'lucide-react';
@@ -7,16 +9,18 @@ const pages = {
   exercises: { title: 'Oefeningen', subtitle: 'Jouw verzameling oefeningen.', empty: 'Een plek voor jouw oefeningen', description: 'Hier komen je MP3-bestanden, tablatuur en de opdracht bij elke oefening samen.', action: 'Oefening toevoegen', icon: Music2 },
   progress: { title: 'Jouw voortgang', subtitle: 'Stap voor stap vooruit.', empty: 'Je vooruitgang begint met oefenen', description: 'Hier zie je straks je oefentijd en tempo-ontwikkeling, met ruimte voor hoe het ging.', action: null, icon: ChartNoAxesColumnIncreasing },
 } as const;
-type Page = keyof typeof pages | 'audio';
+type Page = ExamplePage | 'audio';
 const navigation = [
-  { id: 'audio', label: 'Audioproef', icon: AudioLines },
   { id: 'routines', label: 'Mijn oefenrondjes', icon: CirclePlay },
   { id: 'exercises', label: 'Oefeningen', icon: Music2 },
   { id: 'progress', label: 'Voortgang', icon: ChartNoAxesColumnIncreasing },
+  { id: 'audio', label: 'Audioproef', icon: AudioLines },
 ] as const;
 
 export function App() {
   const [page, setPage] = useState<Page>('routines');
+  const [examples, setExamples] = useState(true);
+  const [selected, setSelected] = useState('wisselslag');
   const [version, setVersion] = useState('');
   const [desktopError, setDesktopError] = useState(false);
   useEffect(() => {
@@ -24,16 +28,16 @@ export function App() {
       window.hitthebeat.getAppInfo().then(info => setVersion(info.version)).catch(() => setDesktopError(true));
     }
   }, []);
-  const current = page === 'audio' ? { ...pages.routines, title: 'Jouw muziek, jouw tempo', subtitle: 'Een eerste proef met de audiomotor.' } : pages[page];
+  const current = page === 'audio' ? { ...pages.routines, title: 'Jouw muziek, jouw tempo', subtitle: 'Een eerste proef met de audiomotor.' } : page === 'player' ? { ...pages.routines, title: findExercise(selected).title, subtitle: 'Ruimte voor je muziek.' } : page === 'evaluation' ? { ...pages.routines, title: 'Even terugkijken', subtitle: 'Een kleine stap naar de volgende keer.' } : pages[page];
   const EmptyIcon = current.icon;
   return (
-    <div className="app-shell">
+    <div className={`app-shell${page === 'player' ? ' playing-layout' : ''}`}>
       <a href="#main" className="skip-link">Naar inhoud</a>
       <aside className="sidebar">
         <div className="brand" aria-label="HITtheBeat"><AudioLines aria-hidden="true" /><span><strong>HIT</strong>the<strong>Beat</strong></span></div>
         <nav aria-label="Hoofdnavigatie">
           {navigation.map(({ id, label, icon: Icon }) => (
-            <button key={id} className="nav-item" aria-current={page === id ? 'page' : undefined} onClick={() => setPage(id)}>
+            <button key={id} className="nav-item" aria-current={page === id || (id === 'routines' && (page === 'player' || page === 'evaluation')) ? 'page' : undefined} onClick={() => { setPage(id); window.scrollTo(0, 0); }}>
               <Icon size={23} aria-hidden="true" /><span>{label}</span>
             </button>
           ))}
@@ -43,7 +47,8 @@ export function App() {
       <main id="main" tabIndex={-1}>
         <header className="page-header"><div><p className="eyebrow">JOUW OEFENPLEK</p><h1>{current.title}</h1><p className="subtitle">{current.subtitle}</p></div><span className="header-mark"><AudioLines size={27} aria-hidden="true" /></span></header>
         {desktopError && <p role="alert" className="error">De appgegevens konden niet worden geladen. Sluit de app en probeer opnieuw.</p>}
-        {page === 'audio' ? <AudioLab /> : <><section className="empty-panel" aria-labelledby="empty-heading" key={page}>
+        {page !== 'audio' && <div className="example-banner"><div><strong>{examples ? 'Voorbeeldschermen' : 'Lege schermen'}</strong><span>{examples ? 'Alle oefeningen, opbouw en resultaten zijn voorbeelden. Wijzigingen worden niet opgeslagen.' : 'Dit zie je voordat je eigen oefeningen en rondjes hebt toegevoegd.'}</span></div><button className="secondary" onClick={() => { setExamples(!examples); if (page === 'player' || page === 'evaluation') setPage('routines'); }}>{examples ? 'Lege schermen bekijken' : 'Voorbeeldschermen bekijken'}</button></div>}
+        {page === 'audio' ? <AudioLab /> : examples ? <ExampleScreens page={page} navigate={next => { setPage(next); window.scrollTo(0, 0); }} selected={selected} select={setSelected} /> : <><section className="empty-panel" aria-labelledby="empty-heading" key={page}>
           <div className="empty-icon"><EmptyIcon size={42} strokeWidth={1.4} aria-hidden="true" /></div>
           <p className="eyebrow">{page === 'routines' ? 'IN JOUW RITME' : page === 'exercises' ? 'JOUW BIBLIOTHEEK' : 'ELKE OEFENING TELT'}</p>
           <h2 id="empty-heading">{current.empty}</h2>

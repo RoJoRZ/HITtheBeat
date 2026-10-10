@@ -10,10 +10,13 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 - [Ontwikkelplan](ONTWIKKELPLAN.md)
 - [Voortgang en controles van fase 0](docs/FASE-0.md)
 - [Audioproef en teststappen van fase 1](docs/FASE-1.md)
+- [Voorbeeldschermen en nieuw tempobereik van fase 2](docs/FASE-2.md)
 
 ## Eerste proefversie
 
-Versie 0.0.2 bevat de desktopbasis en een afzonderlijke **Audioproef**: MP3/WAV laden, onafhankelijk tempo en toonhoogte aanpassen, zoeken, pauzeren en A/B-loopen. Probeer de ingebouwde voorbeeldmelodie of een eigen bestand. Automatische BPM-herkenning en het opslaan van oefeningen, rondjes en voortgang volgen later. De nog niet aangesloten bibliotheek- en rondjeknoppen zijn zichtbaar als niet-actieve bediening; er worden geen fictieve resultaten als eigen voortgang getoond.
+Versie 0.0.3 biedt doorloopbare **voorbeeldschermen** voor de rondjetabel, bibliotheek, speler, evaluatie en dashboard. De vaste voorbeeldmelding voorkomt verwarring met eigen gegevens. Via ‘Lege schermen bekijken’ zie je de lege toestanden. Wijzigingen worden nog niet opgeslagen.
+
+De afzonderlijke **Audioproef** ondersteunt: MP3/WAV laden, onafhankelijk tempo (25–300%) en toonhoogte aanpassen, zoeken, pauzeren en A/B-loopen. Probeer de ingebouwde voorbeeldmelodie of een eigen bestand. Automatische BPM-herkenning en het opslaan van oefeningen, rondjes en voortgang volgen later. De nog niet aangesloten bibliotheek- en rondjeknoppen zijn zichtbaar als niet-actieve bediening; er worden geen fictieve resultaten als eigen voortgang getoond.
 
 ## Ontwikkelen
 
@@ -36,7 +39,7 @@ pnpm test:desktop
 pnpm start
 ```
 
-De desktoptests controleren de ontwikkelserver en het gebouwde scherm uit `dist/`. Daarom komt `pnpm build` vóór `pnpm test:desktop`. De test van het gebouwde scherm start twee keer een echte Electron-app, navigeert, controleert offline laden en de geïsoleerde desktopkoppeling en sluit weer af. Ontwikkeltests gebruiken een tijdelijke gebruikersmap. Screenshots staan in `test-results/` en gaan niet automatisch naar Git. Met de omgevingsvariabele `HITTHEBEAT_TEST_EXECUTABLE` kun je dezelfde test op een verpakte executable richten; de ontwikkelservertest wordt dan overgeslagen. Een verpakte app gebruikt haar normale appgegevensmap.
+De desktoptests controleren de ontwikkelserver en het gebouwde scherm uit `dist/`. Daarom komt `pnpm build` vóór `pnpm test:desktop`. De tests van de gebouwde app controleren navigatie, offline audio, MP3-import, de geïsoleerde desktopkoppeling en de route door de voorbeeldschermen, inclusief duurberekening en kleinere vensters. De ontwikkeltest meet daarnaast tempo/transpositie en loops in een OfflineAudioContext. Ontwikkeltests gebruiken een tijdelijke gebruikersmap. Screenshots staan in `test-results/` en gaan niet automatisch naar Git. Met de omgevingsvariabele `HITTHEBEAT_TEST_EXECUTABLE` kun je dezelfde test op een verpakte executable richten; de ontwikkelservertest en de DSP-bronmoduletest worden dan overgeslagen. Een verpakte app gebruikt haar normale appgegevensmap.
 
 Een browservoorvertoning is mogelijk met `pnpm preview`; dit is geen vervanging voor de Electron-test en toont geen informatie uit het desktopproces.
 

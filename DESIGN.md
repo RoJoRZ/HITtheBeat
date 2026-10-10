@@ -115,3 +115,13 @@ De vier nieuwe schermen zijn met de ingebouwde imagegen-tool gemaakt op basis va
 ## 9. Werkende audioproef
 
 Fase 1 voegt een tijdelijk, expliciet benoemd scherm ‘Audioproef’ toe. Het volgt dezelfde kleuren en Source Sans 3, met de golfvorm en transportbediening centraal, daaronder tempo/toonhoogte en A/B-invoer. Bestandskeuze, proefstatus en bedieningsuitleg blijven zichtbaar. Dit scherm valideert audio; de volledige spelerindeling met tablatuur en opdrachtvak volgt in fase 2 volgens render 14.
+
+## 10. Doorloopbare schermen (v0.0.3)
+
+De werkende voorbeelden volgen renders 10 en 14–17. De zijbalk begint met de drie productpagina’s; Audioproef blijft een aparte proefpagina. Een vaste voorbeeldmelding maakt fictieve gegevens herkenbaar. Lege toestanden zijn apart te bekijken.
+
+De rondjetabel gebruikt dezelfde min/getal/plusbediening als de speler. Op smallere vensters scrollt alleen de brede tabel horizontaal. De totale duur staat boven de tabel; onderaan staat de route naar de speler. Voorbeeldstappen zijn tijdelijk aanpasbaar, geen opgeslagen rondjes.
+
+In de speler krijgt de tablatuur circa twee derde en de opdracht circa één derde van de bovenste rij. De paginakop is daar compact zodat de afspeelbediening eerder in beeld komt. Onder 1000 px vensterbreedte staan tablatuur en opdracht onder elkaar. Een lange opdracht scrollt binnen het opdrachtvak; zonder tablatuur benut het opdrachtvak de breedte. Vergroten van voorbeeldtablatuur gebruikt een dialoog met sluitknop en Escape.
+
+De speler hergebruikt de audioproef met waveform, transport en getalbediening. Bij brede vensters staan transport, BPM en toonhoogte op één rij. A/B blijft daarnaast exact via seconden instelbaar. Evaluatie en dashboard volgen de goedgekeurde paneelopbouw, met herkenbare voorbeeldkeuzes en fictieve resultaten. Screenshots en controles staan in `docs/FASE-2.md`.

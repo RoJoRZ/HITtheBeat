@@ -21,6 +21,15 @@ test('audio controls load MP3 offline, validate loops, and respect keyboard focu
     const stopped = Number(await page.getByRole('slider').inputValue());
     await page.waitForTimeout(200);
     expect(Number(await page.getByRole('slider').inputValue())).toBeCloseTo(stopped, 1);
+    await page.getByLabel('Speeltempo BPM', { exact: true }).fill('22.5');
+    await page.keyboard.press('Enter');
+    await expect(page.getByLabel('Speeltempo BPM', { exact: true })).toHaveValue('22.5');
+    await page.getByLabel('Speeltempo BPM', { exact: true }).fill('270');
+    await page.keyboard.press('Enter');
+    await expect(page.getByLabel('Speeltempo BPM', { exact: true })).toHaveValue('270');
+    await page.getByLabel('Speeltempo BPM', { exact: true }).fill('271');
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('alert')).toContainText('25–300%');
     await page.getByLabel('Speeltempo BPM', { exact: true }).fill('60');
     await page.keyboard.press('Enter');
     await page.getByLabel('Toonhoogte (halve tonen)', { exact: true }).fill('3');
@@ -79,14 +88,14 @@ test('DSP preserves pitch at different speeds and shifts pitch at fixed speed', 
     const results = await page.evaluate(async () => {
       const { probe } = await import('/tests/audio/probe.ts');
       const cases = [];
-      for (const [rate, pitch] of [[1, 0], [.5, 0], [2, 0], [1, 12], [1.5, -12]]) cases.push(await probe(rate, pitch, false));
-      cases.push(await probe(1, 0, true));
+      for (const [rate, pitch] of [[1, 0], [.25, 0], [.5, 0], [2, 0], [3, 0], [1, 12], [1.5, -12], [.25, 12], [3, -12]]) cases.push(await probe(rate, pitch, false));
+      for (const rate of [.25, 1, 3]) cases.push(await probe(rate, 0, true));
       return cases;
     });
     console.log('DSP measurements', results);
     for (const result of results) {
       expect(Math.abs(result.frequency - result.expectedFrequency)).toBeLessThan(8);
-      expect(Math.abs(result.end - result.expectedEnd)).toBeLessThan(.2);
+      expect(Math.abs(result.end - result.expectedEnd)).toBeLessThan(result.rate === .25 && !result.loop ? .25 : .2);
       expect(result.minimumRms).toBeGreaterThan(.02);
     }
   } finally { await desktop.close(); await server.close(); }

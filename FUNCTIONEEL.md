@@ -27,6 +27,7 @@ De muzikant kan nieuwe oefeningen toevoegen en bestaande oefeningen gebruiken in
 ## 3. Tempo en toonhoogte
 
 - Het afspeeltempo is instelbaar in BPM, zonder dat de toonhoogte verandert.
+- Het instelbare bereik is **25–300% van het oorspronkelijke tempo**. Dit bereik is op 10 oktober 2026 door de gebruiker gekozen. Bijvoorbeeld: bij een bron van 120 BPM is het bereik 30–360 BPM. De klank bij extreme vertraging/versnelling wordt met eigen oefeningen beoordeeld.
 - De toonhoogte is onafhankelijk instelbaar, zonder dat het tempo verandert.
 - De speler toont het huidige tempo en de ingestelde toonhoogte.
 - De beschrijving en eventuele afbeelding zijn tijdens het oefenen beschikbaar.
@@ -178,4 +179,14 @@ De audioproef v0.0.2 demonstreert MP3-afspelen, onafhankelijk tempo/toonhoogte, 
 
 Voorlopige bediening in de proef: spatie voor afspelen/pauzeren; 1 voor trackstart of A bij actieve loop. Tijdens invoer of focus op knoppen blijven de normale toetsen werken. Getallen worden bevestigd met Enter of bij het verlaten van het veld. A/B kan via bronseconden of knoppen op de huidige afspeelpositie. Bij inschakelen van een loop buiten het gekozen fragment begint de speler bij A. Verlaten van de audioproef of laden van een nieuw bestand stopt de oude audio.
 
-Experimenteel testbereik: tempo 50–200%, toonhoogte −12 tot +12 halve tonen, fragment minimaal 0,1 seconde, bestand maximaal 50 MB. Deze proefgrenzen en toetskeuzes zijn geen definitieve productspecificatie; de open keuzes in hoofdstuk 10 blijven gelden. Muzikale luisterbeoordeling en Windows-gebruikstest volgen nog. Zie `docs/FASE-1.md` voor de proef en controles.
+Actueel tempobereik sinds v0.0.3: 25–300% (in v0.0.2 was dit 50–200%), toonhoogte −12 tot +12 halve tonen, fragment minimaal 0,1 seconde, bestand maximaal 50 MB. Het tempobereik is door de gebruiker bevestigd. De overige proefgrenzen en toetskeuzes zijn geen definitieve productspecificatie; de open keuzes in hoofdstuk 10 blijven gelden. Muzikale luisterbeoordeling en Windows-gebruikstest volgen nog. Zie `docs/FASE-1.md` voor de proef en controles.
+
+## 12. Doorloopbare voorbeeldschermen (fase 2)
+
+De gebruiker heeft opdracht gegeven om door te gaan. Versie 0.0.3 biedt voorbeeldschermen voor de rondjetabel, oefeningenbibliotheek, speler, evaluatie en voortgang. Een vaste melding onderscheidt de fictieve voorbeelden van eigen gegevens. Een aparte bediening toont ook de lege schermen. Voorbeeldwijzigingen worden niet opgeslagen en kunnen bij verlaten van de voorbeeldomgeving verdwijnen.
+
+In de voorbeeldtabel zijn oefening, een vooraf gekozen fragment, herhalingen en BPM aanpasbaar. De geplande duur rekent direct mee. Stappen kunnen worden toegevoegd, verwijderd en verplaatst. Dit valideert de bediening; het opslaan van eigen rondjes en vrij kiezen van fragmentgrenzen in de tabel volgen in fase 4. De toonhoogtekolom is herkenbaar als voorstel en nog niet actief.
+
+Het speelscherm toont tablatuur en opdracht naast elkaar bij voldoende vensterbreedte, met de speler eronder. Zonder afbeelding krijgt de opdracht de breedte. Lange opdrachten kunnen binnen hun tekstvak scrollen. Voorbeeldtablatuur kan worden vergroot en met Escape weer gesloten. De voorbeeldspeler gebruikt een los opgewekte melodie; de interface vermeldt dat deze niet bij de getoonde notatie hoort. De aparte Audioproef blijft beschikbaar voor eigen MP3.
+
+Evaluatiekeuzes en grafieken zijn uitsluitend voorbeelden om de vorm en bediening te beoordelen. Er wordt geen sessie, beoordeling of volgende tempo-opbouw opgeslagen. De voorbeelden beslissen de nog open evaluatiekeuzes niet. Automatische uitvoering van rondjes en tijdelijk onderbreken/hervatten volgen in fase 5. Opslag en BPM-herkenning volgen in fase 3.

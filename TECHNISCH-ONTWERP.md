@@ -114,3 +114,9 @@ Geraadpleegd op 10 oktober 2026:
 Fase 1 gebruikt Signalsmith Stretch 1.3.2, gebundeld als lokale module met ingebouwde WASM. `src/audio/engine.ts` verzorgt AudioContext, decodering, afspeeltoestand, tempo/transpositie, loop en audioklok; React toont en bedient deze engine. Het trackeinde wordt op de audioklok begrensd met GainNode-automatisering. De CSP voegt alleen `wasm-unsafe-eval` toe aan de lokale scriptpolicy.
 
 Automatische Mac-metingen bevestigen onafhankelijke tempo-/toonhoogteverwerking, ook gecombineerd; offline desktoptests controleren MP3-import en bediening. Luisterkwaliteit op echte oefeningen, loopovergangen en Windows-werking zijn nog niet geaccepteerd. Het proefbereik en tijdelijke toetsen staan in `FUNCTIONEEL.md`; resultaten en resterende controles in `docs/FASE-1.md`. De proef bewaart geen media, gebruikt geen SQLite en loopt niet vooruit op de BPM-detector.
+
+## 11. Schermproef en ruimer tempo (v0.0.3)
+
+Het door de gebruiker gekozen tempobereik is nu 0,25–3,0 maal de bron. Enginevalidatie en beide spelers volgen dit bereik. De DSP-proef omvat de nieuwe grenzen afzonderlijk en gecombineerd met transpositie. Bronduur en audioklok blijven leidend; luisterkwaliteit op echt materiaal blijft een afzonderlijke acceptatie.
+
+Fase 2 gebruikt een gedeelde voorbeeldomgeving met tijdelijke React-toestand, voorbeelddata, getalbediening en het bestaande audiocomponent in een compacte spelervariant. De tabel gebruikt bronduur/BPM voor de geplande duur. Toonhoogte per rij blijft uitgeschakeld omdat deze keuze nog openstaat. Voorbeeldgegevens gaan niet naar opslag en schrijven geen sessiehistorie. De componenten vormen de basis voor de echte bibliotheek en editor in volgende fases; de voorbeeldomgeving blijft herkenbaar gescheiden van eigen gegevens.
