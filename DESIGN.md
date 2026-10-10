@@ -6,7 +6,7 @@ Bijgewerkt: 10 oktober 2026.
 
 De gebruiker heeft **Studio donker, B — Mandarijn** gekozen. De basisreferentie is [het oorspronkelijke Studio donker met Mandarijn](design/10-studio-mandarijn.png). Het eerdere kleurstaal #FC4C02 en de eerdere varianten met andere lettertypen zijn niet leidend.
 
-De stijlkeuze is vastgesteld. De onderstaande exacte lettertypekeuze, maatvoering, componentdetails en nieuwe schermrenders zijn de uitwerking als uitgangspunt voor ontwikkeling; ze zijn nog niet afzonderlijk door de gebruiker beoordeeld. Functioneel gedrag volgt `FUNCTIONEEL.md`. Een render stelt geen aanvullende functionaliteit vast.
+De gebruiker heeft op 10 oktober 2026 de stijl en de vier nieuwe schermdesigns goedgekeurd. Deze vormen samen met onderstaande richtlijnen het uitgangspunt voor ontwikkeling. Concrete font- en maatvoeringkeuzes vertalen de renders naar een reproduceerbare interface en worden bij de eerste werkende schermen visueel gecontroleerd. Functioneel gedrag volgt `FUNCTIONEEL.md`; goedkeuring van een render stelt geen onbesproken functionaliteit vast.
 
 ## 2. Visueel karakter
 
