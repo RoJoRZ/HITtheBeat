@@ -2,7 +2,7 @@
 
 Datum: 10 oktober 2026.
 
-Status: concept ter bespreking. De onderstaande techniek is een aanbeveling, nog geen door de gebruiker bevestigde keuze. De functionele eisen staan in `FUNCTIONEEL.md`. Er is nog geen applicatie geïmplementeerd.
+Status: de gebruiker heeft op 10 oktober 2026 opdracht gegeven om volgens het ontwikkelplan te beginnen. Electron, React en TypeScript worden in fase 0 als technische basis geïmplementeerd. Audio-engine, BPM-detector en opslag worden in hun eigen fases gevalideerd. De functionele eisen staan in `FUNCTIONEEL.md`.
 
 ## 1. Aanbevolen richting
 
@@ -18,7 +18,7 @@ Tauri is een goed alternatief voor een kleinere installatie. Tauri gebruikt de w
 | --- | --- | --- |
 | Desktop | Electron | Venster, bestandsimport, lokale opslag en installatiepakketten. |
 | Interface | React + TypeScript | Bibliotheek, bewerkbare tabel, speler, evaluatie en dashboard. |
-| Vormgeving | Tailwind CSS, met toegankelijke componenten | Een consistente, strakke interface met zichtbare focus en goede toetsenbediening. |
+| Vormgeving | Centrale CSS-tokens en herbruikbare componenten; in fase 0 gewone CSS | Een consistente, strakke interface met zichtbare focus en goede toetsenbediening. Tailwind is voor deze basis niet nodig. |
 | Audio | Web Audio + AudioWorklet + Signalsmith Stretch (WebAssembly) | Tempo en toonhoogte onafhankelijk veranderen en fragmenten herhalen. |
 | BPM-analyse | Achtergrondtaak op gedecodeerde audio | Tempo schatten bij import zonder de interface te blokkeren; bibliotheek nog te selecteren. |
 | Gegevens | SQLite, met schemawijzigingen per versie | Rondjes, stappen, sessies, beoordelingen en voortgang lokaal bewaren. |

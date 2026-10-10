@@ -1,12 +1,12 @@
 # HITtheBeat — Ontwikkelplan
 
-Datum: 10 oktober 2026. Status: voorstel voor gefaseerde uitvoering; nog geen implementatie gestart.
+Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 is nog niet gestart.
 
 ## 1. Uitgangspunten
 
 - Functioneel gedrag volgt `FUNCTIONEEL.md`.
 - De goedgekeurde stijl en schermen volgen `DESIGN.md`: Studio donker, B — Mandarijn.
-- Werkhypothese voor de techniek is het voorstel uit `TECHNISCH-ONTWERP.md`: Electron, React, TypeScript, SQLite en een aparte audio-engine. De technische richting is nog niet afzonderlijk definitief bevestigd.
+- De besproken technische richting uit `TECHNISCH-ONTWERP.md` vormt de basis voor uitvoering: Electron, React, TypeScript, SQLite en een aparte audio-engine. Audio en opslag worden in hun eigen fases gevalideerd.
 - Lever kleine werkende onderdelen op, met een zichtbaar resultaat aan het einde van iedere fase. Rond niet de hele app af voordat de gebruiker voor het eerst kan testen.
 - De eerste audioproef bepaalt of de voorgestelde audio-aanpak voldoende kwaliteit levert. Stel ingrijpende audio-integratie niet uit tot na de interfacebouw.
 - Test vanaf het begin op macOS en Windows. Een geslaagde Mac-test bewijst geen werkende Windows-versie.
@@ -134,4 +134,4 @@ Rond een fase pas af als de betreffende acceptatiepunten aantoonbaar zijn gecont
 - Evaluatie: exacte keuzes en welke stappen een BPM-aanpassing beïnvloedt.
 - Distributie: ondersteunde OS-versies, ondertekening en eventueel backup/export.
 
-Deze keuzes blokkeren het maken van dit plan niet. Bespreek ze bij de fase waar ze nodig zijn en leg de uitkomst vast. De huidige opdracht omvat het plan en de documentatie; starten met implementeren volgt op een volgende opdracht.
+Bespreek de resterende keuzes bij de fase waar ze nodig zijn en leg de uitkomst vast. De gebruiker heeft inmiddels opdracht gegeven te beginnen; de fases blijven afzonderlijk beoordeelbaar.
