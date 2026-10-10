@@ -1,0 +1,26 @@
+[
+  {
+    "id": "09-studio-zacht-perzik",
+    "name": "A — Zacht perzik",
+    "color": "#F3AD83",
+    "prompt": "Use case: ui-mockup, precise color edit. Edit the provided ORIGINAL 'Studio donker' HITtheBeat desktop screenshot. This is a strict recoloring task, NOT a redesign. Preserve the original screenshot's exact composition, all typography and font sizes, every text and number, icons, waveform geometry, tablature, panel sizes, positions, controls, spacing, dark background and panel colors, and canvas dimensions. Change ONLY the existing amber/orange accent color to #F3AD83 (A — Zacht perzik). Apply this orange-family color consistently to the colored HIT letters of logo, active sidebar text and edge, top-right 18 min value, selected table row edge/tint, BPM focus border, waveform, A/B markers and time labels, play/pause circle, loop button border/icon and Fragment oefenen button. Keep black text/icons on filled orange buttons and the subtle translucent tint of selections using the new accent hue. Retain original shading but no new visual effects. All gray/white text and dark surfaces must remain unchanged. No additional labels, no new content, no changes to layout or font. Output ONE full screenshot, not a collage."
+  },
+  {
+    "id": "10-studio-mandarijn",
+    "name": "B — Mandarijn",
+    "color": "#FF922E",
+    "prompt": "Use case: ui-mockup, precise color edit. Edit the provided ORIGINAL 'Studio donker' HITtheBeat desktop screenshot. This is a strict recoloring task, NOT a redesign. Preserve the original screenshot's exact composition, all typography and font sizes, every text and number, icons, waveform geometry, tablature, panel sizes, positions, controls, spacing, dark background and panel colors, and canvas dimensions. Change ONLY the existing amber/orange accent color to #FF922E (B — Mandarijn). Apply this orange-family color consistently to the colored HIT letters of logo, active sidebar text and edge, top-right 18 min value, selected table row edge/tint, BPM focus border, waveform, A/B markers and time labels, play/pause circle, loop button border/icon and Fragment oefenen button. Keep black text/icons on filled orange buttons and the subtle translucent tint of selections using the new accent hue. Retain original shading but no new visual effects. All gray/white text and dark surfaces must remain unchanged. No additional labels, no new content, no changes to layout or font. Output ONE full screenshot, not a collage."
+  },
+  {
+    "id": "11-studio-diep-oranje",
+    "name": "C — Diep oranje",
+    "color": "#F47735",
+    "prompt": "Use case: ui-mockup, precise color edit. Edit the provided ORIGINAL 'Studio donker' HITtheBeat desktop screenshot. This is a strict recoloring task, NOT a redesign. Preserve the original screenshot's exact composition, all typography and font sizes, every text and number, icons, waveform geometry, tablature, panel sizes, positions, controls, spacing, dark background and panel colors, and canvas dimensions. Change ONLY the existing amber/orange accent color to #F47735 (C — Diep oranje). Apply this orange-family color consistently to the colored HIT letters of logo, active sidebar text and edge, top-right 18 min value, selected table row edge/tint, BPM focus border, waveform, A/B markers and time labels, play/pause circle, loop button border/icon and Fragment oefenen button. Keep black text/icons on filled orange buttons and the subtle translucent tint of selections using the new accent hue. Retain original shading but no new visual effects. All gray/white text and dark surfaces must remain unchanged. No additional labels, no new content, no changes to layout or font. Output ONE full screenshot, not a collage."
+  },
+  {
+    "id": "12-studio-koper",
+    "name": "D — Koper",
+    "color": "#CC8655",
+    "prompt": "Use case: ui-mockup, precise color edit. Edit the provided ORIGINAL 'Studio donker' HITtheBeat desktop screenshot. This is a strict recoloring task, NOT a redesign. Preserve the original screenshot's exact composition, all typography and font sizes, every text and number, icons, waveform geometry, tablature, panel sizes, positions, controls, spacing, dark background and panel colors, and canvas dimensions. Change ONLY the existing amber/orange accent color to #CC8655 (D — Koper). Apply this orange-family color consistently to the colored HIT letters of logo, active sidebar text and edge, top-right 18 min value, selected table row edge/tint, BPM focus border, waveform, A/B markers and time labels, play/pause circle, loop button border/icon and Fragment oefenen button. Keep black text/icons on filled orange buttons and the subtle translucent tint of selections using the new accent hue. Retain original shading but no new visual effects. All gray/white text and dark surfaces must remain unchanged. No additional labels, no new content, no changes to layout or font. Output ONE full screenshot, not a collage."
+  }
+]
