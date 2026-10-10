@@ -1,12 +1,14 @@
 # HITtheBeat — Functioneel document
 
-Status: eerste functionele uitgangspunten, vastgesteld op 10 oktober 2026.
+Status: functionele uitgangspunten, bijgewerkt op 10 oktober 2026.
 
 Dit document beschrijft het gewenste gedrag van HITtheBeat. Het bevat geen technisch ontwerp. Nieuwe en gewijzigde functionele afspraken worden steeds in dit document verwerkt en via Git bijgehouden.
 
 ## 1. Doel
 
 HITtheBeat helpt een muzikant dagelijks gericht te oefenen met korte audiotracks, een persoonlijke tempo-opbouw en inzicht in de voortgang. Een opgeslagen verzameling oefeningen heet een **oefenrondje**.
+
+De applicatie moet ten minste op macOS (MacBook) en Windows werken. Ontwikkeling moet mogelijk zijn met gratis gereedschappen en de app moet kunnen worden gedeeld met andere geïnteresseerden. Een mooie, strakke en overzichtelijke interface is onderdeel van het gewenste resultaat. Eventuele distributiekosten, zoals ondertekening van installatiebestanden, worden afzonderlijk afgewogen.
 
 ## 2. Oefeningenbibliotheek
 
@@ -52,7 +54,20 @@ Voorbeeld:
 
 Stappen kunnen worden toegevoegd, gewijzigd, verwijderd en verplaatst. De opbouw wordt met het rondje bewaard.
 
-### 4.2 Geplande duur
+### 4.2 Tabelinvoer
+
+Een oefenrondje kan via een bewerkbare tabel worden ingevoerd. Iedere rij beschrijft één stap van een oefening met de volgende gegevens:
+
+- Oefening.
+- Fragment: volledige track of begin- en eindtijd in de oorspronkelijke track.
+- Aantal herhalingen.
+- Gewenst tempo in BPM.
+
+Voorstel: voeg een kolom toe voor de toonhoogteverschuiving per stap, uitgedrukt in halve tonen, met standaardwaarde 0 (oorspronkelijke toonhoogte). Hiermee kan dezelfde oefening in verschillende stappen ook een andere toonhoogte hebben. Deze keuze is nog niet definitief vastgesteld.
+
+Rijen voor dezelfde oefening vormen samen de tempo-opbouw; de evaluatie volgt na de laatste stap van die oefening. De precieze weergave van deze groepering wordt nog uitgewerkt.
+
+### 4.3 Geplande duur
 
 De totale geplande oefenduur is steeds zichtbaar en wordt direct bijgewerkt bij wijzigingen in oefeningen, fragmenten, tempi of aantallen speelbeurten. Langzamer afspelen verlengt de duur van een speelbeurt.
 
@@ -70,6 +85,12 @@ De speler toont:
 - De resterende geplande oefentijd.
 
 De muzikant kan starten, pauzeren, hervatten, de huidige speelbeurt opnieuw beginnen en een oefening overslaan. Na het voltooien van een oefening volgt een korte evaluatie voordat de volgende oefening begint.
+
+### 5.1 Toetsenbediening
+
+De speler is met toetsen te bedienen. Gewenste voorbeelden zijn spatie voor afspelen/pauzeren en toets 1 voor terug naar het begin. De definitieve toetsindeling wordt nog uitgewerkt.
+
+Voorstel: toets 1 gaat naar het begin van de huidige speelbeurt, of naar marker A tijdens fragmenttraining. Sneltoetsen mogen het invoeren van tekst en getallen in de tabel of andere invoervelden niet verstoren. Ze zijn standaard actief wanneer de app het actieve venster is.
 
 ## 6. Fragmentherhaling en tijdelijk onderbreken
 
@@ -141,6 +162,8 @@ Mogelijke latere uitbreidingen zijn labels voor oefeningen, rondjes samenstellen
 ## 10. Nog uit te werken keuzes
 
 - De precieze toonhoogtebediening.
+- Toonhoogteverschuiving per tabelrij en de groepering van stappen in de tabel.
+- De definitieve toetsindeling en het precieze gedrag van terug naar het begin.
 - Pauzes en aftellen voor speelbeurten.
 - De definitieve evaluatiekeuzes en de manier waarop een BPM-wijziging op meerdere stappen wordt toegepast.
 - De concrete presentatie en vergelijkingen in het dashboard.
