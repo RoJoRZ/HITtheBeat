@@ -145,7 +145,7 @@ De muzikant kan aangeven wat er nu of de volgende keer moet gebeuren:
 
 Vastgesteld: een tempoverhoging of -verlaging geldt voor één gekozen oefenblok binnen het gebruikte rondje. Alle stappen en herhalingen van dat blok verschuiven met hetzelfde aantal BPM. Bijvoorbeeld: +5 BPM maakt 75/95/85 BPM tot 80/100/90 BPM. De overige oefeningen van dit rondje en dezelfde oefening in andere rondjes veranderen niet. Voor het opslaan toont de tool de nieuwe opbouw ter bevestiging, bijvoorbeeld ‘75 → 80 · 95 → 100 · 85 → 90 BPM’.
 
-Voorstel voor een korte beoordeling: **Nog lastig · Ging goed · Voelt vertrouwd**, met een optionele notitie. Zo kan de voortgang onderscheid maken tussen een tempo spelen en dat tempo beheersen. Deze aanvullende beoordelingslabels blijven een open keuze; de acties en het evaluatiemoment zijn vastgesteld.
+Gevraagd: een korte beoordeling met een cijfer van **1 tot en met 5**, standaard **3**. De muzikant kan daarnaast het tempo voor de volgende keer kiezen: **1 = langzamer, 2 = gelijk houden, 3 = sneller**. Bij langzamer of sneller wordt het aantal BPM ingevuld. **Enter** bewaart de gekozen evaluatie en gaat door naar het volgende fragment of de volgende oefening; zonder wijzigingen gelden beoordeling 3 en tempo gelijk houden. Na de laatste serie rondt Enter het rondje af. Alles blijft ook met de muis bedienbaar. Deze uitbreiding is nog niet geïmplementeerd; het bedieningsvoorstel staat in hoofdstuk 18. Een optionele notitie blijft mogelijk.
 
 Vastgesteld: evaluatiepauzes tellen niet mee als werkelijk geoefende tijd. De gebruiker heeft bevestigd dat de evaluatie volgt na alle tempo’s en herhalingen van hetzelfde fragment, bij de overgang naar een ander fragment of een volgende oefening.
 
@@ -185,7 +185,7 @@ Mogelijke latere uitbreidingen zijn labels voor oefeningen, rondjes samenstellen
 - Toonhoogteverschuiving per tabelrij en de groepering van stappen in de tabel.
 - De definitieve toetsindeling en het precieze gedrag van terug naar het begin.
 - Pauzes en aftellen voor speelbeurten.
-- Eventuele aanvullende beoordelingslabels naast de evaluatieacties; het moment van evalueren en de BPM-aanpassing per oefenblok zijn vastgesteld.
+- De precieze opeenvolging van de toetsenstappen bij de nieuwe cijferbeoordeling en het standaard aantal BPM bij sneller/langzamer; zie het voorstel in hoofdstuk 18.
 - De concrete presentatie en vergelijkingen in het dashboard.
 
 Deze punten worden functioneel uitgewerkt voordat ze als definitieve eisen worden behandeld.
@@ -275,3 +275,18 @@ Bewaren van evaluatie en toekomstige tempo-opbouw gebeurt samen. Herhaald klikke
 ## 17. Aanvulling na fase 6 — Normalisatie en volume (v0.0.8)
 
 De gebruiker heeft v0.0.7 in gebruik getest en vraagt vóór het dashboard om normalisatie bij het toevoegen en een volumeknop in de speler. Beide zijn toegevoegd volgens hoofdstuk 3.1. De regelaar werkt in de rondjespeler, vrije fragmenttraining, losse oefeningspeler en audioproef. De fictieve voorbeeldgrafieken blijven voorbeelden.
+
+
+## 18. Gevraagde uitbreiding — Evaluatie met toetsenbord
+
+De gebruiker heeft v0.0.8 in gebruik getest en goedgekeurd. De gewenste evaluatiebediening uit hoofdstuk 7 wordt toegevoegd vóór verdere dashboardontwikkeling. De schaal 1–5 vervangt het eerdere voorstel met drie beoordelingslabels. Deze uitbreiding is vastgelegd, maar nog niet gebouwd.
+
+Bedieningsvoorstel, nog te bevestigen: toon drie opeenvolgende invoerstappen, zodat dezelfde cijfertoetsen niet tegelijk meerdere betekenissen hebben.
+
+1. **Hoe ging het?** Cijfers 1–5 kiezen de beoordeling en verplaatsen de invoer naar de tempokeuze. De beginwaarde is 3.
+2. **Volgende keer?** 1 kiest langzamer, 2 gelijk houden en 3 sneller. De beginwaarde is gelijk houden.
+3. **Hoeveel BPM?** Bij langzamer of sneller krijgt een numeriek invoerveld de focus. Cijfers vullen hier uitsluitend het aantal BPM in. Voorstel: beginwaarde 5 BPM, direct overschrijfbaar.
+
+Enter bewaart in iedere stap de huidige keuzes en gaat direct door. Niet aangepaste keuzes behouden hun standaardwaarde; Enter wist geen al gemaakte keuze. Bij ongeldige BPM-invoer of een opslagfout blijft de evaluatie open met een duidelijke melding, zodat geen resultaat verloren gaat. De bestaande tempogrenzen blijven gelden.
+
+Alle keuzes zijn zichtbaar en aanklikbaar. Ook eerdere keuzes kunnen opnieuw worden aangeklikt; Tab en Shift+Tab maken teruggaan en corrigeren mogelijk. De actieve invoerstap is duidelijk herkenbaar. De bestaande actie ‘Deze serie opnieuw’ en optionele notitie blijven bereikbaar met muis en toetsenbord. De nieuwe cijferbediening geldt uitsluitend tijdens de evaluatie; buiten de evaluatie behoudt de speler zijn huidige sneltoetsen.
