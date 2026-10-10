@@ -49,6 +49,8 @@ Demo: de gebruiker probeert eigen oefenaudio met verschillende tempi en toonhoog
 
 Vertaal de goedgekeurde beelden naar herbruikbare componenten: navigatie, panelen, knoppen, getalvelden, tabel, opdrachtvak en spelerbediening. Maak de bibliotheek, editor, speler, evaluatie en voortgang doorloopbaar met herkenbaar gemarkeerde voorbeeldgegevens. Het dashboard toont hier nog geen echte voortgang.
 
+Feedback op v0.0.3: de speler moet het volledige oefenrondje als compacte afspeellijst tonen, met de huidige oefening gemarkeerd. Dit ontbreekt nog in de schermproef en moet zichtbaar worden uitgewerkt; het functionele document beschrijft het rondje als een verzameling oefeningen, niet als één oefening.
+
 Controle: beoordeel venstergroottes, lange opdrachten, ontbrekende tablatuur, focusvolgorde, leesbaarheid en contrast. Controleer dat toetsenbediening invoervelden niet verstoort. Vergelijk vooral het speelscherm met de goedgekeurde render: de speler en tablatuur krijgen ruime plaats, de opdracht blijft direct leesbaar.
 
 Demo: een klikbare app waarin de gebruiker de schermindeling en bediening kan beoordelen. Dit is het goedkoopste moment om ruimteverdeling en componenten bij te sturen. Renders zijn geen vervanging voor deze controle in een echt venster.
@@ -72,6 +74,8 @@ Demo: de gebruiker voert bijvoorbeeld 1×75, 2×95 en 1×85 BPM in en maakt daar
 ### Fase 5 — Rondje uitvoeren en tijdelijk fragmenten oefenen
 
 Verbind editor en bibliotheek met de speler. Voer stappen en herhalingen automatisch uit. Toon actuele speelbeurt en resterende geplande tijd. Maak pauzeren, opnieuw en overslaan bruikbaar. Voeg de tijdelijke fragmentstand toe met behoud van de rondjestoestand en een duidelijke actie om terug te keren.
+
+Controleer ook een rondje met meerdere verschillende oefeningen: alle oefeningen staan in de afspeellijst, de huidige is gemarkeerd en afgeronde oefeningen krijgen hun status. Na de evaluatie laadt de speler de volgende oefening automatisch met haar eigen opbouw; na de laatste oefening wordt het hele rondje afgerond. Tijdens vrije fragmenttraining blijft deze rondjecontext behouden.
 
 Controle: de voorbeeldopbouw speelt exact vier keer in de juiste volgorde. Onderbreek de tweede speelbeurt, verander fragment, tempo en toonhoogte, en keer terug: de oorspronkelijke instellingen worden hersteld en de onderbroken speelbeurt begint opnieuw. Fragmentloops tellen niet als geplande herhalingen. Controleer pauzeren, de laatste herhaling, meerdere onderbrekingen en toetsenbediening tijdens echte audio. Tijdregistratie scheidt afspelen, pauze en fragmenttraining.
 

@@ -39,6 +39,8 @@ De precieze bediening en stapgrootte van de toonhoogte-instelling worden nog uit
 
 De muzikant kan een oefenrondje samenstellen, een naam geven, opslaan en opnieuw uitvoeren. Binnen het rondje kunnen oefeningen worden toegevoegd, verwijderd en verplaatst.
 
+Een oefenrondje is een **geordende verzameling oefeningen**, bijvoorbeeld ‘Warming-up’ met Wisselslag, Pentatoniek en Akkoordwissels. Iedere oefening binnen dat rondje heeft haar eigen fragmentkeuze en tempo-opbouw met herhalingen. Het rondje is het geheel dat de muzikant start; de afzonderlijke afspeelstappen vormen de opbouw binnen de oefeningen.
+
 ### 4.1 Tempo-opbouw per oefening binnen een rondje
 
 Een tempo-opbouw hoort bij de oefening **binnen het specifieke oefenrondje**, niet bij de oefening in de bibliotheek. Dezelfde oefening kan bijvoorbeeld rustig worden gespeeld in een warming-up en een uitdagende opbouw hebben in een ander rondje.
@@ -78,9 +80,12 @@ Voorstel: instelbare pauzes tussen speelbeurten en een korte aftelling voor de s
 
 Voor de start ziet de muzikant de oefeningen en de totale geplande duur. Tijdens het uitvoeren volgt de speler automatisch de opgeslagen volgorde en tempo-opbouw.
 
+In afspeelmodus bevat de speler **het volledige gekozen oefenrondje als afspeellijst**. Een compact overzicht toont alle oefeningen in volgorde, met een herkenbaar onderscheid tussen afgerond, huidig en nog te doen. De huidige oefening is gemarkeerd, bijvoorbeeld ‘Oefening 2 van 3’. De tablatuur, opdracht en audiobediening horen bij die huidige oefening. De muzikant hoeft na een oefening niet zelf de volgende oefening in de speler te laden: na de evaluatie gaat hetzelfde rondje verder. Na de laatste oefening is het gehele rondje afgerond.
+
 De speler toont:
 
 - De huidige oefening met beschrijving en eventuele afbeelding.
+- Het volledige rondje met de positie en status van iedere oefening.
 - Het huidige tempo en de toonhoogte.
 - De huidige speelbeurt en het aantal speelbeurten, bijvoorbeeld ‘Speelbeurt 3 van 4 · 95 BPM’.
 - De resterende geplande oefentijd.

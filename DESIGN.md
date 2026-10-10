@@ -74,6 +74,8 @@ Gebruik de bewerkbare tabel uit de basisreferentie. Groepeer stappen visueel per
 
 De belangrijkste ruimte gaat naar **tablatuur, speler en geschreven opdracht**. Bovenaan staat compacte context: oefening, rondje, speelbeurt en resterende geplande tijd. Op een ruim venster heeft de tablatuur ongeveer twee derde en het opdrachtvak ongeveer één derde van de bovenste inhoudsrij. De brede speler staat eronder.
 
+Het speelscherm bevat daarnaast een compact afspeellijstoverzicht van **het hele oefenrondje**, met alle oefeningen in volgorde en de huidige oefening gemarkeerd. Afgeronde en komende oefeningen blijven herkenbaar. Dit overzicht geeft rondjecontext; het is niet de bewerkbare opbouwtabel. Speler, tablatuur en opdracht behouden de belangrijkste ruimte. De schermproef v0.0.3 toont dit volledige overzicht nog niet; de feedback van de gebruiker maakt dit een expliciet aandachtspunt voor de verdere schermuitwerking.
+
 Het opdrachtvak heeft de titel ‘Opdracht’ en eventueel ‘Let op’ met aandachtspunten. Het is direct leesbaar naast de tablatuur; essentiële instructies verdwijnen niet achter een tab. Lange opdrachten kunnen binnen een bruikbaar tekstvlak scrollen. Zonder afbeelding benutten speler en opdracht de vrijgekomen ruimte.
 
 De speler toont waveform, tijdschaal, A/B-handgrepen, huidige afspeelpositie, afspelen/pauzeren, opnieuw, loop, tempo, toonhoogte en ‘Fragment oefenen’. Tijdlabels verwijzen naar de brontrack. Selectie en afspeelpositie moeten onderscheidbaar zijn. Gebruik labels en vormen naast kleur.
