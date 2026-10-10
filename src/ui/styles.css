@@ -357,3 +357,15 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .volume-control output { color: var(--muted); min-width: 65px; font-variant-numeric: tabular-nums; }
 .normalization-choice { display: flex !important; flex-direction: row !important; align-items: center; gap: 10px; }
 .normalization-choice input[type=checkbox] { width: auto; accent-color: var(--accent); }
+
+.review-controls { outline: none; }
+.review-step { border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin: 18px 0; min-width: 0; }
+.review-step.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.review-step legend { font-size: 18px; font-weight: 600; padding: 0 6px; }
+.review-options { display: flex; flex-wrap: wrap; gap: 10px; }
+.review-options button { min-width: 52px; }
+.review-options button[aria-pressed=true] { background: var(--accent); color: #151719; border-color: var(--accent); }
+.review-step label, .review-note { display: grid; gap: 8px; }
+.review-step input { max-width: 180px; background: var(--raised); color: #f2f4f6; border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+.review-note { margin: 18px 0; }
+.review-note textarea { min-height: 70px; resize: vertical; }

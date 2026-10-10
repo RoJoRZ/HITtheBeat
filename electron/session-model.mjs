@@ -1,6 +1,6 @@
 /** @typedef {{mode:'planned'|'fragment', block:number, step:number, a:number, b:number, bpm:number, pitch:number, seconds:number, completed:number}} Played */
 /** @typedef {{seq:number, block:number, step:number, repetition:number, phase:string, passes:number, statuses:string[], times:{planned:number,fragment:number,pause:number}, played:Played[]}} Progress */
-/** @typedef {{id:string,block:number,fromStep:number,toStep:number,action:'repeat'|'same'|'faster'|'slower',delta:number,note:string}} Evaluation */
+/** @typedef {{id:string,block:number,fromStep:number,toStep:number,action:'repeat'|'same'|'faster'|'slower',delta:number,note:string,rating?:number}} Evaluation */
 /** @typedef {{routine:import('./routine-model.mjs').RoutineInput,exercises:import('./library.mjs').Exercise[]}} Snapshot */
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /** @param {unknown} id */
@@ -34,10 +34,11 @@ export function validateProgress(input, snapshot) {
 /** @param {Evaluation} input @param {Snapshot} snapshot @param {Progress} progress */
 export function validateEvaluation(input, snapshot, progress) {
   if (!input || progress.phase !== 'review' || input.block !== progress.block || input.toStep !== progress.step || !integer(input.fromStep, input.toStep) || !['repeat','same','faster','slower'].includes(input.action) || !Number.isFinite(input.delta) || Math.abs(input.delta) > 1000 || (input.action === 'faster' ? input.delta <= 0 : input.action === 'slower' ? input.delta >= 0 : input.delta !== 0) || typeof input.note !== 'string' || input.note.length > 2000 || input.note.includes('\0')) throw new Error('Controleer de evaluatie en BPM-aanpassing.');
+  if (input.rating !== undefined && (!integer(input.rating, 5) || input.rating < 1)) throw new Error('Kies een beoordeling van 1 tot en met 5.');
   sessionId(input.id);
   const steps = snapshot.routine.blocks[input.block].steps, last = steps[input.toStep];
   const duration = snapshot.exercises.find(item => item.id === snapshot.routine.blocks[input.block].exerciseId)?.duration;
   const same = (/** @type {import('./routine-model.mjs').RoutineStep} */ step) => (step.start ?? 0) === (last.start ?? 0) && (step.end ?? duration) === (last.end ?? duration);
   if ((input.toStep + 1 < steps.length && same(steps[input.toStep + 1])) || (input.fromStep > 0 && same(steps[input.fromStep - 1])) || steps.slice(input.fromStep, input.toStep + 1).some(step => !same(step))) throw new Error('De evaluatie hoort bij de volledige fragmentserie.');
-  return { id: input.id, block: input.block, fromStep: input.fromStep, toStep: input.toStep, action: input.action, delta: input.delta, note: input.note.trim() };
+  return { id: input.id, block: input.block, fromStep: input.fromStep, toStep: input.toStep, action: input.action, delta: input.delta, note: input.note.trim(), rating: input.rating ?? 3 };
 }

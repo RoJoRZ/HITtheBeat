@@ -178,3 +178,10 @@ Schema 4 voegt `normalization_db` en `normalize_audio` toe aan oefeningen. De im
 Bij het laden vermenigvuldigt de audio-engine een kopie van de PCM-kanalen vóór Signalsmith met de gekozen correctie. De engine begrenst opnieuw op de daadwerkelijk gedecodeerde samplepiek, omdat de afspeelsamplerate kan afwijken van de analyse. Bronbestanden en de oorspronkelijke AudioBuffer blijven intact.
 
 Een aparte GainNode ná de bestaande afspeelgate regelt het gebruikersvolume met een korte overgang. Zo verandert volume geen afspeelpositie en wist het geen geplande stilte bij fragmentpunt B. Een gedeelde React-store synchroniseert de echte spelers en bewaart volume/dempen als lokale voorkeur. Bij het aanmaken van een nieuwe engine wordt de huidige voorkeur direct toegepast. Sessietijd en BPM-historie veranderen niet door volume of dempen.
+
+
+## 17. Evaluatie met toetsenbord (v0.0.9)
+
+SessionReview beheert de actieve invoerstap en focus binnen de echte evaluatie. Cijfers hebben alleen betekenis binnen de gefocuste beoordelings- of tempogroep; in numerieke en tekstvelden blijven ze gewone invoer. De evaluatie krijgt automatisch focus. Na een cijfer verplaatst focus naar tempo; na sneller/langzamer naar het geselecteerde BPM-veld. Tab/Shift+Tab en muisklikken kunnen de actieve stap veranderen. Enter bewaart vanuit ieder onderdeel de actuele keuzes, ook vanuit de optionele notitie. Tijdens bewaren is invoer geblokkeerd. De reguliere transporttoetsen blijven tijdens review uitgeschakeld.
+
+Evaluaties bevatten nu een optioneel integer-veld rating (1–5). Nieuwe evaluaties sturen de gekozen waarde mee; het hoofdproces valideert deze en gebruikt 3 bij ontbrekende invoer. Oude JSON-evaluaties zonder rating worden niet herschreven en tonen geen verzonnen cijfer. Er is geen schemawijziging nodig. Cijfer, notitie en toekomstige tempo-aanpassing gaan in dezelfde bestaande transactie met dezelfde idempotentie- en versiecontrole.

@@ -161,3 +161,10 @@ Voortgang toont in deze fase rustige kaarten met echte sessiehistorie. Iedere ka
 Zet een compacte rij met luidspreker-/dempenknop, label Volume, horizontale schuif en percentage direct onder de afspeelbediening. Gebruik Mandarijn voor de schuif en dezelfde focusstijl als de overige bediening. Maak gedempt zichtbaar met icoon, knoptekst voor hulptechnologie en de tekst Gedempt. Geef de schuif toetsenbordbediening zonder dat Spatie de speler start.
 
 In het import-/bewerkformulier staat Geluidsniveau normaliseren standaard aan voor nieuwe oefeningen. Toon de gemeten dB-correctie en eventuele begrenzing als toelichting. Bij bestaande oefeningen staat Volume normaliseren bij deze instelling; de gebruiker bewaart de wijziging met de gewone opslagknop. In de oefeningsdetails staat of normalisatie aan, uit of nog niet gemeten is.
+
+
+## Evaluatie met toetsenbord (v0.0.9)
+
+Toon de beoordeling als vijf genummerde knoppen en de tempokeuze als drie knoppen: 1 Langzamer, 2 Gelijk houden, 3 Sneller. De gekozen knoppen krijgen een Mandarijn-vulling; de actieve invoergroep krijgt een Mandarijn-rand. Houd de twee betekenissen van cijfers visueel uit elkaar met genummerde groepskoppen. Toon bij de primaire Verder-knop de hint Enter en boven de groepen de standaardwaarden 3/5 en gelijk houden.
+
+Bij sneller/langzamer verschijnt het BPM-veld met de bestaande voor/na-opbouw. Selecteer de klaarstaande 5 zodat meteen typen deze vervangt. Behoud de notitie en de secundaire actie Deze serie opnieuw. In de sessiehistorie staat het bewaarde cijfer als Beoordeling: x/5 bij de betreffende evaluatie.

@@ -1,4 +1,5 @@
 import { outputVolume, useOutput } from '../audio/output-volume';
+import { SessionReview } from './SessionReview';
 import { VolumeControl } from './VolumeControl';
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { Play, Pause, RotateCcw, Expand, X } from 'lucide-react';
@@ -44,7 +45,9 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   const [reviewError, setReviewError] = useState('');
   const [saveError, setSaveError] = useState(''), [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [choice, setChoice] = useState<'same'|'faster'|'slower'>('same'), [delta, setDelta] = useState(5), [note, setNote] = useState('');
+  const [rating, setRating] = useState(3);
   const evaluationId = useRef(crypto.randomUUID());
+  useEffect(() => { setReviewError(''); }, [choice, delta, rating, note]);
   const { exercise, step, block } = current(run);
   useEffect(() => { audioRef.current?.setVolume(outputVolume()); }, [output]);
   function entry(settings: Omit<Played, 'seconds'|'completed'>) {
@@ -97,8 +100,8 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   useEffect(() => {
     const snapshot = state.current;
     if (snapshot.phase === 'review' || snapshot.phase === 'complete') {
-      setError(''); setReviewError(''); setChoice('same'); setDelta(5); setNote(''); evaluationId.current = crypto.randomUUID();
-      locked.current = snapshot.phase === 'complete'; setBusy(snapshot.phase === 'complete');
+      setError(''); setReviewError(''); setChoice('same'); setRating(3); setDelta(5); setNote(''); evaluationId.current = crypto.randomUUID();
+      locked.current = true; setBusy(true);
       void persist(snapshot.phase === 'complete' ? snapshot.statuses.includes('skipped') ? 'partial' : 'completed' : 'running').then(() => { if (snapshot.phase === 'complete' && alive.current) finished(); }).catch(() => {}).finally(() => { if (alive.current && state.current.revision === snapshot.revision) { locked.current = false; setBusy(false); } });
       return;
     }
@@ -172,13 +175,13 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
     void operate(async audio => { await audio.pause(); commit(advance(state.current, action)); });
   }
   async function evaluate(action: Evaluation['action']) {
-    if (locked.current || !active) return;
+    if (locked.current || !active || state.current.phase !== 'review') return;
     locked.current = true; setBusy(true); setReviewError('');
     try {
       const range = series(state.current), adjustment = action === 'faster' ? delta : action === 'slower' ? -delta : 0;
-      if ((action === 'faster' || action === 'slower') && (!Number.isFinite(delta) || delta <= 0)) throw new Error('Kies een positieve BPM-aanpassing.');
+      if ((action === 'faster' || action === 'slower') && (!Number.isFinite(delta) || delta <= 0 || delta > 1000)) throw new Error('Kies een positieve BPM-aanpassing.');
       await persist();
-      const result = await window.hitthebeat!.reviewSession(session.id, { id: evaluationId.current, block: state.current.block, fromStep: range.start, toStep: range.end, action, delta: adjustment, note });
+      const result = await window.hitthebeat!.reviewSession(session.id, { id: evaluationId.current, block: state.current.block, fromStep: range.start, toStep: range.end, action, delta: adjustment, note, rating });
       setEvaluations(result.evaluations);
       commit(advance(state.current, action === 'repeat' ? 'repeat' : 'next'));
     } catch (reason) { if (alive.current) { setReviewError(readable(reason)); locked.current = false; setBusy(false); } }
@@ -200,7 +203,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   const previousDelta = evaluations.filter(item => item.block === run.block).reduce((sum, item) => sum + item.delta, 0);
   const adjustment = choice === 'faster' ? delta : choice === 'slower' ? -delta : 0;
   const preview = block.steps.map(item => ({ before: item.bpm + previousDelta, after: item.bpm + previousDelta + adjustment }));
-  const invalidAdjustment = choice !== 'same' && (!Number.isFinite(delta) || delta <= 0 || preview.some(item => item.after < exercise.bpm * .25 || item.after > exercise.bpm * 3));
+  const invalidAdjustment = choice !== 'same' && (!Number.isFinite(delta) || delta <= 0 || delta > 1000 || preview.some(item => item.after < exercise.bpm * .25 || item.after > exercise.bpm * 3));
   const a = isFree ? free.a : step.start ?? 0, b = isFree ? free.b : step.end ?? exercise.duration;
   const field = (label: string, value: number, change: (value: number) => void, increment = 1) => <NumberField label={label} value={value} change={change} step={increment} disabled={busy || !active} />;
   return <div className="screen-stack session-player">
@@ -210,7 +213,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
     {saveError && <div role="alert" className="error"><p>Bewaren is niet gelukt: {saveError}</p><button className="secondary" disabled={busy} onClick={() => { void persist(complete ? run.statuses.includes('skipped') ? 'partial' : 'completed' : 'running').then(() => { if (complete) finished(); }).catch(() => {}); }}>Opnieuw bewaren</button></div>}
     {error && <div role="alert" className="error"><p>{error}</p><button className="secondary" onClick={() => commit({ ...state.current, phase: 'paused', revision: state.current.revision + 1 })}>Audio opnieuw laden</button><button className="text-button" onClick={leave}>Terug naar rondjes</button></div>}
     {complete ? <section className="panel"><h2>{run.statuses.includes('skipped') ? 'Rondje beëindigd' : 'Rondje afgerond'}</h2><p>{run.passes} speelbeurten afgerond. {run.statuses.filter(value => value === 'skipped').length} oefeningen overgeslagen.</p><p>{busy ? 'Resultaten bewaren…' : saveError ? 'Bewaar je resultaten voordat je dit scherm verlaat.' : 'Je resultaten zijn bewaard bij Voortgang.'}</p><button className="primary" disabled={busy || Boolean(saveError)} onClick={leave}>Terug naar mijn rondjes</button></section> : <><h2 className="session-exercise-title">{exercise.title}</h2><Notation item={exercise} />
-    {review ? <section className="panel session-review"><h2>{lastSeries ? 'Oefening afgerond' : 'Fragmentserie afgerond'}</h2><p>{exercise.title} · Stappen {range.start + 1}–{range.end + 1} · {step.start === null ? 'Volledige track' : `Fragment ${step.start}–${step.end} seconden`}</p><p>Hoe wil je deze oefening de volgende keer spelen?</p><fieldset disabled={busy || !active} className="evaluation-fields"><legend>Volgende keer</legend><label>Tempo-opbouw<select aria-label="Tempo volgende keer" value={choice} onChange={event => setChoice(event.target.value as typeof choice)}><option value="same">Hetzelfde</option><option value="faster">Sneller</option><option value="slower">Rustiger</option></select></label>{choice !== 'same' && <><label>Aanpassing in BPM<input type="number" min=".1" step="1" value={Number.isFinite(delta) ? delta : ''} onChange={event => setDelta(event.target.valueAsNumber)} /></label><p data-testid="tempo-preview">{preview.map(item => `${item.before} → ${Number.isFinite(item.after) ? item.after : '—'}`).join(' · ')} BPM</p><p className="caption">Geldt voor alle stappen en herhalingen van alleen deze oefening in dit rondje. Dit huidige rondje blijft op de oorspronkelijke tempo’s spelen.</p>{invalidAdjustment && <p role="alert" className="error">Kies een aanpassing waarmee alle stappen binnen 25–300% van het originele BPM blijven.</p>}</>}<label>Notitie (optioneel)<textarea maxLength={2000} value={note} onChange={event => setNote(event.target.value)} /></label></fieldset><div className="row-actions"><button className="secondary" disabled={busy || !active} onClick={() => void evaluate('repeat')}>Deze serie opnieuw</button><button className="primary" disabled={busy || !active || invalidAdjustment} onClick={() => void evaluate(choice)}>{!lastSeries ? 'Verder met volgende fragment' : run.block + 1 === routine.blocks.length ? 'Rondje afronden' : 'Verder met volgende oefening'}</button></div></section> : <section className="audio-lab audio-embedded" aria-label="Rondjespeler"><div className="player-card" aria-busy={busy}>
+    {review ? <section className="panel session-review"><h2>{lastSeries ? 'Oefening afgerond' : 'Fragmentserie afgerond'}</h2><p>{exercise.title} · Stappen {range.start + 1}–{range.end + 1} · {step.start === null ? 'Volledige track' : `Fragment ${step.start}–${step.end} seconden`}</p><SessionReview disabled={busy || !active} choice={choice} setChoice={setChoice} delta={delta} setDelta={setDelta} rating={rating} setRating={setRating} note={note} setNote={setNote} preview={preview.map(item => `${item.before} → ${Number.isFinite(item.after) ? item.after : '—'}`).join(' · ')} invalid={invalidAdjustment} submit={action => void evaluate(action)} nextLabel={!lastSeries ? 'Verder met volgende fragment' : run.block + 1 === routine.blocks.length ? 'Rondje afronden' : 'Verder met volgende oefening'} /></section> : <section className="audio-lab audio-embedded" aria-label="Rondjespeler"><div className="player-card" aria-busy={busy}>
       <div className="session-pass"><strong>{isFree ? 'Vrij fragment oefenen' : `Stap ${run.step + 1} van ${block.steps.length} · Herhaling ${run.repetition + 1} van ${step.repetitions}`}</strong><span data-testid="session-bpm">{isFree ? free.bpm : step.bpm} BPM</span></div>
       {!isFree && <p className="caption" data-testid="planned-settings">{step.start === null ? 'Volledige track' : `Fragment ${step.start}–${step.end} seconden`} · Toonhoogte origineel</p>}
       <p className="caption">{busy ? 'Audio voorbereiden…' : isFree ? 'Je plek in het rondje blijft bewaard. Vrije loops tellen niet mee als herhalingen.' : 'De volgende herhaling en stap beginnen automatisch.'}</p>
@@ -221,6 +224,6 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
       {isFree && <><div className="audio-settings">{field('Speeltempo BPM', free.bpm, bpm => freeSettings({ bpm }))}{field('Toonhoogte (halve tonen)', free.pitch, pitch => freeSettings({ pitch }))}<button className="secondary" aria-pressed={free.loop} onClick={() => freeSettings({ loop: !free.loop })} disabled={busy}>Loop</button></div><div className="loop-settings">{field('Begin A (seconden)', free.a, a => freeSettings({ a }), .1)}<button className="secondary" disabled={busy} onClick={() => freeSettings({ a: position })}>A hier</button>{field('Einde B (seconden)', free.b, b => freeSettings({ b }), .1)}<button className="secondary" disabled={busy} onClick={() => freeSettings({ b: position })}>B hier</button></div></>}
     </div></section>}</>}
     <section className="panel session-times" aria-label="Tijd in deze sessie"><span>Rondje afgespeeld <strong data-testid="time-planned">{durationLabel(times.planned)}</strong></span><span>Fragmenttraining <strong data-testid="time-fragment">{durationLabel(times.fragment)}</strong></span><span>Gepauzeerd <strong>{durationLabel(times.pause)}</strong></span></section>
-    <p className="caption">Spatie: afspelen/pauzeren · 1: herhaling opnieuw, in vrije loop naar A. Toetsen blijven beschikbaar voor invoervelden en knoppen. Oefentijd is rondje-afspelen plus fragmenttraining; pauzes en evaluaties tellen niet mee. Er is nog geen aftellen of extra pauze tussen herhalingen.</p>
+    <p className="caption">{review ? 'Evaluatie: cijfer 1–5 → tempo 1–3 → aantal BPM. Enter bewaart en gaat door.' : 'Spatie: afspelen/pauzeren · 1: herhaling opnieuw, in vrije loop naar A.'} Toetsen blijven beschikbaar voor invoervelden en knoppen. Oefentijd is rondje-afspelen plus fragmenttraining; pauzes en evaluaties tellen niet mee. Er is nog geen aftellen of extra pauze tussen herhalingen.</p>
   </div>;
 }
