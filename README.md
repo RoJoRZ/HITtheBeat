@@ -12,12 +12,15 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 - [Audioproef en teststappen van fase 1](docs/FASE-1.md)
 - [Voorbeeldschermen en nieuw tempobereik van fase 2](docs/FASE-2.md)
 - [Eigen bibliotheek en BPM-proef van fase 3](docs/FASE-3.md)
+- [Opgeslagen rondjes en proefstappen van fase 4](docs/FASE-4.md)
 
 ## Eerste proefversie
 
-Versie 0.0.4 biedt een **eigen bibliotheek**: MP3 importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. Kies ‘Eigen bibliotheek bekijken’ en vervolgens ‘Oefeningen’. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
+Versie 0.0.5 biedt een **eigen bibliotheek**: MP3 importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. Kies ‘Eigen bibliotheek bekijken’ en vervolgens ‘Oefeningen’. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
 
-De **voorbeeldschermen** tonen daarnaast een rondjetabel, het gehele rondje in de speler, evaluatie en dashboard. Voorbeeldwijzigingen worden niet opgeslagen. Rondjes bewaren en automatisch uitvoeren, evaluaties en echte voortgang volgen in de volgende fases. De losse Audioproef blijft beschikbaar.
+Onder **Mijn oefenrondjes** kun je eigen rondjes opslaan met geordende oefenblokken en per stap fragment, herhalingen en BPM. De geplande totale duur rekent direct mee.
+
+De **voorbeeldschermen** tonen daarnaast een rondjetabel, het gehele rondje in de speler, evaluatie en dashboard. Voorbeeldwijzigingen worden niet opgeslagen. Automatisch uitvoeren van rondjes, evaluaties en echte voortgang volgen in de volgende fases. De losse Audioproef blijft beschikbaar.
 
 ## Ontwikkelen
 

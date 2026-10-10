@@ -70,6 +70,9 @@ app.whenReady().then(async () => {
     }
   }
   ipcMain.handle('app:info', event => { authorize(event); return { version: app.getVersion(), platform: process.platform }; });
+  ipcMain.handle('routines:list', event => { authorize(event); return library.listRoutines(); });
+  ipcMain.handle('routines:save', (event, input) => { authorize(event); return library.saveRoutine(input); });
+  ipcMain.handle('routines:delete', (event, id) => { authorize(event); return library.deleteRoutine(id); });
   ipcMain.handle('library:list', event => { authorize(event); return library.list(); });
   ipcMain.handle('library:save', (event, input) => { authorize(event); return library.save(input); });
   ipcMain.handle('library:audio', (event, id) => { authorize(event); return library.read(id, 'audio'); });

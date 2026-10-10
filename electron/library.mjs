@@ -1,3 +1,4 @@
+import { validateRoutine } from './routine-model.mjs';
 import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
@@ -36,15 +37,33 @@ export async function openLibrary(root) {
   const media = path.join(root, 'media');
   await mkdir(media, { recursive: true, mode: 0o700 });
   const db = new DatabaseSync(path.join(root, 'library.sqlite'));
-  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;');
+  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;');
   const version = /** @type {{user_version:number}} */ (db.prepare('PRAGMA user_version').get()).user_version;
-  if (version > 1) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
+  if (version > 2) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
   if (version === 0) db.exec(`BEGIN IMMEDIATE;
     CREATE TABLE exercises (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL,
       bpm REAL NOT NULL CHECK(bpm>0), detected_bpm REAL, analysis_status TEXT NOT NULL, duration REAL NOT NULL,
       audio_name TEXT NOT NULL, audio_file TEXT NOT NULL, image_name TEXT, image_file TEXT, image_mime TEXT,
       updated_at TEXT NOT NULL) STRICT;
     PRAGMA user_version=1; COMMIT;`);
+  if (version < 2) db.exec(`BEGIN IMMEDIATE;
+    CREATE TABLE routines (id TEXT PRIMARY KEY, title TEXT NOT NULL, updated_at TEXT NOT NULL) STRICT;
+    CREATE TABLE routine_blocks (id TEXT PRIMARY KEY, routine_id TEXT NOT NULL REFERENCES routines(id) ON DELETE CASCADE,
+      exercise_id TEXT NOT NULL REFERENCES exercises(id), position INTEGER NOT NULL) STRICT;
+    CREATE TABLE routine_steps (id TEXT PRIMARY KEY, block_id TEXT NOT NULL REFERENCES routine_blocks(id) ON DELETE CASCADE,
+      position INTEGER NOT NULL, repetitions INTEGER NOT NULL CHECK(repetitions>0), bpm REAL NOT NULL CHECK(bpm>0),
+      start REAL, end REAL) STRICT;
+    PRAGMA user_version=2; COMMIT;`);
+  /** @param {Record<string, any>} row */
+  const routineFrom = row => ({ id: String(row.id), title: String(row.title), updatedAt: String(row.updated_at),
+    blocks: db.prepare('SELECT * FROM routine_blocks WHERE routine_id=? ORDER BY position').all(String(row.id)).map(block => ({
+      id: String(block.id), exerciseId: String(block.exercise_id),
+      steps: db.prepare('SELECT * FROM routine_steps WHERE block_id=? ORDER BY position').all(String(block.id)).map(step => ({
+        id: String(step.id), repetitions: Number(step.repetitions), bpm: Number(step.bpm),
+        start: step.start === null ? null : Number(step.start), end: step.end === null ? null : Number(step.end),
+      })),
+    })),
+  });
   /** @param {Record<string, any>} row @returns {Exercise} */
   const present = row => ({ id: row.id, title: row.title, description: row.description, bpm: row.bpm, detectedBpm: row.detected_bpm, analysisStatus: row.analysis_status, duration: row.duration, audioName: row.audio_name, imageName: row.image_name, imageMime: row.image_mime, updatedAt: row.updated_at });
   /** @param {unknown} id */
@@ -103,6 +122,26 @@ export async function openLibrary(root) {
       try { return { bytes: new Uint8Array(await readFile(mediaPath(String(filename)))), mime: kind === 'audio' ? 'audio/mpeg' : String(row.image_mime) }; }
       catch { throw new Error('Het bibliotheekbestand ontbreekt of kan niet worden gelezen.'); }
     },
+    listRoutines() { return db.prepare('SELECT * FROM routines ORDER BY title COLLATE NOCASE, id').all().map(routineFrom); },
+    /** @param {import('./routine-model.mjs').RoutineInput} input */
+    saveRoutine(input) {
+      const clean = validateRoutine(input, db.prepare('SELECT id,bpm,duration FROM exercises').all().map(row => ({ id: String(row.id), bpm: Number(row.bpm), duration: Number(row.duration) })));
+      const id = clean.id ?? randomUUID();
+      if (clean.id && !db.prepare('SELECT id FROM routines WHERE id=?').get(id)) throw new Error('Dit rondje bestaat niet meer.');
+      db.exec('BEGIN IMMEDIATE;');
+      try {
+        db.prepare('INSERT INTO routines VALUES (?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, updated_at=excluded.updated_at').run(id, clean.title, new Date().toISOString());
+        db.prepare('DELETE FROM routine_blocks WHERE routine_id=?').run(id);
+        clean.blocks.forEach((block, index) => {
+          db.prepare('INSERT INTO routine_blocks VALUES (?,?,?,?)').run(block.id, id, block.exerciseId, index);
+          block.steps.forEach((step, position) => db.prepare('INSERT INTO routine_steps VALUES (?,?,?,?,?,?,?)').run(step.id, block.id, position, step.repetitions, step.bpm, step.start, step.end));
+        });
+        db.exec('COMMIT;');
+      } catch (error) { db.exec('ROLLBACK;'); throw error; }
+      return routineFrom(db.prepare('SELECT * FROM routines WHERE id=?').get(id) ?? {});
+    },
+    /** @param {string} id */
+    deleteRoutine(id) { const result = db.prepare('DELETE FROM routines WHERE id=?').run(validId(id)); if (!result.changes) throw new Error('Dit rondje bestaat niet meer.'); },
     close() { db.close(); },
   };
 }

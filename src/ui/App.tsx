@@ -1,3 +1,4 @@
+import { RoutineScreen } from './RoutineScreen';
 import { LibraryScreen } from './LibraryScreen';
 import { ExampleScreens, type ExamplePage } from './ExampleScreens';
 import { findExercise } from './examples';
@@ -48,16 +49,17 @@ export function App() {
       <main id="main" tabIndex={-1}>
         <header className="page-header"><div><p className="eyebrow">JOUW OEFENPLEK</p><h1>{current.title}</h1><p className="subtitle">{current.subtitle}</p></div><span className="header-mark"><AudioLines size={27} aria-hidden="true" /></span></header>
         {desktopError && <p role="alert" className="error">De appgegevens konden niet worden geladen. Sluit de app en probeer opnieuw.</p>}
-        {page !== 'audio' && <div className="example-banner"><div><strong>{examples ? 'Voorbeeldschermen' : 'Eigen bibliotheek'}</strong><span>{examples ? 'Alle oefeningen, opbouw en resultaten zijn voorbeelden. Wijzigingen worden niet opgeslagen.' : 'Je oefeningen worden lokaal bewaard. Rondjes opslaan volgt in de volgende fase.'}</span></div><button className="secondary" onClick={() => { setExamples(!examples); if (page === 'player' || page === 'evaluation') setPage('routines'); }}>{examples ? 'Eigen bibliotheek bekijken' : 'Voorbeeldschermen bekijken'}</button></div>}
-        {page === 'audio' ? <AudioLab /> : examples ? <ExampleScreens page={page} navigate={next => { setPage(next); window.scrollTo(0, 0); }} selected={selected} select={setSelected} /> : page === 'exercises' ? <LibraryScreen /> : <><section className="empty-panel" aria-labelledby="empty-heading" key={page}>
+        {page !== 'audio' && <div className="example-banner"><div><strong>{examples ? 'Voorbeeldschermen' : 'Eigen bibliotheek'}</strong><span>{examples ? 'Alle oefeningen, opbouw en resultaten zijn voorbeelden. Wijzigingen worden niet opgeslagen.' : 'Je oefeningen en rondjes worden lokaal bewaard.'}</span></div><button className="secondary" onClick={() => { setExamples(!examples); if (page === 'player' || page === 'evaluation') setPage('routines'); }}>{examples ? 'Eigen bibliotheek bekijken' : 'Voorbeeldschermen bekijken'}</button></div>}
+        {page === 'audio' ? <AudioLab /> : examples ? <ExampleScreens page={page} navigate={next => { setPage(next); window.scrollTo(0, 0); }} selected={selected} select={setSelected} /> : page === 'exercises' ? <LibraryScreen /> : page === 'routines' ? null : <><section className="empty-panel" aria-labelledby="empty-heading" key={page}>
           <div className="empty-icon"><EmptyIcon size={42} strokeWidth={1.4} aria-hidden="true" /></div>
-          <p className="eyebrow">{page === 'routines' ? 'IN JOUW RITME' : 'ELKE OEFENING TELT'}</p>
+          <p className="eyebrow">ELKE OEFENING TELT</p>
           <h2 id="empty-heading">{current.empty}</h2>
           <p className="empty-description">{current.description}</p>
           {current.action && <button className="primary" disabled><Plus size={20} aria-hidden="true" />{current.action}</button>}
           <p className="preview-note">Dit is de eerste proefversie. Eigen oefeningen voeg je toe in de bibliotheek. Rondjes bewaren en uitvoeren volgen later.</p>
         </section>
-        <section className="below-panel" aria-label="Over je oefenplek"><div><span className="small-icon"><Music2 size={21} aria-hidden="true" /></span><div><h2>Jouw oefeningen, jouw tempo</h2><p>Van rustig beginnen tot die lastige passage.</p></div></div>{page === 'routines' && <button className="text-button" onClick={() => setPage('exercises')}>Naar oefeningen <ArrowUpRight size={18} aria-hidden="true" /></button>}</section></>}
+        <section className="below-panel" aria-label="Over je oefenplek"><div><span className="small-icon"><Music2 size={21} aria-hidden="true" /></span><div><h2>Jouw oefeningen, jouw tempo</h2><p>Van rustig beginnen tot die lastige passage.</p></div></div></section></>}
+        <div hidden={examples || page !== 'routines'}><RoutineScreen active={!examples && page === 'routines'} library={() => setPage('exercises')} /></div>
       </main>
     </div>
   );

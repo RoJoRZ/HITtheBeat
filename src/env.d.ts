@@ -2,6 +2,9 @@
 
 interface Window {
   hitthebeat?: {
+    listRoutines(): Promise<import('./library/types').Routine[]>;
+    saveRoutine(input: import('./library/types').RoutineInput): Promise<import('./library/types').Routine>;
+    deleteRoutine(id: string): Promise<void>;
     listExercises(): Promise<import('./library/types').Exercise[]>;
     saveExercise(input: import('./library/types').SaveInput): Promise<import('./library/types').Exercise>;
     readAudio(id: string): Promise<{bytes: Uint8Array; mime: string}>;

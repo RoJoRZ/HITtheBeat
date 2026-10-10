@@ -1,6 +1,6 @@
 # HITtheBeat — Ontwikkelplan
 
-Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 heeft een audioproef (v0.0.2) met automatische Mac-controles; muzikale luisterbeoordeling en de Windows-gebruikstest staan open. Zie `docs/FASE-1.md`. De gebruiker heeft vervolgens het bereik 25–300% gekozen en opdracht gegeven verder te gaan. Fase 2 levert doorloopbare voorbeeldschermen in v0.0.3; zie `docs/FASE-2.md`. De gebruiker heeft daarna de rondje-afspeellijst verduidelijkt en opdracht gegeven door te gaan. V0.0.4 biedt een eigen bibliotheek met eerste BPM-detector; zie `docs/FASE-3.md`. Bibliotheekfeedback en beoordeling op echte muziek staan open vóór fase 4.
+Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 heeft een audioproef (v0.0.2) met automatische Mac-controles; muzikale luisterbeoordeling en de Windows-gebruikstest staan open. Zie `docs/FASE-1.md`. De gebruiker heeft vervolgens het bereik 25–300% gekozen en opdracht gegeven verder te gaan. Fase 2 levert doorloopbare voorbeeldschermen in v0.0.3; zie `docs/FASE-2.md`. De gebruiker heeft daarna de rondje-afspeellijst verduidelijkt en opdracht gegeven door te gaan. V0.0.4 biedt een eigen bibliotheek met eerste BPM-detector; zie `docs/FASE-3.md`. De gebruiker heeft opdracht gegeven door te gaan. V0.0.5 levert de eigen rondje-editor; zie `docs/FASE-4.md`. Editorfeedback staat open vóór fase 5; beoordeling op echte muziek blijft open.
 
 ## 1. Uitgangspunten
 
@@ -72,6 +72,8 @@ Maak rondjes met geordende oefenblokken en stappen. Iedere stap heeft een fragme
 Controle: dezelfde oefening heeft in twee rondjes een verschillende opbouw zonder elkaar te wijzigen. Een 60 seconden lange brontrack van 120 BPM duurt op 60 BPM 120 seconden; tweemaal een bronfragment van 10 seconden op half tempo duurt samen 40 seconden. Een toonhoogtewijziging verandert de duur niet. Test ongeldige fragmentgrenzen, herhalingen en tempi. Controleer de volgorde na opslaan en heropenen.
 
 Demo: de gebruiker voert bijvoorbeeld 1×75, 2×95 en 1×85 BPM in en maakt daarnaast een warming-up met dezelfde oefening. Dit moment bepaalt of de tabel praktisch genoeg werkt.
+
+Stand 10 oktober 2026: v0.0.5 biedt opgeslagen rondjes met expliciete oefenblokken en eigen stappen, fragmenten en direct berekende duur. Toonhoogte per stap blijft een open keuze. Zie `docs/FASE-4.md` voor controles en proefstappen.
 
 ### Fase 5 — Rondje uitvoeren en tijdelijk fragmenten oefenen
 

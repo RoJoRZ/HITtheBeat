@@ -317,3 +317,13 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .playing-layout .screen-stack { gap: 12px; }
 .playing-layout .practice-top .tab-panel img { max-height: 210px; }
 .playing-layout .practice-top .assignment-scroll { max-height: 210px; }
+.routine-fields { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 20px; }
+.routine-name { display: grid; gap: 8px; width: min(520px, 60%); }
+.routine-editor input { background: var(--inset); color: #f2f4f6; border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; min-height: 44px; width: 100%; }
+.own-routine-table { min-width: 920px; }
+.own-routine-table input[type=number] { width: 105px; }
+.block-heading { background: var(--raised); }
+.block-toolbar { display: flex; align-items: center; gap: 20px; text-align: left; font-weight: 400; }
+.block-toolbar label { display: grid; gap: 6px; min-width: 260px; }
+.block-toolbar > .row-actions { margin-left: auto; }
+.routine-editor .detail-footer { flex-wrap: wrap; }
