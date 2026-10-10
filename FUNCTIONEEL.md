@@ -133,9 +133,11 @@ Na iedere oefening kan de muzikant aangeven wat er nu of de volgende keer moet g
 
 ‘Volgende keer’ geldt ook als de muzikant een dag overslaat. Aanpassingen gelden voor de oefening binnen het gebruikte rondje.
 
-Voorstel: een tempoverhoging of -verlaging verschuift standaard alle stappen met hetzelfde aantal BPM. Voor het opslaan toont de tool de nieuwe opbouw ter bevestiging, bijvoorbeeld ‘75 → 80 · 95 → 100 · 85 → 90 BPM’.
+Vastgesteld: een tempoverhoging of -verlaging geldt voor één gekozen oefenblok binnen het gebruikte rondje. Alle stappen en herhalingen van dat blok verschuiven met hetzelfde aantal BPM. Bijvoorbeeld: +5 BPM maakt 75/95/85 BPM tot 80/100/90 BPM. De overige oefeningen van dit rondje en dezelfde oefening in andere rondjes veranderen niet. Voor het opslaan toont de tool de nieuwe opbouw ter bevestiging, bijvoorbeeld ‘75 → 80 · 95 → 100 · 85 → 90 BPM’.
 
 Voorstel voor een korte beoordeling: **Nog lastig · Ging goed · Voelt vertrouwd**, met een optionele notitie. Zo kan de voortgang onderscheid maken tussen een tempo spelen en dat tempo beheersen. De exacte evaluatiekeuzes worden nog definitief vastgesteld.
+
+Evaluatiepauzes tellen niet mee als werkelijk geoefende tijd. De gebruiker wil een evaluatie tussen series, bij het wisselen van fragment. Nog af te stemmen: dit betekent een evaluatie na alle tempo’s en herhalingen van hetzelfde fragment, of na iedere tabelrij afzonderlijk. Deze wijziging wordt pas in de speler verwerkt zodra dit onderscheid is verduidelijkt.
 
 ## 8. Voortgang en motiverend dashboard
 
