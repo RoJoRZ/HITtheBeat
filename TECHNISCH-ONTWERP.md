@@ -108,3 +108,9 @@ Geraadpleegd op 10 oktober 2026:
 - [Signalsmith Stretch: officiële Web Audio-integratie](https://github.com/Signalsmith-Audio/signalsmith-stretch/blob/main/web/release/README.md).
 - [macOS-ondertekening en ad-hocdistributie](https://tauri.app/distribute/sign/macos/).
 - [Windows-ondertekening en SmartScreen](https://tauri.app/distribute/sign/windows/).
+
+## 10. Stand na de audioproef
+
+Fase 1 gebruikt Signalsmith Stretch 1.3.2, gebundeld als lokale module met ingebouwde WASM. `src/audio/engine.ts` verzorgt AudioContext, decodering, afspeeltoestand, tempo/transpositie, loop en audioklok; React toont en bedient deze engine. Het trackeinde wordt op de audioklok begrensd met GainNode-automatisering. De CSP voegt alleen `wasm-unsafe-eval` toe aan de lokale scriptpolicy.
+
+Automatische Mac-metingen bevestigen onafhankelijke tempo-/toonhoogteverwerking, ook gecombineerd; offline desktoptests controleren MP3-import en bediening. Luisterkwaliteit op echte oefeningen, loopovergangen en Windows-werking zijn nog niet geaccepteerd. Het proefbereik en tijdelijke toetsen staan in `FUNCTIONEEL.md`; resultaten en resterende controles in `docs/FASE-1.md`. De proef bewaart geen media, gebruikt geen SQLite en loopt niet vooruit op de BPM-detector.

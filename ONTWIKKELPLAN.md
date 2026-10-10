@@ -1,6 +1,6 @@
 # HITtheBeat — Ontwikkelplan
 
-Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 is nog niet gestart.
+Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 heeft een audioproef (v0.0.2) met automatische Mac-controles; muzikale luisterbeoordeling en de Windows-gebruikstest staan open. Zie `docs/FASE-1.md`.
 
 ## 1. Uitgangspunten
 

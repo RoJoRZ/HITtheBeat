@@ -111,3 +111,7 @@ Iconen krijgen toegankelijke namen; statusmeldingen zijn ook als tekst beschikba
 Werk dit document bij bij gewijzigde designafspraken. Verwerk wijzigingen in gedrag ook in `FUNCTIONEEL.md`. Gebruik dezelfde tokens, typografie, iconen en componenttoestanden in alle schermen. Nieuwe schermen borduren op deze richting voort. Bewaar renders en prompts in `design/` en versieer de documenten met Git.
 
 De vier nieuwe schermen zijn met de ingebouwde imagegen-tool gemaakt op basis van de gekozen Mandarijnreferentie. Prompts staan in `design/mandarijn-schermen-prompts.json`. De beelden zijn visueel bekeken op stijl en hoofdindeling; definitieve contrast- en interactiecontrole volgt in de werkende app.
+
+## 9. Werkende audioproef
+
+Fase 1 voegt een tijdelijk, expliciet benoemd scherm ‘Audioproef’ toe. Het volgt dezelfde kleuren en Source Sans 3, met de golfvorm en transportbediening centraal, daaronder tempo/toonhoogte en A/B-invoer. Bestandskeuze, proefstatus en bedieningsuitleg blijven zichtbaar. Dit scherm valideert audio; de volledige spelerindeling met tablatuur en opdrachtvak volgt in fase 2 volgens render 14.

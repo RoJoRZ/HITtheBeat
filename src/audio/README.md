@@ -1,3 +1,3 @@
 # Audio
 
-Hier komt in fase 1 de afzonderlijk te testen audio-engine met tempo, toonhoogte en A/B-loop. UI-componenten sturen commando's en lezen toestand; zij plannen niet zelf de herhalingen met visuele timers.
+`stretch.ts` laadt de lokale Signalsmith-worklet. `engine.ts` beheert decodering, audioklok, tempo/transpositie, A/B-loop en opruimen, los van React. De UI stuurt dezelfde commando’s via knoppen en toetsen. Zie `docs/FASE-1.md` voor metingen en nog open luister-/platformcontroles. Rondjes en hun herhalingen volgen in fase 5.

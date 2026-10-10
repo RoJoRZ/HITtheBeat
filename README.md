@@ -9,10 +9,11 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 - [Technisch ontwerp](TECHNISCH-ONTWERP.md)
 - [Ontwikkelplan](ONTWIKKELPLAN.md)
 - [Voortgang en controles van fase 0](docs/FASE-0.md)
+- [Audioproef en teststappen van fase 1](docs/FASE-1.md)
 
 ## Eerste proefversie
 
-Versie 0.0.1 bevat de desktopbasis en drie navigeerbare beginpagina's. Oefeningen toevoegen, audio afspelen, rondjes en voortgang opslaan zijn nog niet geïmplementeerd. De bijbehorende knoppen zijn zichtbaar als niet-actieve bediening; er worden geen fictieve resultaten als eigen voortgang getoond.
+Versie 0.0.2 bevat de desktopbasis en een afzonderlijke **Audioproef**: MP3/WAV laden, onafhankelijk tempo en toonhoogte aanpassen, zoeken, pauzeren en A/B-loopen. Probeer de ingebouwde voorbeeldmelodie of een eigen bestand. Automatische BPM-herkenning en het opslaan van oefeningen, rondjes en voortgang volgen later. De nog niet aangesloten bibliotheek- en rondjeknoppen zijn zichtbaar als niet-actieve bediening; er worden geen fictieve resultaten als eigen voortgang getoond.
 
 ## Ontwikkelen
 

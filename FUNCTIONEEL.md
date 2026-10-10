@@ -171,3 +171,11 @@ Mogelijke latere uitbreidingen zijn labels voor oefeningen, rondjes samenstellen
 - De concrete presentatie en vergelijkingen in het dashboard.
 
 Deze punten worden functioneel uitgewerkt voordat ze als definitieve eisen worden behandeld.
+
+## 11. Afzonderlijk beoordeelbare audioproef (fase 1)
+
+De audioproef v0.0.2 demonstreert MP3-afspelen, onafhankelijk tempo/toonhoogte, zoeken, pauze en A/B-loop. Een zelf opgewekte voorbeeldmelodie en WAV-import dienen alleen om de proef eenvoudig te testen. Er is nog geen opslag van oefeningen of rondjes en het oorspronkelijke BPM wordt handmatig ingevoerd.
+
+Voorlopige bediening in de proef: spatie voor afspelen/pauzeren; 1 voor trackstart of A bij actieve loop. Tijdens invoer of focus op knoppen blijven de normale toetsen werken. Getallen worden bevestigd met Enter of bij het verlaten van het veld. A/B kan via bronseconden of knoppen op de huidige afspeelpositie. Bij inschakelen van een loop buiten het gekozen fragment begint de speler bij A. Verlaten van de audioproef of laden van een nieuw bestand stopt de oude audio.
+
+Experimenteel testbereik: tempo 50–200%, toonhoogte −12 tot +12 halve tonen, fragment minimaal 0,1 seconde, bestand maximaal 50 MB. Deze proefgrenzen en toetskeuzes zijn geen definitieve productspecificatie; de open keuzes in hoofdstuk 10 blijven gelden. Muzikale luisterbeoordeling en Windows-gebruikstest volgen nog. Zie `docs/FASE-1.md` voor de proef en controles.
