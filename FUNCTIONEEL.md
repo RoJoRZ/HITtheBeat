@@ -371,3 +371,5 @@ Vastgesteld op verzoek van de gebruiker; geleverd in v0.0.16:
 Dit is een afzonderlijke verbetering; fase 8, Windows-gebruikstest en muzikale luisterbeoordeling blijven open.
 
 Gebruiksfeedback 11 oktober 2026: de gebruiker heeft v0.0.16 geprobeerd en meldt dat alles lijkt te werken. De wijzigingen zijn daarmee in gebruik goedgekeurd. Dit is geen afzonderlijke bevestiging van een Windows-test, brede BPM-nauwkeurigheid of muzikale luisterkwaliteit. Fase 8 is nog niet gestart.
+
+Op 11 oktober 2026 heeft de gebruiker eenmalig gevraagd opnieuw te beginnen met de voortgangsrapportage. De 12 historische oefenregistraties zijn uit de lokale gebruikersdatabase verwijderd; oefeningen, media, fragmenten en opgeslagen sessie-opbouwen zijn behouden. Dit betreft een eenmalige gegevensreset, geen nieuwe resetfunctie in de app. Nieuwe oefenregistraties bouwen de voortgang opnieuw op.
