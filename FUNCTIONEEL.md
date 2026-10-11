@@ -369,3 +369,5 @@ Vastgesteld op verzoek van de gebruiker; geleverd in v0.0.16:
 - Het compacte appicoon gebruikt een H met audiostreepjes, in Mandarijn op Studio donker, gebaseerd op het gewaardeerde logo linksboven. Het volledige logo blijft behouden. De vormgeving van het nieuwe icoon kan op gebruiksfeedback worden verfijnd.
 
 Dit is een afzonderlijke verbetering; fase 8, Windows-gebruikstest en muzikale luisterbeoordeling blijven open.
+
+Gebruiksfeedback 11 oktober 2026: de gebruiker heeft v0.0.16 geprobeerd en meldt dat alles lijkt te werken. De wijzigingen zijn daarmee in gebruik goedgekeurd. Dit is geen afzonderlijke bevestiging van een Windows-test, brede BPM-nauwkeurigheid of muzikale luisterkwaliteit. Fase 8 is nog niet gestart.

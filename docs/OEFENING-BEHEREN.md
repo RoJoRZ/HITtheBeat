@@ -18,3 +18,7 @@
 4. Bekijk het icoon in het Dock en bij de app in Finder.
 
 Windows-gebruikstest, muzikale luisterbeoordeling en fase 8 blijven open.
+
+## Gebruiksfeedback
+
+Op 11 oktober 2026 meldt de gebruiker na gebruik van v0.0.16 dat alles lijkt te werken. De wijzigingen zijn in gebruik goedgekeurd; de hierboven genoemde open controles blijven afzonderlijk staan.
