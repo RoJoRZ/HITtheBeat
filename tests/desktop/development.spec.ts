@@ -25,11 +25,11 @@ test('development server loads desktop bridge, local font and injected styles', 
       chunks.push(encoder.flush());
       await page.evaluate(async bytes => {
         const exercise = await window.hitthebeat!.saveExercise({ title: 'Ontwikkelproef', description: '', bpm: 120, duration: 2, detectedBpm: null, analysisStatus: 'unavailable', audio: { name: 'dev.mp3', bytes: new Uint8Array(bytes) } });
-        await window.hitthebeat!.saveRoutine({ title: 'Dev rondje', blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [{ id: crypto.randomUUID(), bpm: 60, repetitions: 1, start: 0, end: 2 }] }] });
+        await window.hitthebeat!.saveRoutine({ title: 'Dev sessie', blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [{ id: crypto.randomUUID(), bpm: 60, repetitions: 1, start: 0, end: 2 }] }] });
       }, [...Buffer.concat(chunks.map(chunk => Buffer.from(chunk)))]);
       await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
       await page.reload();
-      await page.getByRole('article', { name: 'Dev rondje', exact: true }).getByRole('button', { name: 'Starten' }).click();
+      await page.getByRole('article', { name: 'Dev sessie', exact: true }).getByRole('button', { name: 'Starten' }).click();
       await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
       await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
       await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeVisible();

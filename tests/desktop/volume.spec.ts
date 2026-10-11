@@ -51,7 +51,7 @@ test('import normalizes quiet and loud MP3, volume and mute survive exercise cha
     });
     await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
     await page.getByRole('article', { name: 'Niveaus', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
-    await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
+    await page.getByRole('button', { name: 'Sessie starten', exact: true }).click();
     await expect(page.getByRole('slider', { name: 'Volume', exact: true })).toHaveValue('43');
     await expect(page.getByRole('button', { name: 'Dempen opheffen', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Dempen opheffen', exact: true }).click();
@@ -59,7 +59,7 @@ test('import normalizes quiet and loud MP3, volume and mute survive exercise cha
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Fragment oefenen', exact: true }).click();
     await expect(page.getByRole('slider', { name: 'Volume', exact: true })).toHaveValue('43');
-    await page.getByRole('button', { name: 'Terug naar rondje', exact: true }).click();
+    await page.getByRole('button', { name: 'Terug naar sessie', exact: true }).click();
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Oefening afgerond', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Verder met volgende oefening', exact: true }).click();

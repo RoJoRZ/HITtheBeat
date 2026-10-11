@@ -119,7 +119,15 @@ export async function openLibrary(root) {
       const normalizeAudio = input.normalizeAudio === undefined ? Boolean(old?.normalize_audio ?? true) : input.normalizeAudio;
       if ((normalizationDb !== null && (typeof normalizationDb !== 'number' || !Number.isFinite(normalizationDb) || normalizationDb < -60 || normalizationDb > 12 + 1e-9)) || typeof normalizeAudio !== 'boolean') throw new Error('Ongeldige volumenormalisatie.');
       if (!old && !input.audio) throw new Error('Kies een MP3- of M4A-bestand.');
-      if (old && input.audio) throw new Error('Voeg een gewijzigde audiotrack als nieuwe oefening toe.');
+      if (old && input.audio) {
+        const fragments = present(old).fragments;
+        if (fragments.some(fragment => fragment.end > duration)) throw new Error('De nieuwe audio is korter dan een opgeslagen fragment. Pas eerst de fragmentgrenzen aan.');
+        const sources = this.list().map(item => item.id === old.id ? { ...item, bpm, duration } : item);
+        for (const routine of this.listRoutines().filter(item => item.blocks.some(block => block.exerciseId === old.id))) {
+          try { validateRoutine(routine, sources); }
+          catch { throw new Error(`De nieuwe audio past niet bij de grenzen of BPM in sessie “${routine.title}”. Pas eerst deze sessie aan.`); }
+        }
+      }
       const audioInfo = input.audio ? validateAsset(input.audio, 'audio') : null;
       const imageInfo = input.image ? validateAsset(input.image, 'image') : null;
       const audioFile = audioInfo ? `${randomUUID()}.${audioInfo.extension}` : String(old?.audio_file);
@@ -131,7 +139,8 @@ export async function openLibrary(root) {
         if (input.image && typeof imageFile === 'string') { created.push(imageFile); await writeFile(mediaPath(imageFile), input.image.bytes, { flag: 'wx', mode: 0o600 }); }
         db.prepare(`INSERT INTO exercises (id,title,description,bpm,detected_bpm,analysis_status,duration,audio_name,audio_file,image_name,image_file,image_mime,updated_at,normalization_db,normalize_audio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
           ON CONFLICT(id) DO UPDATE SET title=excluded.title, description=excluded.description, bpm=excluded.bpm,
-          detected_bpm=excluded.detected_bpm, analysis_status=excluded.analysis_status, image_name=excluded.image_name,
+          detected_bpm=excluded.detected_bpm, analysis_status=excluded.analysis_status, duration=excluded.duration,
+          audio_name=excluded.audio_name, audio_file=excluded.audio_file, image_name=excluded.image_name,
           image_file=excluded.image_file, image_mime=excluded.image_mime, updated_at=excluded.updated_at,
           normalization_db=excluded.normalization_db, normalize_audio=excluded.normalize_audio`).run(
           id, title, description, bpm, detected, input.analysisStatus, duration,
@@ -142,8 +151,17 @@ export async function openLibrary(root) {
         await Promise.all(created.map(file => rm(mediaPath(file), { force: true })));
         throw error;
       }
+      if (old?.audio_file && old.audio_file !== audioFile) await rm(mediaPath(String(old.audio_file)), { force: true }).catch(() => {});
       if (old?.image_file && old.image_file !== imageFile) await rm(mediaPath(String(old.image_file)), { force: true }).catch(() => {});
       return present(rowFor(id));
+    },
+    /** @param {string} id */
+    async deleteExercise(id) {
+      const row = rowFor(id);
+      const used = this.listRoutines().filter(item => item.blocks.some(block => block.exerciseId === id));
+      if (used.length) throw new Error(`Verwijder deze oefening eerst uit de opgeslagen sessies: ${used.map(item => item.title).join(', ')}.`);
+      db.prepare('DELETE FROM exercises WHERE id=?').run(id);
+      await Promise.all([row.audio_file, row.image_file].filter(Boolean).map(file => rm(mediaPath(String(file)), { force: true }).catch(() => {})));
     },
     /** @param {string} exerciseId @param {import('./fragment-model.mjs').FragmentInput} input */
     saveFragment(exerciseId, input) {
@@ -177,7 +195,7 @@ export async function openLibrary(root) {
     saveRoutine(input) {
       const clean = validateRoutine(input, db.prepare('SELECT id,bpm,duration FROM exercises').all().map(row => ({ id: String(row.id), bpm: Number(row.bpm), duration: Number(row.duration) })));
       const id = clean.id ?? randomUUID();
-      if (clean.id && !db.prepare('SELECT id FROM routines WHERE id=?').get(id)) throw new Error('Dit rondje bestaat niet meer.');
+      if (clean.id && !db.prepare('SELECT id FROM routines WHERE id=?').get(id)) throw new Error('Deze sessie bestaat niet meer.');
       db.exec('BEGIN IMMEDIATE;');
       try {
         db.prepare('INSERT INTO routines VALUES (?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, updated_at=excluded.updated_at').run(id, clean.title, new Date(Math.max(Date.now(), Date.parse(String(db.prepare('SELECT updated_at FROM routines WHERE id=?').get(id)?.updated_at ?? '1970-01-01')) + 1)).toISOString());
@@ -191,11 +209,11 @@ export async function openLibrary(root) {
       return routineFrom(db.prepare('SELECT * FROM routines WHERE id=?').get(id) ?? {});
     },
     /** @param {string} id */
-    deleteRoutine(id) { const result = db.prepare('DELETE FROM routines WHERE id=?').run(validId(id)); if (!result.changes) throw new Error('Dit rondje bestaat niet meer.'); },
+    deleteRoutine(id) { const result = db.prepare('DELETE FROM routines WHERE id=?').run(validId(id)); if (!result.changes) throw new Error('Deze sessie bestaat niet meer.'); },
     /** @param {string} routineId */
     startSession(routineId) {
       const row = db.prepare('SELECT * FROM routines WHERE id=?').get(validId(routineId));
-      if (!row) throw new Error('Dit rondje bestaat niet meer.');
+      if (!row) throw new Error('Deze sessie bestaat niet meer.');
       const routine = routineFrom(row), exercises = this.list().filter(item => routine.blocks.some(block => block.exerciseId === item.id));
       validateRoutine(routine, exercises);
       const id = randomUUID(), now = new Date().toISOString();
@@ -213,7 +231,7 @@ export async function openLibrary(root) {
       const progress = validateProgress(input, JSON.parse(String(row.snapshot)));
       if (progress.seq <= old.seq) return sessionFrom(row);
       if (progress.passes < old.passes || ['planned','fragment','pause'].some(key => progress.times[/** @type {keyof typeof progress.times} */ (key)] < old.times[key] - 1e-6)) throw new Error('Sessieresultaten mogen niet teruglopen.');
-      if ((status === 'completed' || status === 'partial') && (progress.phase !== 'complete' || progress.statuses.includes('pending') || (status === 'completed' && progress.statuses.includes('skipped')) || (status === 'partial' && !progress.statuses.includes('skipped')))) throw new Error('Dit rondje is nog niet volledig doorlopen.');
+      if ((status === 'completed' || status === 'partial') && (progress.phase !== 'complete' || progress.statuses.includes('pending') || (status === 'completed' && progress.statuses.includes('skipped')) || (status === 'partial' && !progress.statuses.includes('skipped')))) throw new Error('Deze sessie is nog niet volledig doorlopen.');
       const now = new Date().toISOString();
       db.prepare('UPDATE sessions SET progress=?, status=?, updated_at=?, ended_at=? WHERE id=?').run(JSON.stringify(progress), status, now, status === 'running' ? null : now, id);
       return sessionFrom(sessionRow(id));
@@ -232,10 +250,10 @@ export async function openLibrary(root) {
         let routineVersion = String(row.routine_version);
         if (evaluation.delta !== 0) {
           const saved = db.prepare('SELECT * FROM routines WHERE id=?').get(snapshot.routine.id);
-          if (!saved || saved.updated_at !== routineVersion) throw new Error('Het rondje is intussen gewijzigd. Bewaar deze evaluatie zonder BPM-aanpassing en pas het rondje daarna aan in de editor.');
+          if (!saved || saved.updated_at !== routineVersion) throw new Error('De sessie is intussen gewijzigd. Bewaar deze evaluatie zonder BPM-aanpassing en pas de sessie daarna aan in de editor.');
           const routine = routineFrom(saved);
           const block = routine.blocks.find(item => item.id === snapshot.routine.blocks[evaluation.block].id);
-          if (!block) throw new Error('Deze oefening staat niet meer in het rondje.');
+          if (!block) throw new Error('Deze oefening staat niet meer in de sessie.');
           block.steps = block.steps.map(step => ({ ...step, bpm: Math.round((step.bpm + evaluation.delta) * 1000000) / 1000000 }));
           validateRoutine(routine, this.list());
           // Monotonic version even when two saves happen in the same millisecond.

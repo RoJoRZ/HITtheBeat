@@ -203,3 +203,7 @@ Onder de grafiek volgt Jouw oefenritme met dagbalken en een tabel met tijden. De
 ## Instellingen en audio-import (v0.0.15)
 
 De zijbalk bevat Mijn oefensessies, Oefeningen, Voortgang en Instellingen. De tijdelijke Audioproef is verwijderd. Instellingen gebruikt dezelfde panelen, typografie en Mandarijn-acties. Lokale bibliotheek legt de ongewijzigde kopieën uit en biedt Bibliotheekmap openen. Audio importeren noemt MP3, M4A met AAC, de 50 MB-grens en de ALAC-beperking. Het oefenformulier heeft één zichtbaar label Audiobestand (MP3 of M4A) en meldt fouten vóór opslaan.
+
+## Compact appicoon — v0.0.16
+
+Op verzoek: een centrale H met symmetrische audiostreepjes, Mandarijn #FF922E op Studio donker #141719. Afgerond donker vlak met transparante buitenhoeken. Het volledige logo linksboven blijft behouden. Vectorbron: `design/app-icon.svg`; afgeleide PNG, ICNS en meerformaats-ICO in `build/`. Het icoon wordt toegepast in Dock, appvenster en Mac-/Windows-pakketten. Visuele gebruiksfeedback blijft welkom.

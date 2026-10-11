@@ -24,13 +24,13 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
         { id: crypto.randomUUID(), exerciseId: exercise.id, steps: [step(75, 1, .2, .7), step(95, 2, .2, .7), step(85, 1, 1, 2.5)] },
         { id: crypto.randomUUID(), exerciseId: exercise.id, steps: [step(120, 1, .2, 1.7)] },
       ] });
-      await window.hitthebeat!.saveRoutine({ title: 'Ander rondje', blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [step(100, 1, .2, .7)] }] });
+      await window.hitthebeat!.saveRoutine({ title: 'Ander sessie', blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [step(100, 1, .2, .7)] }] });
       return routine.id;
     }, [...track()]);
     await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
     await page.reload();
     await page.getByRole('article', { name: 'Techniek', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
-    await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
+    await page.getByRole('button', { name: 'Sessie starten', exact: true }).click();
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Fragmentserie afgerond', exact: true })).toBeVisible();
     const pausedTime = await page.getByTestId('time-planned').textContent();
@@ -64,7 +64,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     const routines = await page.evaluate(async () => window.hitthebeat!.listRoutines());
     expect(routines.find(item => item.id === routineId)!.blocks[0].steps.map(step => step.bpm)).toEqual([80,100,90]);
     expect(routines.find(item => item.id === routineId)!.blocks[1].steps[0].bpm).toBe(120);
-    expect(routines.find(item => item.title === 'Ander rondje')!.blocks[0].steps[0].bpm).toBe(100);
+    expect(routines.find(item => item.title === 'Ander sessie')!.blocks[0].steps[0].bpm).toBe(100);
     await expect(page.getByRole('heading', { name: 'Oefening afgerond', exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('session-bpm')).toHaveText('120 BPM');
@@ -76,7 +76,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await expect(page.getByLabel('Aanpassing in BPM')).toHaveValue('7');
     await page.keyboard.press('Enter');
     await expect(page.getByText('Je resultaten zijn bewaard bij Voortgang.', { exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'Terug naar mijn rondjes', exact: true }).click();
+    await page.getByRole('button', { name: 'Terug naar mijn sessies', exact: true }).click();
     await page.getByRole('article', { name: 'Techniek', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await expect(page.getByLabel('BPM oefening 1 stap 1', { exact: true })).toHaveValue('80');
     await page.getByRole('button', { name: 'Voortgang', exact: true }).click();
@@ -95,14 +95,14 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     expect(saved.evaluations.map(item => item.rating)).toEqual([3,4,3,2]);
     expect(saved.evaluations.map(item => item.delta)).toEqual([0,5,0,-7]);
     expect((await page.evaluate(async () => window.hitthebeat!.listRoutines())).find(item => item.id === routineId)!.blocks[1].steps[0].bpm).toBe(113);
-    await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
+    await page.getByRole('button', { name: 'Sessie starten', exact: true }).click();
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
-    await page.getByRole('button', { name: 'Rondje stoppen', exact: true }).click();
+    await page.getByRole('button', { name: 'Sessie stoppen', exact: true }).click();
     await page.getByRole('button', { name: 'Stoppen en terug', exact: true }).click();
     await expect(page.getByRole('article', { name: 'Techniek', exact: true })).toBeVisible();
     await page.getByRole('article', { name: 'Techniek', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     expect(await page.evaluate(async () => (await window.hitthebeat!.listSessions())[0].status)).toBe('stopped');
-    await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
+    await page.getByRole('button', { name: 'Sessie starten', exact: true }).click();
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await page.waitForTimeout(1100);
     await app.close(); app = await launch(); page = await app.firstWindow();
@@ -119,24 +119,24 @@ test('a conflicting plan edit leaves evaluation open and can be saved without ov
     const page = await app.firstWindow();
     await page.evaluate(async bytes => {
       const exercise = await window.hitthebeat!.saveExercise({ title: 'Proef', description: '', bpm: 120, duration: 4, detectedBpm: null, analysisStatus: 'unavailable', audio: { name: 'test.mp3', bytes: new Uint8Array(bytes) } });
-      await window.hitthebeat!.saveRoutine({ title: 'Rondje', blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [{ id: crypto.randomUUID(), bpm: 120, start: .2, end: .7, repetitions: 1 }] }] });
+      await window.hitthebeat!.saveRoutine({ title: 'Sessie', blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [{ id: crypto.randomUUID(), bpm: 120, start: .2, end: .7, repetitions: 1 }] }] });
     }, [...track()]);
     await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
     await page.reload();
-    await page.getByRole('article', { name: 'Rondje', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
-    await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
+    await page.getByRole('article', { name: 'Sessie', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
+    await page.getByRole('button', { name: 'Sessie starten', exact: true }).click();
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Oefening afgerond', exact: true })).toBeVisible();
     await page.evaluate(async () => { const routine = (await window.hitthebeat!.listRoutines())[0]; routine.blocks[0].steps[0].bpm = 140; await window.hitthebeat!.saveRoutine(routine); });
     await page.getByRole('button', { name: '3 · Sneller', exact: true }).click();
-    await page.getByRole('button', { name: 'Rondje afronden', exact: true }).click();
+    await page.getByRole('button', { name: 'Sessie afronden', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('intussen gewijzigd');
     await page.waitForTimeout(1100);
     await expect(page.getByRole('alert')).toContainText('intussen gewijzigd');
     await expect(page.getByRole('heading', { name: 'Oefening afgerond', exact: true })).toBeVisible();
     expect(await page.evaluate(async () => (await window.hitthebeat!.listSessions())[0].evaluations.length)).toBe(0);
     await page.getByRole('button', { name: '2 · Gelijk houden', exact: true }).click();
-    await page.getByRole('button', { name: 'Rondje afronden', exact: true }).click();
+    await page.getByRole('button', { name: 'Sessie afronden', exact: true }).click();
     await expect(page.getByText('Je resultaten zijn bewaard bij Voortgang.', { exact: true })).toBeVisible();
     expect(await page.evaluate(async () => (await window.hitthebeat!.listRoutines())[0].blocks[0].steps[0].bpm)).toBe(140);
   } finally { await app.close(); await rm(root, { recursive: true, force: true }); }

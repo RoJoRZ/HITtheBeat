@@ -12,7 +12,7 @@ test('recent sessions limit, browse/search, direct start and return, editor and 
   try {
     let page = await app.firstWindow();
     await expect(page.getByRole('heading', { name: 'Recente oefensessies' })).toBeVisible();
-    await expect(page.getByLabel('Naam van het rondje')).toHaveCount(0);
+    await expect(page.getByLabel('Naam van de sessie')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Alle oefensessies', exact: true })).toHaveCount(0);
     const encoder = new Mp3Encoder(1, 44100, 128);
     const audio = Buffer.concat([Buffer.from(encoder.encodeBuffer(Int16Array.from({ length: 44100 }, (_, i) => Math.sin(i * 2 * Math.PI * 440 / 44100) * 10000))), Buffer.from(encoder.flush())]);
@@ -27,8 +27,8 @@ test('recent sessions limit, browse/search, direct start and return, editor and 
     await expect(page.getByRole('button', { name: 'Alle oefensessies', exact: true })).toHaveCount(0);
     await expect(page.getByRole('article').first()).toContainText('0:04 gepland');
     await page.getByRole('button', { name: 'Nieuwe oefensessie', exact: true }).click();
-    await page.getByLabel('Naam van het rondje').fill('Nieuwe warming-up');
-    await page.getByRole('button', { name: 'Rondje opslaan', exact: true }).click();
+    await page.getByLabel('Naam van de sessie').fill('Nieuwe warming-up');
+    await page.getByRole('button', { name: 'Sessie opslaan', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('opgeslagen');
     await page.getByRole('button', { name: 'Terug naar overzicht' }).click();
     await expect(page.getByRole('article')).toHaveCount(10);
@@ -42,21 +42,21 @@ test('recent sessions limit, browse/search, direct start and return, editor and 
     await page.getByLabel('Zoek op naam').fill('sessie 01');
     await page.getByRole('article').getByRole('button', { name: 'Starten', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
-    await page.getByRole('button', { name: 'Rondje stoppen', exact: true }).click();
+    await page.getByRole('button', { name: 'Sessie stoppen', exact: true }).click();
     await page.getByRole('button', { name: 'Stoppen en terug', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Recente oefensessies' })).toBeVisible();
     await expect(page.getByRole('article').first()).toHaveAccessibleName('Sessie 01');
     await expect(page.getByRole('article').first()).toContainText('Laatst geoefend:');
-    await expect(page.getByLabel('Naam van het rondje')).toHaveCount(0);
+    await expect(page.getByLabel('Naam van de sessie')).toHaveCount(0);
     await page.getByRole('article').first().getByRole('button', { name: 'Bewerken' }).click();
-    await page.getByLabel('Naam van het rondje').fill('Onopgeslagen');
+    await page.getByLabel('Naam van de sessie').fill('Onopgeslagen');
     await page.getByRole('button', { name: 'Terug naar overzicht' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.getByRole('button', { name: 'Wijzigingen verwerpen' }).click();
     await expect(page.getByRole('article').first()).toHaveAccessibleName('Sessie 01');
     await app.close(); app = await launch(); page = await app.firstWindow();
     await expect(page.getByRole('article').first()).toHaveAccessibleName('Sessie 01');
-    await expect(page.getByLabel('Naam van het rondje')).toHaveCount(0);
+    await expect(page.getByLabel('Naam van de sessie')).toHaveCount(0);
     await page.setViewportSize({ width: 960, height: 700 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: 'test-results/session-overview.png', fullPage: true });

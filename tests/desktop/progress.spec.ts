@@ -38,7 +38,7 @@ test('dashboard reflects real time, separate fragment contexts, ratings and immu
     const select = page.getByLabel('Onderdeel tempo-ontwikkeling');
     const choices = await select.locator('option').allTextContents();
     expect(choices).toHaveLength(3);
-    await select.selectOption({ label: choices.find(choice => choice.includes('Volledige track') && choice.includes('Rondje'))! });
+    await select.selectOption({ label: choices.find(choice => choice.includes('Volledige track') && choice.includes('Sessie'))! });
     await expect(page.getByRole('img', { name: /Gespeeld tempo/ })).toHaveAccessibleName(/1 meetpunten; laatst 90 BPM/);
     await expect(page.getByText('Jouw beoordeling: 3/5', { exact: true })).toBeVisible();
     await select.selectOption({ label: choices.find(choice => choice.includes('Fragment 2–4 s'))! });
@@ -64,7 +64,7 @@ test('dashboard reflects real time, separate fragment contexts, ratings and immu
     const savedSelect = page.getByLabel('Onderdeel tempo-ontwikkeling');
     await expect(savedSelect.locator('option')).toHaveCount(3);
     expect(await savedSelect.locator('option').allTextContents()).toEqual(choices);
-    await savedSelect.selectOption({ label: choices.find(choice => choice.includes('Volledige track') && choice.includes('Rondje'))! });
+    await savedSelect.selectOption({ label: choices.find(choice => choice.includes('Volledige track') && choice.includes('Sessie'))! });
     await expect(page.getByRole('img', { name: /Gespeeld tempo/ })).toHaveAccessibleName(/laatst 90 BPM/);
     await page.setViewportSize({ width: 960, height: 700 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

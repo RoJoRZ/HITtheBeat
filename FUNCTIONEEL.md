@@ -356,3 +356,16 @@ Op verzoek van de gebruiker verdwijnt de losse Audioproef uit de app. Oefeningen
 Import accepteert MP3 en onbeveiligde M4A met AAC, maximaal 50 MB. M4A is een container: Apple Lossless (ALAC), beveiligde tracks en onleesbare of andere niet-ondersteunde varianten worden met een duidelijke melding geweigerd. Omzetten gebeurt niet automatisch. Duurbepaling, BPM-analyse, volumenormalisatie, fragmenten en beide spelers werken voor de ondersteunde formaten hetzelfde.
 
 De bibliotheek bevat ongewijzigde kopieën van geïmporteerde audio en afbeeldingen, met interne bestandsnamen, plus de database met oefeningen en resultaten. De oorspronkelijke bestanden blijven op hun eigen locatie; verplaatsen of verwijderen daarvan breekt een opgeslagen oefening niet. Normalisatie wordt tijdens afspelen toegepast en herschrijft de audio niet. Bestaande gegevens blijven behouden.
+
+## 25. Oefeningen beheren en uniforme sessienaam (11 oktober 2026)
+
+Vastgesteld op verzoek van de gebruiker; geleverd in v0.0.16:
+
+- Een oefening kan vanuit de bibliotheek worden verwijderd, na een bevestiging met uitleg. Audio, tablatuur en benoemde fragmenten worden verwijderd; historische sessiemomentopnamen en resultaten blijven behouden.
+- Wanneer een oefening nog in opgeslagen sessie-opbouwen wordt gebruikt, vermeldt de app de betreffende sessies. Verwijder de oefening eerst uit deze opbouwen. Er verdwijnen geen sessieblokken stilzwijgend.
+- Bij een bestaande oefening kan een nieuwe MP3 of ondersteunde M4A worden gekozen. Vervangen gebeurt uitsluitend bij opslaan; annuleren laat de opgeslagen audio intact. De nieuwe audio wordt opnieuw geanalyseerd voor duur, BPM-schatting en normalisatie. Het handmatig ingestelde BPM blijft staan tot de gebruiker het wijzigt of de schatting overneemt.
+- Naam, opdracht, tablatuur, identiteit en fragmenten blijven bewaard. Vervanging die opgeslagen fragmentgrenzen of sessiegrenzen/tempo's ongeldig maakt wordt geweigerd met uitleg; eerst de betreffende fragmenten of sessie aanpassen. Na vervangen controleert de gebruiker zelf of de fragmenten muzikaal nog kloppen. Historische momentopnamen worden niet herschreven.
+- De zichtbare term ‘rondje’ wordt overal ‘sessie’, ook in de editor: Sessie starten, Sessie opslaan en Sessie verwijderen.
+- Het compacte appicoon gebruikt een H met audiostreepjes, in Mandarijn op Studio donker, gebaseerd op het gewaardeerde logo linksboven. Het volledige logo blijft behouden. De vormgeving van het nieuwe icoon kan op gebruiksfeedback worden verfijnd.
+
+Dit is een afzonderlijke verbetering; fase 8, Windows-gebruikstest en muzikale luisterbeoordeling blijven open.

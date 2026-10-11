@@ -10,6 +10,7 @@ interface Window {
     saveRoutine(input: import('./library/types').RoutineInput): Promise<import('./library/types').Routine>;
     deleteRoutine(id: string): Promise<void>;
     listExercises(): Promise<import('./library/types').Exercise[]>;
+    deleteExercise(id: string): Promise<void>;
     saveExercise(input: import('./library/types').SaveInput): Promise<import('./library/types').Exercise>;
     saveFragment(exerciseId: string, input: import('../electron/fragment-model.mjs').FragmentInput): Promise<import('./library/types').Exercise>;
     deleteFragment(exerciseId: string, fragmentId: string): Promise<import('./library/types').Exercise>;

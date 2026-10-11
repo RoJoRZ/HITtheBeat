@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('hitthebeat', Object.freeze({
   saveRoutine: (/** @type {import('./routine-model.mjs').RoutineInput} */ input) => ipcRenderer.invoke('routines:save', input),
   deleteRoutine: (/** @type {string} */ id) => ipcRenderer.invoke('routines:delete', id),
   listExercises: () => ipcRenderer.invoke('library:list'),
+  deleteExercise: (/** @type {string} */ id) => ipcRenderer.invoke('library:delete', id),
   saveExercise: (/** @type {import('./library.mjs').SaveInput} */ input) => ipcRenderer.invoke('library:save', input),
   saveFragment: (/** @type {string} */ id, /** @type {import('./fragment-model.mjs').FragmentInput} */ input) => ipcRenderer.invoke('library:fragment-save', id, input),
   deleteFragment: (/** @type {string} */ id, /** @type {string} */ fragmentId) => ipcRenderer.invoke('library:fragment-delete', id, fragmentId),

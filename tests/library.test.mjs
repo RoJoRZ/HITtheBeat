@@ -72,3 +72,31 @@ test('schema 3 upgrade preserves library, routines and session history without c
     assert.deepEqual((await library.read(exercise.id, 'audio')).bytes, audio.bytes);
   } finally { library.close(); await rm(root, { recursive: true, force: true }); }
 });
+
+test('replace audio atomically, protect saved boundaries and preserve historical snapshots on deletion', async () => {
+  const { randomUUID } = await import('node:crypto');
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-replace-')); let library = await openLibrary(root);
+  try {
+    const saved = await library.save(input);
+    library.saveFragment(saved.id, { name: 'Einde', start: 8, end: 11 });
+    const routine = library.saveRoutine({ title: 'Mijn sessie', blocks: [{ id: randomUUID(), exerciseId: saved.id, steps: [{ id: randomUUID(), start: 4, end: 10, bpm: 118, repetitions: 1 }] }] });
+    library.startSession(routine.id); library.interruptSessions();
+    const history = library.listSessions();
+    const replacement = { name: 'nieuw.mp3', bytes: new Uint8Array([...audio.bytes, 2]) };
+    await assert.rejects(library.save({ ...saved, audio: replacement, duration: 9 }), /fragment/);
+    await assert.rejects(library.save({ ...saved, audio: replacement, bpm: 1000 }), /Mijn sessie/);
+    assert.deepEqual((await library.read(saved.id, 'audio')).bytes, audio.bytes);
+    const changed = await library.save({ ...saved, audio: replacement, duration: 15 });
+    assert.equal(changed.id, saved.id); assert.equal(changed.duration, 15); assert.equal(changed.audioName, 'nieuw.mp3'); assert.equal(changed.fragments.length, 1);
+    assert.deepEqual((await library.read(saved.id, 'audio')).bytes, replacement.bytes);
+    assert.equal((await readdir(path.join(root, 'media'))).length, 2);
+    await assert.rejects(library.deleteExercise(saved.id), /Mijn sessie/);
+    assert.equal(library.list().length, 1);
+    library.deleteRoutine(routine.id);
+    await library.deleteExercise(saved.id);
+    assert.equal(library.list().length, 0); assert.deepEqual(library.listSessions(), history);
+    assert.equal((await readdir(path.join(root, 'media'))).length, 0);
+    library.close(); library = await openLibrary(root);
+    assert.equal(library.list().length, 0); assert.deepEqual(library.listSessions(), history);
+  } finally { library.close(); await rm(root, { recursive: true, force: true }); }
+});

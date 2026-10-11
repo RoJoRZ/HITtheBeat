@@ -1,6 +1,6 @@
 {
   "name": "hitthebeat",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "private": true,
   "packageManager": "pnpm@11.25.0",
   "description": "Een persoonlijk oefenmaatje voor muzikanten.",
@@ -30,7 +30,8 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "package.json"
+      "package.json",
+      "build/icon.png"
     ],
     "artifactName": "HITtheBeat-${version}-${os}-${arch}.${ext}",
     "mac": {
@@ -38,13 +39,14 @@
       "identity": "-",
       "target": [
         "zip"
-      ]
+      ],
+      "icon": "build/icon.icns"
     },
     "win": {
       "target": [
         "zip"
       ],
-      "signAndEditExecutable": false
+      "icon": "build/icon.ico"
     }
   },
   "dependencies": {

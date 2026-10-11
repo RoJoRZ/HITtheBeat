@@ -85,6 +85,18 @@ test('own library imports, estimates, corrects, edits and reopens copied media o
     await expect(page.getByText('Geen tablatuur toegevoegd.')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
     expect(await page.locator('.saved-instruction').evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
+    await page.getByRole('button', { name: 'Bewerken', exact: true }).click();
+    await page.getByLabel('Audiobestand vervangen (MP3 of M4A)', { exact: true }).setInputFiles({ name: 'replacement.mp3', mimeType: 'audio/mpeg', buffer: mp3() });
+    await expect(page.getByRole('status')).toContainText('Geschat tempo:');
+    await page.getByRole('button', { name: 'Oefening opslaan', exact: true }).click();
+    await expect(page.getByRole('definition').filter({ hasText: /^replacement.mp3$/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
+    await page.getByRole('button', { name: 'Oefening verwijderen', exact: true }).click();
+    await page.getByRole('button', { name: 'Annuleren', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Zonder tablatuur', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Oefening verwijderen', exact: true }).click();
+    await page.getByRole('button', { name: 'Definitief verwijderen', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Zonder tablatuur', exact: true })).toHaveCount(0);
     expect(errors).toEqual([]);
   } finally { await desktop.close(); await rm(root, { recursive: true, force: true }); }
 });

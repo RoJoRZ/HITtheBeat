@@ -17,13 +17,13 @@ export function validateRoutine(input, exercises) {
   const ids = new Set();
   /** @param {unknown} id */
   function identity(id) { if (typeof id !== 'string' || !uuid.test(id) || ids.has(id)) throw new Error('Ongeldige of dubbele stap.'); ids.add(id); return id; }
-  if (!input || typeof input.title !== 'string' || !input.title.trim() || input.title.length > 160 || input.title.includes('\0')) throw new Error('Geef het rondje een naam van maximaal 160 tekens.');
-  if (!Array.isArray(input.blocks) || !input.blocks.length || input.blocks.length > 100) throw new Error('Kies 1 tot 100 oefeningen in je rondje.');
+  if (!input || typeof input.title !== 'string' || !input.title.trim() || input.title.length > 160 || input.title.includes('\0')) throw new Error('Geef de sessie een naam van maximaal 160 tekens.');
+  if (!Array.isArray(input.blocks) || !input.blocks.length || input.blocks.length > 100) throw new Error('Kies 1 tot 100 oefeningen in je sessie.');
   let totalSteps = 0;
   const blocks = input.blocks.map(block => {
     const id = identity(block.id), exercise = exercises.find(item => item.id === block.exerciseId);
-    if (!exercise) throw new Error('Een oefening uit dit rondje ontbreekt in de bibliotheek.');
-    if (!Array.isArray(block.steps) || !block.steps.length || (totalSteps += block.steps.length) > 1000) throw new Error('Kies minstens één stap per oefening en maximaal 1000 stappen per rondje.');
+    if (!exercise) throw new Error('Een oefening uit deze sessie ontbreekt in de bibliotheek.');
+    if (!Array.isArray(block.steps) || !block.steps.length || (totalSteps += block.steps.length) > 1000) throw new Error('Kies minstens één stap per oefening en maximaal 1000 stappen per sessie.');
     const steps = block.steps.map(step => {
       const stepId = identity(step.id);
       if (!Number.isInteger(step.repetitions) || step.repetitions < 1 || step.repetitions > 99) throw new Error('Kies 1 tot 99 herhalingen per stap.');
@@ -36,6 +36,6 @@ export function validateRoutine(input, exercises) {
     });
     return { id, exerciseId: exercise.id, steps };
   });
-  if (input.id !== undefined && !uuid.test(input.id)) throw new Error('Ongeldig rondje.');
+  if (input.id !== undefined && !uuid.test(input.id)) throw new Error('Ongeldig sessie.');
   return { id: input.id, title: input.title.trim(), blocks };
 }

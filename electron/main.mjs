@@ -30,6 +30,7 @@ async function createWindow() {
     minWidth: 900,
     minHeight: 680,
     title: 'HITtheBeat',
+    icon: path.join(here, '..', 'build', 'icon.png'),
     backgroundColor: '#141719',
     show: false,
     webPreferences: {
@@ -62,6 +63,7 @@ app.whenReady().then(async () => {
       return new Response('Not found', { status: 404 });
     }
   });
+  if (process.platform === 'darwin') app.dock?.setIcon(path.join(here, '..', 'build', 'icon.png'));
   const library = await openLibrary(path.join(app.getPath('userData'), 'library'));
   interruptSessions = () => library.interruptSessions();
   app.on('will-quit', () => { interruptSessions(); library.close(); });
@@ -80,6 +82,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('routines:save', (event, input) => { authorize(event); return library.saveRoutine(input); });
   ipcMain.handle('routines:delete', (event, id) => { authorize(event); return library.deleteRoutine(id); });
   ipcMain.handle('library:list', event => { authorize(event); return library.list(); });
+  ipcMain.handle('library:delete', (event, id) => { authorize(event); return library.deleteExercise(id); });
   ipcMain.handle('library:save', (event, input) => { authorize(event); return library.save(input); });
   ipcMain.handle('library:fragment-save', (event, id, input) => { authorize(event); return library.saveFragment(id, input); });
   ipcMain.handle('library:fragment-delete', (event, id, fragmentId) => { authorize(event); return library.deleteFragment(id, fragmentId); });
