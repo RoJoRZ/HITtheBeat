@@ -147,3 +147,8 @@ Rond een fase pas af als de betreffende acceptatiepunten aantoonbaar zijn gecont
 - Distributie: ondersteunde OS-versies, ondertekening en eventueel backup/export.
 
 Bespreek de resterende keuzes bij de fase waar ze nodig zijn en leg de uitkomst vast. De gebruiker heeft inmiddels opdracht gegeven te beginnen; de fases blijven afzonderlijk beoordeelbaar.
+
+
+### Aanvulling vóór fase 7 — Benoemde fragmenten (v0.0.11)
+
+Op verzoek zijn fragmentbeheer bij oefeningen, dezelfde fragmentkeuze en tijdinvoer in voorbeeld- en eigen sessietabellen en bewaren vanuit vrije fragmenttraining toegevoegd. Bestaande sessies behouden hun instellingen. Zie `docs/FRAGMENTEN.md` voor proefstappen en controles. Gebruiksfeedback op deze aanvulling komt vóór het dashboard.

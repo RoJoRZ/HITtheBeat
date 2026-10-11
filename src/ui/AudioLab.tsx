@@ -1,4 +1,5 @@
 import { outputVolume, useOutput } from '../audio/output-volume';
+import { SaveCurrentFragment } from './FragmentControls';
 import { VolumeControl } from './VolumeControl';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Play, Pause, RotateCcw, Repeat2, Upload, Minus, Plus } from 'lucide-react';
@@ -16,7 +17,7 @@ export function NumberField({ label, value, change, disabled, step }: { label: s
 }
 
 export interface DemoAudio { id: string; title: string; bpm: number; duration: number }
-export function AudioLab({ demo, saved }: { demo?: DemoAudio; saved?: Exercise }) {
+export function AudioLab({ demo, saved, onFragmentSaved }: { demo?: DemoAudio; saved?: Exercise; onFragmentSaved?: (item: Exercise) => void }) {
   const embedded = Boolean(demo || saved);
   const originalBpm = saved?.bpm ?? demo?.bpm ?? 90;
   const output = useOutput();
@@ -87,7 +88,7 @@ export function AudioLab({ demo, saved }: { demo?: DemoAudio; saved?: Exercise }
       if (id === generation.current) setError(reason instanceof Error ? reason.message : 'Dit audiobestand kan niet worden geopend.');
     } finally { if (id === generation.current) setBusy(false); }
   }
-  useEffect(() => { if (demo || saved) void load(); }, [demo?.id, saved?.id, saved?.updatedAt]);
+  useEffect(() => { if (demo || saved) void load(); }, [demo?.id, saved?.id, saved?.bpm, saved?.normalizationDb, saved?.normalizeAudio]);
 
   function settings(next: { source?: number; target?: number; pitch?: number; a?: number; b?: number; loop?: boolean }) {
     const values = { ...configuration.current, ...next };
@@ -117,6 +118,7 @@ export function AudioLab({ demo, saved }: { demo?: DemoAudio; saved?: Exercise }
       <div className="audio-settings">{!embedded && field('Origineel BPM', source, value => settings({ source: value }))}{field('Speeltempo BPM', target, value => settings({ target: value }))}{field('Toonhoogte (halve tonen)', pitch, value => settings({ pitch: value }))}</div></div>
       <VolumeControl />
       <div className="loop-settings">{field('Begin A (seconden)', a, value => settings({ a: value }), .1)}<button className="secondary" disabled={!duration || busy} onClick={() => settings({ a: position })}>A hier</button>{field('Einde B (seconden)', b, value => settings({ b: value }), .1)}<button className="secondary" disabled={!duration || busy} onClick={() => settings({ b: position })}>B hier</button></div>
+      {saved && <SaveCurrentFragment exerciseId={saved.id} start={a} end={Math.min(b, saved.duration)} disabled={!duration || busy} saved={onFragmentSaved} />}
     </div>
     <aside className="audio-note"><strong>{saved ? 'Oefen in je eigen tempo' : demo ? 'Voorbeeldaudio, vrij te bedienen' : 'Even proberen'}</strong><p>Spatie: afspelen / pauzeren · 1: terug naar start (bij een loop naar A). Klik eerst buiten een invoerveld of knop om deze toetsen te gebruiken.</p><p>{saved ? `Origineel tempo: ${saved.bpm} BPM. Pas dit aan via Bewerken.` : demo ? 'De melodie dient om de bediening te proberen en hoort niet bij de getoonde tablatuur.' : 'Origineel BPM vul je in deze proef zelf in.'} Bevestig getallen met Enter of verlaat het veld. Tempo: 25–300% · toonhoogte: −12 tot +12 halve tonen. {saved ? 'Deze oefening is opgeslagen in je lokale bibliotheek.' : 'Deze proef slaat het bestand niet op.'}</p></aside>
   </section>;

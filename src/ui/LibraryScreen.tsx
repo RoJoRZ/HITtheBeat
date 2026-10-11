@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Asset, Exercise } from '../library/types';
 import { analyzeAudio } from '../library/analyze';
+import { FragmentLibrary } from './FragmentControls';
 import { AudioLab } from './AudioLab';
 import { durationLabel } from './controls';
 
@@ -74,7 +75,7 @@ function ExerciseForm({ initial, done, cancel }: { initial?: Exercise; done: (it
   </fieldset></form></section>;
 }
 
-function Detail({ item, edit }: { item: Exercise; edit: () => void }) {
+function Detail({ item, edit, changed }: { item: Exercise; edit: () => void; changed: (item: Exercise) => void }) {
   const [url, setUrl] = useState(''); const [error, setError] = useState('');
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -87,7 +88,7 @@ function Detail({ item, edit }: { item: Exercise; edit: () => void }) {
   return <div className="screen-stack"><section className="panel exercise-detail"><div className="panel-heading"><h2>{item.title}</h2><button className="secondary" onClick={edit}>Bewerken</button></div><dl className="exercise-metadata"><div><dt>Audiobestand</dt><dd>{item.audioName}</dd></div><div><dt>Origineel tempo</dt><dd>{item.bpm} BPM</dd></div><div><dt>BPM-analyse</dt><dd>{item.detectedBpm ? `${item.detectedBpm} BPM geschat` : 'Geen schatting beschikbaar'}</dd></div><div><dt>Trackduur</dt><dd>{durationLabel(item.duration)}</dd></div><div><dt>Geluidsniveau</dt><dd>{item.normalizationDb == null ? 'Nog niet gemeten' : item.normalizeAudio === false ? 'Normalisatie uit' : `Genormaliseerd (${item.normalizationDb >= 0 ? '+' : ''}${item.normalizationDb.toFixed(1)} dB)`}</dd></div></dl><div className={`practice-top${url ? '' : ' without-tab'}`}>
     {url && <section className="tab-panel"><div className="panel-heading"><h3>Tablatuur</h3><button className="secondary" onClick={() => dialog.current?.showModal()}>Vergroten</button></div><img src={url} alt={`Tablatuur bij ${item.title}`} /><dialog ref={dialog} className="tab-dialog"><button className="secondary" onClick={() => dialog.current?.close()}>Sluiten</button><img src={url} alt="Vergrote tablatuur" /></dialog></section>}
     <section className="instruction-inset"><h3>Opdracht</h3><p className="saved-instruction">{item.description || 'Geen opdracht toegevoegd.'}</p></section></div>{error && <p role="alert" className="error">{error}</p>}
-    {!item.imageName && <p className="caption">Geen tablatuur toegevoegd.</p>}</section><AudioLab key={item.id} saved={item} /></div>;
+    {!item.imageName && <p className="caption">Geen tablatuur toegevoegd.</p>}</section><AudioLab key={item.id} saved={item} onFragmentSaved={changed} /><FragmentLibrary key={item.id} exercise={item} changed={changed} /></div>;
 }
 
 export function LibraryScreen() {
@@ -97,6 +98,6 @@ export function LibraryScreen() {
   useEffect(() => { let active = true; window.hitthebeat?.listExercises().then(result => { if (active) { setItems(result); setSelected(result[0]?.id ?? ''); } }).catch(reason => { if (active) setError(message(reason)); }).finally(() => { if (active) setLoading(false); }); if (!window.hitthebeat) { setError('Open deze bibliotheek in de desktopapp.'); setLoading(false); } return () => { active = false; }; }, []);
   const item = items.find(row => row.id === selected);
   return <div className="screen-stack"><div className="panel-heading"><p className="muted">MP3 en afbeeldingen worden naar je lokale bibliotheek gekopieerd.</p><button className="primary" onClick={() => setForm('new')} disabled={Boolean(form)}>Oefening toevoegen</button></div>{error && <p role="alert" className="error">{error}</p>}
-    {form ? <ExerciseForm key={form + selected} initial={form === 'edit' ? item : undefined} cancel={() => setForm(null)} done={saved => { setItems(current => [...current.filter(row => row.id !== saved.id), saved].sort((a, b) => a.title.localeCompare(b.title))); setSelected(saved.id); setForm(null); }} /> : <div className="library-layout"><section className="panel exercise-list"><label className="search-label">Zoek oefeningen<input type="search" value={query} onChange={event => setQuery(event.target.value)} /></label><div className="exercise-options">{items.filter(row => row.title.toLowerCase().includes(query.toLowerCase())).map(row => <button key={row.id} aria-pressed={row.id === selected} onClick={() => setSelected(row.id)}><span><strong>{row.title}</strong><small>{row.bpm} BPM · {durationLabel(row.duration)}</small></span></button>)}</div><p className="caption">{loading ? 'Bibliotheek laden…' : !items.length ? 'Voeg je eerste oefening toe.' : 'Opgeslagen op deze computer'}</p><button className="text-button" onClick={() => { void window.hitthebeat!.openLibraryFolder().catch(reason => setError(message(reason))); }}>Bibliotheekmap openen</button></section>{item ? <Detail item={item} edit={() => setForm('edit')} /> : <section className="panel exercise-detail"><h2>Jouw muziek begint hier</h2><p>Voeg een MP3 toe, controleer het BPM en schrijf op waar je op wilt letten.</p></section>}</div>}
+    {form ? <ExerciseForm key={form + selected} initial={form === 'edit' ? item : undefined} cancel={() => setForm(null)} done={saved => { setItems(current => [...current.filter(row => row.id !== saved.id), saved].sort((a, b) => a.title.localeCompare(b.title))); setSelected(saved.id); setForm(null); }} /> : <div className="library-layout"><section className="panel exercise-list"><label className="search-label">Zoek oefeningen<input type="search" value={query} onChange={event => setQuery(event.target.value)} /></label><div className="exercise-options">{items.filter(row => row.title.toLowerCase().includes(query.toLowerCase())).map(row => <button key={row.id} aria-pressed={row.id === selected} onClick={() => setSelected(row.id)}><span><strong>{row.title}</strong><small>{row.bpm} BPM · {durationLabel(row.duration)}</small></span></button>)}</div><p className="caption">{loading ? 'Bibliotheek laden…' : !items.length ? 'Voeg je eerste oefening toe.' : 'Opgeslagen op deze computer'}</p><button className="text-button" onClick={() => { void window.hitthebeat!.openLibraryFolder().catch(reason => setError(message(reason))); }}>Bibliotheekmap openen</button></section>{item ? <Detail item={item} edit={() => setForm('edit')} changed={saved => setItems(current => current.map(row => row.id === saved.id ? saved : row))} /> : <section className="panel exercise-detail"><h2>Jouw muziek begint hier</h2><p>Voeg een MP3 toe, controleer het BPM en schrijf op waar je op wilt letten.</p></section>}</div>}
   </div>;
 }

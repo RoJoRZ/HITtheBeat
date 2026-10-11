@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld('hitthebeat', Object.freeze({
   deleteRoutine: (/** @type {string} */ id) => ipcRenderer.invoke('routines:delete', id),
   listExercises: () => ipcRenderer.invoke('library:list'),
   saveExercise: (/** @type {import('./library.mjs').SaveInput} */ input) => ipcRenderer.invoke('library:save', input),
+  saveFragment: (/** @type {string} */ id, /** @type {import('./fragment-model.mjs').FragmentInput} */ input) => ipcRenderer.invoke('library:fragment-save', id, input),
+  deleteFragment: (/** @type {string} */ id, /** @type {string} */ fragmentId) => ipcRenderer.invoke('library:fragment-delete', id, fragmentId),
   readAudio: (/** @type {string} */ id) => ipcRenderer.invoke('library:audio', id),
   readImage: (/** @type {string} */ id) => ipcRenderer.invoke('library:image', id),
   openLibraryFolder: () => ipcRenderer.invoke('library:folder'),

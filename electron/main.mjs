@@ -81,6 +81,8 @@ app.whenReady().then(async () => {
   ipcMain.handle('routines:delete', (event, id) => { authorize(event); return library.deleteRoutine(id); });
   ipcMain.handle('library:list', event => { authorize(event); return library.list(); });
   ipcMain.handle('library:save', (event, input) => { authorize(event); return library.save(input); });
+  ipcMain.handle('library:fragment-save', (event, id, input) => { authorize(event); return library.saveFragment(id, input); });
+  ipcMain.handle('library:fragment-delete', (event, id, fragmentId) => { authorize(event); return library.deleteFragment(id, fragmentId); });
   ipcMain.handle('library:audio', (event, id) => { authorize(event); return library.read(id, 'audio'); });
   ipcMain.handle('library:image', (event, id) => { authorize(event); return library.read(id, 'image'); });
   ipcMain.handle('library:folder', async event => { authorize(event); const error = await shell.openPath(library.root); if (error) throw new Error('De bibliotheekmap kan niet worden geopend.'); });

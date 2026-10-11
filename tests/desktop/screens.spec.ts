@@ -1,8 +1,12 @@
 import { test, expect, _electron as electron } from '@playwright/test';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
 test('example screens edit duration and expose readable player, evaluation and progress', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-example-'));
   const executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const desktop = await electron.launch({ executablePath, args: executablePath ? [] : ['.'], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const desktop = await electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   try {
     const page = await desktop.firstWindow();
     const errors: string[] = [];
@@ -83,5 +87,5 @@ test('example screens edit duration and expose readable player, evaluation and p
     });
     expect(mutedContrast).toBeGreaterThan(4.5);
     expect(errors).toEqual([]);
-  } finally { await desktop.close(); }
+  } finally { await desktop.close(); await rm(root, { recursive: true, force: true }); }
 });

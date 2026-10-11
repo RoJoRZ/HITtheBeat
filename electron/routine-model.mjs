@@ -1,4 +1,4 @@
-/** @typedef {{id:string, repetitions:number, bpm:number, start:number|null, end:number|null}} RoutineStep */
+/** @typedef {{id:string, repetitions:number, bpm:number, start:number|null, end:number|null,fragmentId?:string,fragmentName?:string}} RoutineStep */
 /** @typedef {{id:string, exerciseId:string, steps:RoutineStep[]}} RoutineBlock */
 /** @typedef {{id?:string, title:string, blocks:RoutineBlock[]}} RoutineInput */
 /** @typedef {{id:string, bpm:number, duration:number}} SourceExercise */
@@ -31,7 +31,8 @@ export function validateRoutine(input, exercises) {
       if (step.start !== null || step.end !== null) {
         if (typeof step.start !== 'number' || typeof step.end !== 'number' || !Number.isFinite(step.start) || !Number.isFinite(step.end) || step.start < 0 || step.end > exercise.duration || step.end - step.start < .1 - 1e-9) throw new Error('Kies een fragment binnen de track, met A vóór B en minstens 0,1 seconde duur.');
       }
-      return { id: stepId, repetitions: step.repetitions, bpm: step.bpm, start: step.start, end: step.end };
+      if (step.fragmentId !== undefined && (typeof step.fragmentId !== 'string' || !uuid.test(step.fragmentId) || typeof step.fragmentName !== 'string' || !step.fragmentName.trim() || step.fragmentName.length > 160 || step.fragmentName.includes('\0') || step.start === null)) throw new Error('Controleer het benoemde fragment.');
+      return { ...(step.fragmentId ? { fragmentId: step.fragmentId, fragmentName: step.fragmentName } : {}), id: stepId, repetitions: step.repetitions, bpm: step.bpm, start: step.start, end: step.end };
     });
     return { id, exerciseId: exercise.id, steps };
   });

@@ -1,6 +1,6 @@
 {
   "name": "hitthebeat",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "private": true,
   "packageManager": "pnpm@11.25.0",
   "description": "Een persoonlijk oefenmaatje voor muzikanten.",

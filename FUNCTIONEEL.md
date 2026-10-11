@@ -19,6 +19,7 @@ Een oefening bevat:
 - Optioneel een afbeelding van tablatuur of bladmuziek.
 - Een beschrijving met uitleg en belangrijke aandachtspunten.
 - Het oorspronkelijke tempo in BPM.
+- Opgeslagen fragmenten met een naam, beginpunt A en eindpunt B in seconden.
 
 Bij het toevoegen herkent de tool automatisch het tempo van de track. De muzikant kan het gevonden BPM controleren en handmatig corrigeren, bijvoorbeeld bij een intro, vrije timing of een dubbel of half geteld tempo.
 
@@ -70,7 +71,7 @@ Stappen kunnen worden toegevoegd, gewijzigd, verwijderd en verplaatst. De opbouw
 Een oefenrondje kan via een bewerkbare tabel worden ingevoerd. Iedere rij beschrijft één stap van een oefening met de volgende gegevens:
 
 - Oefening.
-- Fragment: volledige track of begin- en eindtijd in de oorspronkelijke track.
+- Fragment: volledige track, een benoemd fragment van deze oefening of eigen A–B-grenzen in seconden. De voorbeeldschermen en eigen bibliotheek gebruiken hiervoor dezelfde keuzebediening.
 - Aantal herhalingen.
 - Gewenst tempo in BPM.
 
@@ -126,7 +127,7 @@ De vrije fragmenttraining heeft geen vaste eindtijd. De tijd telt mee als werkel
 
 Een oefening binnen een rondje kan ook vooraf worden ingesteld op een geselecteerd fragment in plaats van de volledige track. De fragmentkeuze wordt bij die oefening binnen dat rondje opgeslagen. Iedere geplande speelbeurt speelt dan het fragment eenmaal af; de geplande duur wordt daarop berekend.
 
-Dit staat los van het tijdelijk onderbreken voor vrije fragmenttraining.
+Tijdens vrije fragmenttraining kan de muzikant de huidige A–B-selectie met een naam bij de oefening opslaan. Dit verandert de geplande opbouw niet; daarna kan de oorspronkelijke sessie worden hervat. Het fragment is voortaan ook in andere oefensessies beschikbaar.
 
 ## 7. Korte evaluatie
 
@@ -296,3 +297,16 @@ Het cijfer wordt bij iedere nieuwe evaluatie bewaard en in de sessiehistorie get
 ## 19. Bewoordingen in de app (11 oktober 2026)
 
 De gebruiker heeft de volgende combinatie gekozen: **Jouw muziekmoment** als vaste bovenregel, **Mijn oefensessies** als navigatienaam en paginatitel, en **Vind je ritme, ontwikkel je spel.** als ondertitel. Deze teksten vervangen respectievelijk Jouw oefenplek, Mijn oefenrondjes en Maak ruimte voor je dagelijkse muziek. De keuze is doorgevoerd in v0.0.10. De bestaande functionaliteit en opgeslagen gegevens veranderen hierdoor niet; deze tekstkeuze verandert de overige benamingen zoals oefenrondje niet automatisch.
+
+
+## 20. Benoemde fragmenten en hergebruik (v0.0.11)
+
+Vastgesteld op 11 oktober 2026: fragmenten horen bij de oefening. De muzikant kan meerdere fragmenten met een naam en A–B-grenzen bewaren, bijvoorbeeld Intro of Lastige overgang. Ze zijn bij de oefening toe te voegen en te bewerken, met tijden in seconden; ook een decimale komma of punt wordt geaccepteerd. Tijdinvoer blijft bewerkbaar terwijl een veld tijdelijk leeg of onvolledig is. Ongeldige grenzen verhinderen bewaren en krijgen een duidelijke melding.
+
+In de sessietabel kiest iedere stap Volledige track of een opgeslagen fragment van de gekozen oefening. Herhalingen en BPM blijven per stap instelbaar; de geplande duur rekent direct met de geselecteerde grenzen. Eigen A–B-invoer blijft beschikbaar, ook voor bestaande sessie-opbouwen. Voorbeeldschermen gebruiken dezelfde fragmentkiezer en tijdinvoer, met herkenbare fictieve fragmentnamen.
+
+Tijdens een onderbroken oefenrondje kiest de muzikant A en B en oefent de passage in een loop. Met Fragment opslaan en een naam wordt uitsluitend die selectie bij de huidige oefening bewaard. Dezelfde mogelijkheid staat in de losse oefeningspeler. Tempo en toonhoogte van de vrije training worden niet onderdeel van het opgeslagen fragment; die kiest de muzikant in de training. Opslaan onderbreekt een lopende loop niet. Daarna herstelt Terug naar rondje de oorspronkelijke instellingen en begint de onderbroken geplande speelbeurt opnieuw.
+
+Uitwerking voor behoud van bestaande trainingen: een sessiestap bewaart de gekozen fragmentnaam en grenzen als vaste selectie. Later bewerken of verwijderen van het bibliotheekfragment verandert bestaande opbouwen en gespeelde historie niet. Bij een gewijzigde of verwijderde bron blijft de bewaarde selectie herkenbaar in de kiezer; opnieuw het actuele fragment kiezen neemt de nieuwe naam en grenzen over. Handmatig aanpassen van A of B maakt de stap een eigen fragment. De lopende sessie blijft altijd haar oorspronkelijke momentopname gebruiken.
+
+Bij de oefening staan de bewaarde fragmenten met naam en tijden, plus bewerken en verwijderen. Namen zijn uniek binnen één oefening. De upgrade bewaart bestaande oefeningen, audio, opbouwen, evaluaties en sessiehistorie.

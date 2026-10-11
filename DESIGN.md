@@ -173,3 +173,10 @@ Bij sneller/langzamer verschijnt het BPM-veld met de bestaande voor/na-opbouw. S
 ## Vaste schermteksten (11 oktober 2026)
 
 Gebruik **Jouw muziekmoment** als bovenregel (in de bestaande hoofdletterstijl), **Mijn oefensessies** in de navigatie en als paginatitel, en **Vind je ritme, ontwikkel je spel.** als ondertitel van die pagina. Deze door de gebruiker gekozen combinatie vervangt de eerdere drie teksten.
+
+
+## Benoemde fragmenten (v0.0.11)
+
+Gebruik in voorbeeld- en eigen sessietabellen dezelfde fragmentkiezer: Volledige track, de fragmenten van de gekozen oefening als Naam · A–B s, en Eigen fragment A–B. Toon begin- en eindtijden naast de keuze en accepteer zowel punt als komma. Een bewaarde selectie waarvan de bron is gewijzigd of verwijderd krijgt de tekst bewaarde selectie met haar oorspronkelijke tijden.
+
+Bij een oefening staat een paneel Opgeslagen fragmenten met namen, tijden en acties voor toevoegen/bewerken/verwijderen. Het compacte formulier bevat naam, Begin A (seconden), Einde B (seconden), bewaren en annuleren. De speler biedt onder de A/B-bediening Fragment opslaan, gevolgd door een naamveld en een zichtbare bevestiging. De bediening voor Terug naar rondje blijft beschikbaar. Gebruik de bestaande donkere panelen, Mandarijn-acties en focusstijl.

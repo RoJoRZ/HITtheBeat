@@ -1,3 +1,4 @@
+import { validateFragment } from './fragment-model.mjs';
 import { sessionId, validateProgress, validateEvaluation } from './session-model.mjs';
 import { validateRoutine } from './routine-model.mjs';
 import { DatabaseSync } from 'node:sqlite';
@@ -5,7 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 
-/** @typedef {{ id:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audioName:string, imageName:string|null, imageMime:string|null, updatedAt:string, normalizationDb:number|null, normalizeAudio:boolean }} Exercise */
+/** @typedef {{ id:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audioName:string, imageName:string|null, imageMime:string|null, updatedAt:string, normalizationDb:number|null, normalizeAudio:boolean, fragments:import('./fragment-model.mjs').Fragment[] }} Exercise */
 /** @typedef {{ name:string, bytes:Uint8Array }} Asset */
 /** @typedef {{ id?:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audio?:Asset, image?:Asset|null, normalizationDb?:number|null, normalizeAudio?:boolean }} SaveInput */
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -40,7 +41,7 @@ export async function openLibrary(root) {
   const db = new DatabaseSync(path.join(root, 'library.sqlite'));
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;');
   const version = /** @type {{user_version:number}} */ (db.prepare('PRAGMA user_version').get()).user_version;
-  if (version > 4) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
+  if (version > 5) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
   if (version === 0) db.exec(`BEGIN IMMEDIATE;
     CREATE TABLE exercises (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL,
       bpm REAL NOT NULL CHECK(bpm>0), detected_bpm REAL, analysis_status TEXT NOT NULL, duration REAL NOT NULL,
@@ -64,6 +65,11 @@ export async function openLibrary(root) {
     ALTER TABLE exercises ADD COLUMN normalization_db REAL;
     ALTER TABLE exercises ADD COLUMN normalize_audio INTEGER NOT NULL DEFAULT 1 CHECK(normalize_audio IN (0,1));
     PRAGMA user_version=4; COMMIT;`);
+  if (version < 5) db.exec(`BEGIN IMMEDIATE;
+    ALTER TABLE exercises ADD COLUMN fragments TEXT NOT NULL DEFAULT '[]';
+    ALTER TABLE routine_steps ADD COLUMN fragment_id TEXT;
+    ALTER TABLE routine_steps ADD COLUMN fragment_name TEXT;
+    PRAGMA user_version=5; COMMIT;`);
   // An unclosed run is preserved, never promoted to a completed session.
   db.prepare("UPDATE sessions SET status='interrupted', ended_at=updated_at WHERE status='running'").run();
   /** @param {string} id */
@@ -80,12 +86,13 @@ export async function openLibrary(root) {
       id: String(block.id), exerciseId: String(block.exercise_id),
       steps: db.prepare('SELECT * FROM routine_steps WHERE block_id=? ORDER BY position').all(String(block.id)).map(step => ({
         id: String(step.id), repetitions: Number(step.repetitions), bpm: Number(step.bpm),
+        ...(step.fragment_id ? { fragmentId: String(step.fragment_id), fragmentName: String(step.fragment_name) } : {}),
         start: step.start === null ? null : Number(step.start), end: step.end === null ? null : Number(step.end),
       })),
     })),
   });
   /** @param {Record<string, any>} row @returns {Exercise} */
-  const present = row => ({ id: row.id, title: row.title, description: row.description, bpm: row.bpm, detectedBpm: row.detected_bpm, analysisStatus: row.analysis_status, duration: row.duration, audioName: row.audio_name, imageName: row.image_name, imageMime: row.image_mime, updatedAt: row.updated_at, normalizationDb: row.normalization_db, normalizeAudio: Boolean(row.normalize_audio) });
+  const present = row => ({ id: row.id, title: row.title, description: row.description, bpm: row.bpm, detectedBpm: row.detected_bpm, analysisStatus: row.analysis_status, duration: row.duration, audioName: row.audio_name, imageName: row.image_name, imageMime: row.image_mime, updatedAt: row.updated_at, normalizationDb: row.normalization_db, normalizeAudio: Boolean(row.normalize_audio), fragments: JSON.parse(String(row.fragments)) });
   /** @param {unknown} id */
   const rowFor = id => {
     const row = db.prepare('SELECT * FROM exercises WHERE id=?').get(validId(id));
@@ -122,7 +129,7 @@ export async function openLibrary(root) {
       try {
         if (input.audio) { created.push(audioFile); await writeFile(mediaPath(audioFile), input.audio.bytes, { flag: 'wx', mode: 0o600 }); }
         if (input.image && typeof imageFile === 'string') { created.push(imageFile); await writeFile(mediaPath(imageFile), input.image.bytes, { flag: 'wx', mode: 0o600 }); }
-        db.prepare(`INSERT INTO exercises VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        db.prepare(`INSERT INTO exercises (id,title,description,bpm,detected_bpm,analysis_status,duration,audio_name,audio_file,image_name,image_file,image_mime,updated_at,normalization_db,normalize_audio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
           ON CONFLICT(id) DO UPDATE SET title=excluded.title, description=excluded.description, bpm=excluded.bpm,
           detected_bpm=excluded.detected_bpm, analysis_status=excluded.analysis_status, image_name=excluded.image_name,
           image_file=excluded.image_file, image_mime=excluded.image_mime, updated_at=excluded.updated_at,
@@ -137,6 +144,25 @@ export async function openLibrary(root) {
       }
       if (old?.image_file && old.image_file !== imageFile) await rm(mediaPath(String(old.image_file)), { force: true }).catch(() => {});
       return present(rowFor(id));
+    },
+    /** @param {string} exerciseId @param {import('./fragment-model.mjs').FragmentInput} input */
+    saveFragment(exerciseId, input) {
+      const row = rowFor(exerciseId), fragments = present(row).fragments;
+      const clean = validateFragment(input, Number(row.duration));
+      if (input.id && !fragments.some(item => item.id === input.id)) throw new Error('Dit fragment bestaat niet meer.');
+      if (fragments.some(item => item.id !== clean.id && item.name.toLocaleLowerCase('nl') === clean.name.toLocaleLowerCase('nl'))) throw new Error('Kies een unieke fragmentnaam bij deze oefening.');
+      if (!input.id && fragments.length >= 100) throw new Error('Bewaar maximaal 100 fragmenten per oefening.');
+      const next = input.id ? fragments.map(item => item.id === clean.id ? clean : item) : [...fragments, clean];
+      db.prepare('UPDATE exercises SET fragments=?, updated_at=? WHERE id=?').run(JSON.stringify(next), new Date().toISOString(), exerciseId);
+      return present(rowFor(exerciseId));
+    },
+    /** @param {string} exerciseId @param {string} fragmentId */
+    deleteFragment(exerciseId, fragmentId) {
+      validId(fragmentId);
+      const fragments = present(rowFor(exerciseId)).fragments;
+      if (!fragments.some(item => item.id === fragmentId)) throw new Error('Dit fragment bestaat niet meer.');
+      db.prepare('UPDATE exercises SET fragments=?, updated_at=? WHERE id=?').run(JSON.stringify(fragments.filter(item => item.id !== fragmentId)), new Date().toISOString(), exerciseId);
+      return present(rowFor(exerciseId));
     },
     /** @param {unknown} id @param {'audio'|'image'} kind */
     async read(id, kind) {
@@ -158,7 +184,7 @@ export async function openLibrary(root) {
         db.prepare('DELETE FROM routine_blocks WHERE routine_id=?').run(id);
         clean.blocks.forEach((block, index) => {
           db.prepare('INSERT INTO routine_blocks VALUES (?,?,?,?)').run(block.id, id, block.exerciseId, index);
-          block.steps.forEach((step, position) => db.prepare('INSERT INTO routine_steps VALUES (?,?,?,?,?,?,?)').run(step.id, block.id, position, step.repetitions, step.bpm, step.start, step.end));
+          block.steps.forEach((step, position) => db.prepare('INSERT INTO routine_steps VALUES (?,?,?,?,?,?,?,?,?)').run(step.id, block.id, position, step.repetitions, step.bpm, step.start, step.end, step.fragmentId ?? null, step.fragmentName ?? null));
         });
         db.exec('COMMIT;');
       } catch (error) { db.exec('ROLLBACK;'); throw error; }
