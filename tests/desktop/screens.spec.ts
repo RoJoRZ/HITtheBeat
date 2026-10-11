@@ -72,7 +72,7 @@ test('example screens edit duration and expose readable player, evaluation and p
     await expect(page.getByRole('heading', { name: 'Opdracht', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Tablatuur vergroten' })).toHaveCount(0);
     expect(await page.locator('.practice-top').evaluate(element => getComputedStyle(element).gridTemplateColumns.split(' ').length)).toBe(1);
-    await page.getByRole('button', { name: 'Mijn oefenrondjes', exact: true }).click();
+    await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     const mutedContrast = await page.evaluate(() => {
       const luminance = (hex: string) => {

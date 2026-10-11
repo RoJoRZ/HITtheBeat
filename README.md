@@ -20,9 +20,9 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 
 ## Eerste proefversie
 
-Versie 0.0.9 biedt een **eigen bibliotheek**: MP3 importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. Kies ‘Eigen bibliotheek bekijken’ en vervolgens ‘Oefeningen’. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
+Versie 0.0.10 biedt een **eigen bibliotheek**: MP3 importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. Kies ‘Eigen bibliotheek bekijken’ en vervolgens ‘Oefeningen’. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
 
-Onder **Mijn oefenrondjes** kun je eigen rondjes opslaan met geordende oefenblokken en per stap fragment, herhalingen en BPM. De geplande totale duur rekent direct mee. Met **Rondje starten** speelt de speler alle stappen en herhalingen, met evaluatie bij fragmentwissels en tussen oefeningen. Je kunt een passage vrij loopen en daarna dezelfde geplande herhaling opnieuw starten.
+Onder **Mijn oefensessies** kun je eigen rondjes opslaan met geordende oefenblokken en per stap fragment, herhalingen en BPM. De geplande totale duur rekent direct mee. Met **Rondje starten** speelt de speler alle stappen en herhalingen, met evaluatie bij fragmentwissels en tussen oefeningen. Je kunt een passage vrij loopen en daarna dezelfde geplande herhaling opnieuw starten.
 
 De **voorbeeldschermen** tonen daarnaast een rondjetabel, het gehele rondje in de speler, evaluatie en dashboard. Voorbeeldwijzigingen worden niet opgeslagen. Eigen rondjes evalueren nu na iedere fragmentserie. Hetzelfde/Sneller/Rustiger past de volgende sessie aan voor alleen het gekozen oefenblok. Resultaten en notities staan bewaard bij Voortgang; grafieken volgen in fase 7. De losse Audioproef blijft beschikbaar. Evalueren kan met toetsen: eerst een cijfer 1–5, daarna 1 langzamer / 2 gelijk / 3 sneller, eventueel een aantal BPM. Enter bewaart de huidige keuzes en gaat door; zonder invoer zijn dat 3/5 en gelijk houden. Alles is ook aanklikbaar.
 

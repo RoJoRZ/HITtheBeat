@@ -1,9 +1,10 @@
 import { test, expect, _electron as electron } from '@playwright/test';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 test('desktop loads offline, exposes only its narrow bridge, navigates and reopens', async () => {
+  const { version } = JSON.parse(await readFile('package.json', 'utf8'));
   const data = await mkdtemp(path.join(tmpdir(), 'hitthebeat-test-'));
   try {
     for (let launch = 0; launch < 2; launch++) {
@@ -13,11 +14,11 @@ test('desktop loads offline, exposes only its narrow bridge, navigates and reope
         const page = await desktop.firstWindow();
         const errors: string[] = [];
         page.on('pageerror', error => errors.push(error.message));
-        await expect(page.getByRole('heading', { name: 'Mijn oefenrondjes', exact: true })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
         await page.context().setOffline(true);
         await page.reload();
-        await expect(page.getByRole('heading', { name: 'Mijn oefenrondjes', exact: true })).toBeVisible();
-        await expect(page.getByText('HITtheBeat · v0.0.8')).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+        await expect(page.getByText(`HITtheBeat · v${version}`)).toBeVisible();
         await page.getByRole('button', { name: 'Eigen bibliotheek bekijken' }).click();
         await expect(page.getByRole('button', { name: 'Oefenrondje maken' })).toBeDisabled();
         expect(await page.evaluate(() => typeof (window as unknown as { require?: unknown }).require)).toBe('undefined');
@@ -29,13 +30,13 @@ test('desktop loads offline, exposes only its narrow bridge, navigates and reope
         await expect(page.getByRole('heading', { name: 'Oefeningen', exact: true })).toBeVisible();
         await page.getByRole('button', { name: 'Voortgang', exact: true }).click();
         await expect(page.getByRole('heading', { name: 'Jouw voortgang' })).toBeVisible();
-        await page.getByRole('button', { name: 'Mijn oefenrondjes', exact: true }).click();
-        await page.getByRole('button', { name: 'Mijn oefenrondjes', exact: true }).focus();
+        await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
+        await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).focus();
         await page.keyboard.press('Tab');
         await expect(page.getByRole('button', { name: 'Oefeningen', exact: true })).toBeFocused();
         await page.keyboard.press('Enter');
         await expect(page.getByRole('heading', { name: 'Oefeningen', exact: true })).toBeVisible();
-        await page.getByRole('button', { name: 'Mijn oefenrondjes', exact: true }).click();
+        await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
         await page.setViewportSize({ width: 960, height: 700 });
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
         await page.setViewportSize({ width: 1440, height: 960 });

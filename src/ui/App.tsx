@@ -10,13 +10,13 @@ import { useEffect, useRef, useState } from 'react';
 import { AudioLines, ChartNoAxesColumnIncreasing, CirclePlay, FolderOpen, Headphones, Music2, Plus, ArrowUpRight } from 'lucide-react';
 
 const pages = {
-  routines: { title: 'Mijn oefenrondjes', subtitle: 'Maak ruimte voor je dagelijkse muziek.', empty: 'Jouw eerste oefenrondje', description: 'Bundel straks je oefeningen in een rondje, met je eigen tempo en herhalingen.', action: 'Oefenrondje maken', icon: Headphones },
+  routines: { title: 'Mijn oefensessies', subtitle: 'Vind je ritme, ontwikkel je spel.', empty: 'Jouw eerste oefenrondje', description: 'Bundel straks je oefeningen in een rondje, met je eigen tempo en herhalingen.', action: 'Oefenrondje maken', icon: Headphones },
   exercises: { title: 'Oefeningen', subtitle: 'Jouw verzameling oefeningen.', empty: 'Een plek voor jouw oefeningen', description: 'Hier komen je MP3-bestanden, tablatuur en de opdracht bij elke oefening samen.', action: 'Oefening toevoegen', icon: Music2 },
   progress: { title: 'Jouw voortgang', subtitle: 'Stap voor stap vooruit.', empty: 'Je vooruitgang begint met oefenen', description: 'Hier zie je straks je oefentijd en tempo-ontwikkeling, met ruimte voor hoe het ging.', action: null, icon: ChartNoAxesColumnIncreasing },
 } as const;
 type Page = ExamplePage | 'audio' | 'session';
 const navigation = [
-  { id: 'routines', label: 'Mijn oefenrondjes', icon: CirclePlay },
+  { id: 'routines', label: 'Mijn oefensessies', icon: CirclePlay },
   { id: 'exercises', label: 'Oefeningen', icon: Music2 },
   { id: 'progress', label: 'Voortgang', icon: ChartNoAxesColumnIncreasing },
   { id: 'audio', label: 'Audioproef', icon: AudioLines },
@@ -59,7 +59,7 @@ export function App() {
         <div className="sidebar-bottom"><span className="local-label"><FolderOpen size={17} aria-hidden="true" /> Jouw muziek, dichtbij</span><span className="version">{version ? `HITtheBeat · v${version}` : 'HITtheBeat · Voorvertoning'}</span></div>
       </aside>
       <main id="main" tabIndex={-1}>
-        <header className="page-header"><div><p className="eyebrow">JOUW OEFENPLEK</p><h1>{current.title}</h1><p className="subtitle">{current.subtitle}</p></div><span className="header-mark"><AudioLines size={27} aria-hidden="true" /></span></header>
+        <header className="page-header"><div><p className="eyebrow">JOUW MUZIEKMOMENT</p><h1>{current.title}</h1><p className="subtitle">{current.subtitle}</p></div><span className="header-mark"><AudioLines size={27} aria-hidden="true" /></span></header>
         {sessionError && <p role="alert" className="error">{sessionError}</p>}
         {desktopError && <p role="alert" className="error">De appgegevens konden niet worden geladen. Sluit de app en probeer opnieuw.</p>}
         {page !== 'audio' && page !== 'session' && <div className="example-banner"><div><strong>{examples ? 'Voorbeeldschermen' : 'Eigen bibliotheek'}</strong><span>{examples ? 'Alle oefeningen, opbouw en resultaten zijn voorbeelden. Wijzigingen worden niet opgeslagen.' : 'Je oefeningen en rondjes worden lokaal bewaard.'}</span></div><button className="secondary" onClick={() => { setExamples(!examples); if (page === 'player' || page === 'evaluation') setPage('routines'); }}>{examples ? 'Eigen bibliotheek bekijken' : 'Voorbeeldschermen bekijken'}</button></div>}

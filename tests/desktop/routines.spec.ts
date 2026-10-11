@@ -50,7 +50,7 @@ test('own routine editor saves independent builds, validates and preserves order
     await page.screenshot({ path: 'test-results/phase4-editor.png', fullPage: true });
     await page.getByLabel('BPM oefening 2 stap 1', { exact: true }).fill('80');
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
-    await page.getByRole('button', { name: 'Mijn oefenrondjes', exact: true }).click();
+    await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
     await expect(page.getByLabel('BPM oefening 2 stap 1', { exact: true })).toHaveValue('80');
     await page.getByLabel('Opgeslagen oefenrondje').selectOption({ label: 'Warming-up' });
     await expect(page.getByRole('dialog')).toBeVisible();

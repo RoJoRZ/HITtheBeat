@@ -168,3 +168,8 @@ In het import-/bewerkformulier staat Geluidsniveau normaliseren standaard aan vo
 Toon de beoordeling als vijf genummerde knoppen en de tempokeuze als drie knoppen: 1 Langzamer, 2 Gelijk houden, 3 Sneller. De gekozen knoppen krijgen een Mandarijn-vulling; de actieve invoergroep krijgt een Mandarijn-rand. Houd de twee betekenissen van cijfers visueel uit elkaar met genummerde groepskoppen. Toon bij de primaire Verder-knop de hint Enter en boven de groepen de standaardwaarden 3/5 en gelijk houden.
 
 Bij sneller/langzamer verschijnt het BPM-veld met de bestaande voor/na-opbouw. Selecteer de klaarstaande 5 zodat meteen typen deze vervangt. Behoud de notitie en de secundaire actie Deze serie opnieuw. In de sessiehistorie staat het bewaarde cijfer als Beoordeling: x/5 bij de betreffende evaluatie.
+
+
+## Vaste schermteksten (11 oktober 2026)
+
+Gebruik **Jouw muziekmoment** als bovenregel (in de bestaande hoofdletterstijl), **Mijn oefensessies** in de navigatie en als paginatitel, en **Vind je ritme, ontwikkel je spel.** als ondertitel van die pagina. Deze door de gebruiker gekozen combinatie vervangt de eerdere drie teksten.

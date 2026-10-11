@@ -74,7 +74,7 @@ test('audio controls load MP3 offline, validate loops, and respect keyboard focu
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeVisible({ timeout: 5000 });
-    await page.getByRole('button', { name: 'Mijn oefenrondjes', exact: true }).click();
+    await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
     await page.getByRole('button', { name: 'Audioproef', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeDisabled();
     expect(errors).toEqual([]);

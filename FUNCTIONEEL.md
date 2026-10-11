@@ -291,3 +291,8 @@ Enter bewaart in iedere stap de huidige keuzes en gaat direct door. Niet aangepa
 Alle keuzes zijn zichtbaar en aanklikbaar. Ook eerdere keuzes kunnen opnieuw worden aangeklikt; Tab en Shift+Tab maken teruggaan en corrigeren mogelijk. De actieve invoerstap is duidelijk herkenbaar. De bestaande actie ‘Deze serie opnieuw’ en optionele notitie blijven bereikbaar met muis en toetsenbord. De nieuwe cijferbediening geldt uitsluitend tijdens de evaluatie; buiten de evaluatie behoudt de speler zijn huidige sneltoetsen.
 
 Het cijfer wordt bij iedere nieuwe evaluatie bewaard en in de sessiehistorie getoond. Eerdere evaluaties zonder cijfer behouden hun oorspronkelijke gegevens; er wordt achteraf geen beoordeling aan toegekend. Enter werkt ook vanuit het notitieveld; Tab en Shift+Tab wisselen tussen de bedieningsonderdelen. Nieuwe evaluaties beginnen steeds met 3/5, gelijk houden en een klaarstaande BPM-aanpassing van 5.
+
+
+## 19. Bewoordingen in de app (11 oktober 2026)
+
+De gebruiker heeft de volgende combinatie gekozen: **Jouw muziekmoment** als vaste bovenregel, **Mijn oefensessies** als navigatienaam en paginatitel, en **Vind je ritme, ontwikkel je spel.** als ondertitel. Deze teksten vervangen respectievelijk Jouw oefenplek, Mijn oefenrondjes en Maak ruimte voor je dagelijkse muziek. De keuze is doorgevoerd in v0.0.10. De bestaande functionaliteit en opgeslagen gegevens veranderen hierdoor niet; deze tekstkeuze verandert de overige benamingen zoals oefenrondje niet automatisch.

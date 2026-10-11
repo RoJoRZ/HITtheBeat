@@ -62,7 +62,7 @@ test('real routine restores interrupted pass, plays repeats in order and advance
     await page.setViewportSize({ width: 960, height: 700 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.setViewportSize({ width: 1440, height: 960 });
-    await page.getByRole('button', { name: 'Mijn oefenrondjes', exact: true }).click();
+    await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.getByRole('button', { name: 'Verder oefenen', exact: true }).click();
     await expect(page.getByText('Stap 2 van 3 · Herhaling 1 van 2')).toBeVisible();
