@@ -186,7 +186,7 @@ Mogelijke latere uitbreidingen zijn labels voor oefeningen, rondjes samenstellen
 - Toonhoogteverschuiving per tabelrij en de groepering van stappen in de tabel.
 - De definitieve toetsindeling en het precieze gedrag van terug naar het begin.
 - Pauzes en aftellen voor speelbeurten.
-- De concrete presentatie en vergelijkingen in het dashboard.
+- Verdere verfijning van het dashboard na gebruiksfeedback; de presentatie van fase 7 is beschreven in hoofdstuk 23.
 
 Deze punten worden functioneel uitgewerkt voordat ze als definitieve eisen worden behandeld.
 
@@ -330,3 +330,20 @@ Iedere sessie toont naam, aantal oefeningen, geplande oefenduur zonder evaluatie
 De volgorde gebruikt het meest recente startmoment van de opgeslagen sessie, ook na stoppen of onderbreken. Een nooit gestarte sessie gebruikt haar laatste opslagmoment; zo zijn nieuwe sessies direct terug te vinden. Een sessie-opbouw verschijnt één keer, ongeacht het aantal uitvoeringen. De afzonderlijke uitvoeringen blijven bij Voortgang.
 
 Na afronden of stoppen keert de muzikant terug naar het overzicht. De editor heeft Terug naar overzicht; onopgeslagen wijzigingen vragen eerst om verder bewerken of verwerpen. Navigatie naar Oefeningen en terug behoudt de open editor en onopgeslagen invoer. Eigen oefeningen, opbouwen, fragmenten en historie blijven behouden.
+
+
+## 23. Voortgangsdashboard (fase 7, v0.0.14)
+
+Na goedkeuring van het sessieoverzicht geeft de gebruiker opdracht voor fase 7. Voortgang toont nu uitsluitend eigen opgeslagen resultaten: oefentijd, oefendagen, geoefende sessies, tempo-ontwikkeling, de bijbehorende laatste beoordeling en de sessiehistorie. De periode is Deze week (vanaf maandag), Deze maand of Alle tijd. De samenvattingen, grafiek en historie gebruiken dezelfde periode.
+
+Werkelijk afgespeelde rondjetijd en vrije fragmenttijd tellen op tot oefentijd. Pauzes en evaluaties tellen niet mee. Ook gestopte, overgeslagen en onderbroken sessies dragen hun afgespeelde tijd bij. Een alleen gestarte sessie zonder muziek telt niet als oefendag of geoefende sessie; ze blijft wel herkenbaar in de historie. Alleen de status Afgerond telt als volledig afgeronde sessie.
+
+De dagindeling gebruikt de huidige lokale tijdzone van de computer, zichtbaar in het scherm. Omdat bestaande resultaten geen tijdstempel per afspeelsegment bevatten, wordt alle tijd aan de lokale startdag van de sessie toegerekend, ook bij spelen over middernacht. De daggrafiek toont de gekozen week of maand tot vandaag; bij Alle tijd toont ze de laatste 28 dagen, terwijl de samenvattingen en tempo-grafiek alle historie gebruiken. Een uitklapbare tabel geeft exacte tijden.
+
+Tempo wordt afzonderlijk getoond per opgeslagen sessie-opbouw, oefenblok, oefening, volledige track of fragmentgrenzen, geplande/vrije training en toonhoogte. Een ander origineel BPM of andere bronduur krijgt een aparte vergelijking. Benoemde fragmenten blijven herkenbaar; dezelfde grenzen binnen hetzelfde oefenblok zijn hetzelfde onderdeel. Een volledig A–B-bereik geldt als volledige track.
+
+Een meetpunt is één sessie: voor geplande training het hoogste werkelijk gespeelde BPM met minstens één afgeronde speelbeurt van dit onderdeel. Alleen begonnen of overgeslagen beurten verhogen dit punt niet; hun afgespeelde tijd telt wel mee. Vrije fragmenttraining toont haar hoogste daadwerkelijk afgespeelde BPM apart, zonder voltooiing te suggereren. Eén punt krijgt geen verzonnen trend. Een tabel onder de grafiek toont datum, BPM, afgeronde speelbeurten, eventuele beoordeling en sessiestatus.
+
+Het laatste resultaat toont gespeeld BPM, status en de laatste bewaarde evaluatie van dit onderdeel in die sessie, met cijfer indien aanwezig, notitie en de destijds gekozen tempo-aanpassing. Die beoordeling is de eigen inschatting van de muzikant en geen automatische kwaliteitsmeting. Een hoger BPM wordt niet als bewezen beheersing gepresenteerd. Oude resultaten zonder cijfer blijven ongeclassificeerd.
+
+Alle berekeningen lezen opgeslagen sessiemomentopnamen. Achteraf wijzigen of verwijderen van oefeningen, fragmenten of sessie-opbouwen verandert eerdere resultaten niet. Er is geen nieuwe opslagmigratie nodig.

@@ -208,3 +208,14 @@ Deze wijziging vereist geen databasemigratie: schema 5, bestanden en sessiemomen
 RoutineOverview ontvangt de bestaande routines, oefeningen en sessiehistorie via RoutineScreen. Per routine-id bepaalt het laatste startedAt de sortering; bij ontbrekende historie geldt updatedAt. Titel en id breken gelijke tijdstempels deterministisch. De recente weergave neemt tien opbouwen; de volledige weergave filtert lokaal op naam. Duur en validatie gebruiken dezelfde modellen als de editor. Er is geen nieuwe database of migratie.
 
 RoutineScreen start zonder draft in overzichtsmodus. Bewerken en aanmaken openen de bestaande editor; teruggaan gebruikt de bestaande controle op onopgeslagen wijzigingen. App verhoogt overviewKey bij verlaten van de speler; dit wist de editorselectie en ververst routines, oefeningen en historie. Andere navigatie houdt de editor gemount. De speler blijft starten vanaf een opgeslagen momentopname met de bestaande beveiliging tegen dubbel starten.
+
+
+## 21. Dashboardberekeningen (fase 7, v0.0.14)
+
+De pure module src/library/progress.mjs verwerkt uitsluitend SessionRecord-momentopnamen uit listSessions. buildDashboard heeft injecteerbare now en timeZone voor controle van week/maandgrenzen en DST. Intl formatToParts bepaalt lokale ISO-dagen; kalenderrekenen gebeurt met UTC-dagen, zodat een 23- of 25-uursdag niet wegvalt. De gegevens worden aan de lokale sessiestartdag toegerekend omdat bestaande Played-segmenten geen eigen tijdstempel hebben.
+
+Samenvattingen tellen times.planned + times.fragment, nooit pause. Alleen positieve oefentijd telt als oefendag/geoefende sessie; status completed bepaalt volledig afgerond. Historie en tempo-punten gebruiken dezelfde periode. De dagbalken zijn bij Alle tijd beperkt tot 28 kalenderdagen, zonder de all-time-totalen te beperken.
+
+De vergelijkingssleutel bevat routine-id, block-id, exercise-id, origineel BPM, bronduur, volledige track of exacte A/B-grenzen, mode en pitch. Voor geplande beurten komen de grenzen uit de opgeslagen stap om decoderafwijkingen niet als nieuwe fragmenten te behandelen. Per groep en sessie telt het maximum BPM van Played met completed > 0; vrije segmenten gebruiken positieve seconds en blijven apart. De laatste passende opgeslagen evaluatie geeft context. De modellen veranderen geen input en lezen geen actuele oefeningen of routines.
+
+SessionHistory laadt de bestaande historie; ProgressDashboard geeft periodekeuze, samenvattingen, SVG-grafiek, dagbalken en toegankelijke tabellen. De bestaande sessiedetails blijven beschikbaar. Er zijn geen nieuwe IPC-routes, afhankelijkheden of databasemigraties.

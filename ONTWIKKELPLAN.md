@@ -1,6 +1,6 @@
 # HITtheBeat — Ontwikkelplan
 
-Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor feedback en een gebouwd Windows-x64-pakket; de Windows-gebruikstest staat open. Zie `docs/FASE-0.md` voor resultaten. Fase 1 heeft een audioproef (v0.0.2) met automatische Mac-controles; muzikale luisterbeoordeling en de Windows-gebruikstest staan open. Zie `docs/FASE-1.md`. De gebruiker heeft vervolgens het bereik 25–300% gekozen en opdracht gegeven verder te gaan. Fase 2 levert doorloopbare voorbeeldschermen in v0.0.3; zie `docs/FASE-2.md`. De gebruiker heeft daarna de rondje-afspeellijst verduidelijkt en opdracht gegeven door te gaan. V0.0.4 biedt een eigen bibliotheek met eerste BPM-detector; zie `docs/FASE-3.md`. De gebruiker heeft opdracht gegeven door te gaan. V0.0.5 levert de eigen rondje-editor; zie `docs/FASE-4.md`. De gebruiker heeft de editor goedgekeurd en opdracht gegeven verder te gaan. V0.0.6 biedt de rondjespeler en tijdelijke fragmenttraining; zie `docs/FASE-5.md`. De gebruiker heeft de speler in gebruik getest en goedgekeurd. V0.0.7 levert evaluatie per fragmentserie en sessiehistorie; zie `docs/FASE-6.md`. De gebruiker heeft deze fase in gebruik getest en goedgekeurd. Vóór fase 7 is op verzoek v0.0.8 toegevoegd met normalisatie en volumeregeling; zie `docs/VOLUME.md`. De gebruiker heeft v0.0.8 goedgekeurd. Vóór het dashboard voegt v0.0.9 op verzoek evaluatie met toetsenbord en cijferbeoordelingen toe; zie `docs/EVALUATIE-TOETSEN.md`. Gebruiksfeedback op deze aanvulling staat open; verdere beoordeling op echte muziek blijft open.
+Bijgewerkt: 11 oktober 2026. Status: fase 0–6B en het recente sessieoverzicht zijn geleverd; fase 7 levert het voortgangsdashboard in v0.0.14. Geef ruimte voor gebruiksfeedback vóór fase 8. Mac-controles en proefpakketten staan per fase beschreven in docs/. Een echte Windows-gebruikstest, muzikale luisterbeoordeling en BPM-detectie op uiteenlopende eigen muziek blijven open.
 
 ## 1. Uitgangspunten
 
@@ -26,7 +26,7 @@ Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor fee
 | 7 | Dashboard op basis van echte sessies. | Motivatie, begrijpelijkheid en zinvolle voortgang. | 6 en 6B. |
 | 8 | Geteste distributieversie voor beide platforms. | Zelfstandig installeren en delen met een proefgebruiker. | 0–7. |
 
-Fase 6B is geleverd in v0.0.12; na gebruiksfeedback volgen 7 en 8. De fasen zijn controleerbare mijlpalen, geen schattingen in dagen. Na de eerste audioproef kan de resterende inspanning beter worden ingeschat.
+Fase 6B is geleverd in v0.0.12, het recente sessieoverzicht in v0.0.13 en fase 7 in v0.0.14. Na gebruiksfeedback volgt fase 8. De fasen zijn controleerbare mijlpalen, geen schattingen in dagen. Na de eerste audioproef kan de resterende inspanning beter worden ingeschat.
 
 ## 3. Fases en acceptatie
 
@@ -170,3 +170,8 @@ Op verzoek zijn fragmentbeheer bij oefeningen, dezelfde fragmentkeuze en tijdinv
 ### Aanvulling na fase 6B — Recente oefensessies (v0.0.13)
 
 De gebruiker heeft een startoverzicht met maximaal tien recente sessies goedgekeurd. Bij meer dan tien verschijnt Alle oefensessies met zoeken. Starten en Bewerken zijn gescheiden; de tabel opent alleen op verzoek. Na spelen komt het overzicht terug. Controleer de grens tien/elf, zoeken, recent sorteren, directe start, bewaren/heropenen en bescherming van onopgeslagen wijzigingen. Zie `docs/SESSIEOVERZICHT.md`. Daarna blijft fase 7 de volgende grote fase.
+
+
+### Oplevering fase 7 — v0.0.14
+
+De gebruiker heeft opdracht gegeven voor het dashboard. Voortgang toont echte oefentijd, oefendagen, sessies, dagbalken, contextgebonden tempo-punten, beoordelingen en historie. Week/maand/alle tijd gebruiken dezelfde filtering; geplande en vrije training blijven gescheiden. Zie `docs/FASE-7.md` voor betekenis van de cijfers en controles. Geef ruimte voor feedback voordat fase 8 (afronden en delen) start.

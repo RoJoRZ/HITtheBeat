@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { openLibrary } from '../electron/library.mjs';
+import { buildDashboard } from '../src/library/progress.mjs';
 const audio = { name: 'test.mp3', bytes: new Uint8Array([73,68,51,0,0,0,0,0,0,0,0,0]) };
 async function fixture(run) {
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-history-')); let library = await openLibrary(root);
@@ -79,4 +80,14 @@ test('ratings validate, persist across reopen and missing ratings default to thr
   library.reviewSession(session.id, evaluation(0));
   library = await reopen();
   assert.deepEqual(library.listSessions()[0].evaluations.map(item => item.rating), [5,3]);
+}));
+
+test('dashboard remains unchanged after editing and deleting current routines and correcting source BPM', async () => fixture(async ({ library, routine }) => {
+  const session = library.startSession(routine.id); library.saveSession(session.id, reviewProgress(session), 'stopped');
+  const options = { period: 'all', now: new Date(), timeZone: 'Europe/Amsterdam' };
+  const before = buildDashboard(library.listSessions(), options);
+  library.saveRoutine({ ...routine, title: 'Nieuwe naam', blocks: routine.blocks.map(block => ({ ...block, steps: block.steps.map(step => ({ ...step, bpm: 100 })) })) });
+  const source = library.list()[0]; await library.save({ ...source, bpm: 130, description: 'Nieuwe opdracht' });
+  library.deleteRoutine(routine.id);
+  assert.deepEqual(buildDashboard(library.listSessions(), options), before);
 }));

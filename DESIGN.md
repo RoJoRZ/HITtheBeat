@@ -190,3 +190,12 @@ De dagelijkse interface opent direct op Mijn oefensessies met eigen gegevens. De
 ## Sessies als startoverzicht (v0.0.13)
 
 Mijn oefensessies toont Recente oefensessies met maximaal tien kaarten in de bestaande donkere panelen. Elke kaart bevat naam, aantal oefeningen, geplande duur en laatste oefenmoment. Gebruik Mandarijn voor Starten en een secundaire knop voor Bewerken. Nieuwe oefensessie staat bovenaan. Alleen bij meer dan tien is Alle oefensessies zichtbaar; daar staan een gelabeld zoekveld en Terug naar recente sessies. De editor verschijnt pas na Nieuwe oefensessie of Bewerken en biedt Terug naar overzicht. Kaarten passen in één kolom op smalle vensters.
+
+
+## Voortgangsdashboard met eigen resultaten (fase 7, v0.0.14)
+
+Volg render 17 met drie rustige samenvattingskaarten, de tempo-grafiek met context en een kaart met het laatste resultaat ernaast. De kaarten tonen werkelijk geoefende tijd, oefendagen en geoefende sessies. De bestaande periodekeuze bevat Deze week, Deze maand en Alle tijd. Op smalle vensters staan grafiek en resultaat onder elkaar.
+
+Gebruik een mandarijnlijn en punten voor BPM, met gelabelde assen en exacte waarden in een uitklapbare tabel. Eén meting toont één punt. De onderdeelkeuze noemt sessie-opbouw, oefenblok, oefening, fragment, geplande/vrije training, oorspronkelijk BPM en bronduur; afwijkende toonhoogte staat erbij. Herhaal de actieve context leesbaar onder de kiezer.
+
+Onder de grafiek volgt Jouw oefenritme met dagbalken en een tabel met tijden. De bestaande historie blijft onderaan beschikbaar, gefilterd op dezelfde periode. Toon lege resultaten zonder voorbeeldprestaties. Cijfers 1–5 en notities blijven zelfevaluaties; voeg geen automatische labels over speelkwaliteit toe.
