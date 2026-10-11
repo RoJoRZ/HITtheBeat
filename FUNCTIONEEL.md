@@ -310,3 +310,12 @@ Tijdens een onderbroken oefenrondje kiest de muzikant A en B en oefent de passag
 Uitwerking voor behoud van bestaande trainingen: een sessiestap bewaart de gekozen fragmentnaam en grenzen als vaste selectie. Later bewerken of verwijderen van het bibliotheekfragment verandert bestaande opbouwen en gespeelde historie niet. Bij een gewijzigde of verwijderde bron blijft de bewaarde selectie herkenbaar in de kiezer; opnieuw het actuele fragment kiezen neemt de nieuwe naam en grenzen over. Handmatig aanpassen van A of B maakt de stap een eigen fragment. De lopende sessie blijft altijd haar oorspronkelijke momentopname gebruiken.
 
 Bij de oefening staan de bewaarde fragmenten met naam en tijden, plus bewerken en verwijderen. Namen zijn uniek binnen één oefening. De upgrade bewaart bestaande oefeningen, audio, opbouwen, evaluaties en sessiehistorie.
+
+
+## 21. Direct naar eigen gegevens, zonder voorbeeldschermen
+
+Vastgesteld op 11 oktober 2026: de gebruiker wil een afzonderlijke ontwikkelfase voor het verwijderen van de voorbeeldschermen en direct starten met de eigen bibliotheek. Dit wordt fase 6B, vóór het dashboard van fase 7, en is nog niet geïmplementeerd.
+
+De app opent direct op Mijn oefensessies in de eigen omgeving. De omschakelknoppen en fictieve bibliotheek, sessietabel, speler, evaluatie en dashboard verdwijnen uit de dagelijkse interface. Zonder oefeningen helpt een leeg scherm de muzikant een eerste eigen MP3 toe te voegen. Bestaande oefeningen, benoemde fragmenten, opbouwen, evaluaties en historie blijven behouden en zijn meteen beschikbaar. Voortgang toont uitsluitend eigen resultaten; tot het dashboard gereed is blijft dat de bestaande sessiehistorie.
+
+De losse Audioproef valt niet automatisch onder het verwijderen van de voorbeeldschermen. Historische renders en geïsoleerde testgegevens kunnen als ontwikkelmateriaal blijven bestaan, buiten de appinterface.

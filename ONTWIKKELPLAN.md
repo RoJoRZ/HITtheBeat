@@ -22,10 +22,11 @@ Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor fee
 | 4 | Rondje-editor met tabel en totale duur. | Een eigen tempo-opbouw invoeren en opslaan. | 3. |
 | 5 | Volledig rondje afspelen, onderbreken en hervatten. | De dagelijkse oefenervaring met echte bestanden. | 1, 3 en 4. |
 | 6 | Evaluatie en betrouwbare sessiehistorie. | Volgende sessie aanpassen en resultaten bewaren. | 5. |
-| 7 | Dashboard op basis van echte sessies. | Motivatie, begrijpelijkheid en zinvolle voortgang. | 6. |
+| 6B | Direct starten met eigen gegevens, zonder voorbeeldschermen. | Een duidelijke dagelijkse app en eerste gebruik met een lege bibliotheek. | 3–6 en de aanvullingen tot v0.0.11. |
+| 7 | Dashboard op basis van echte sessies. | Motivatie, begrijpelijkheid en zinvolle voortgang. | 6 en 6B. |
 | 8 | Geteste distributieversie voor beide platforms. | Zelfstandig installeren en delen met een proefgebruiker. | 0–7. |
 
-De fasen zijn controleerbare mijlpalen, geen schattingen in dagen. Na de eerste audioproef kan de resterende inspanning beter worden ingeschat.
+De eerstvolgende fase is 6B; daarna volgen 7 en 8. De fasen zijn controleerbare mijlpalen, geen schattingen in dagen. Na de eerste audioproef kan de resterende inspanning beter worden ingeschat.
 
 ## 3. Fases en acceptatie
 
@@ -96,6 +97,18 @@ Controle: ‘Nog een keer’ voert dezelfde opbouw opnieuw uit. ‘Volgende keer
 Demo: de gebruiker evalueert, sluit de app, opent opnieuw en ziet de gekozen opbouw voor de volgende sessie. Stem vóór deze fase de definitieve beoordelingskeuzes, BPM-aanpassing en definitie van werkelijk geoefende tijd af in `FUNCTIONEEL.md`.
 
 Stand 10 oktober 2026: v0.0.7 biedt de evaluaties en sessiehistorie. Een serie bestaat uit aaneengesloten stappen van hetzelfde fragment, met alle tempo’s en herhalingen. BPM-aanpassing geldt voor alle stappen van één oefenblok in dit rondje; de lopende sessie houdt haar momentopname. Werkelijk oefenen is rondje-afspelen plus vrije fragmenttraining, zonder pauzes, evaluatie of laden. Zie `docs/FASE-6.md` voor controles en beperkingen. Beoordeel deze fase vóór het dashboard.
+
+### Fase 6B — Eigen bibliotheek als vaste omgeving
+
+Op 11 oktober 2026 vraagt de gebruiker expliciet om een afzonderlijke fase voor het verwijderen van de voorbeeldschermen en direct starten in de eigen omgeving. Deze fase komt vóór het dashboard en is nog niet gebouwd.
+
+Open de app direct op Mijn oefensessies met de eigen bibliotheek. Verwijder de voorbeeldschermen, fictieve oefeningen/grafieken en de omschakelknoppen Eigen bibliotheek bekijken en Voorbeeldschermen bekijken uit de dagelijkse app. De losse Audioproef is een apart hulpmiddel; deze afspraak beslist niet automatisch over het verwijderen daarvan.
+
+Een lege bibliotheek toont een duidelijke eerste stap: een eigen MP3 toevoegen. Met bestaande gegevens zijn oefeningen, fragmenten, sessie-opbouwen en historie direct beschikbaar. Tot fase 7 toont Voortgang de echte sessiehistorie en geen voorbeeldgrafieken. Historische designrenders en testfixtures mogen als ontwikkelmateriaal bewaard blijven, zonder toegang vanuit de app.
+
+Controle: start met een lege bibliotheek en met bestaande gegevens; importeer een oefening, maak een sessie, speel, onderbreek, bewaar een fragment, hervat, evalueer en bekijk de historie. Sluit en heropen de app. Controleer dat er geen voorbeeldroute of omschakelknop overblijft en dat de upgrade geen eigen gegevens wijzigt of verwijdert. Pas bestaande desktoptests aan zodat ze direct de eigen omgeving gebruiken.
+
+Demo: de gebruiker opent de app en kan meteen met de eigen oefeningen aan de slag, zonder eerst een omgeving te kiezen. Geef ruimte voor feedback voordat fase 7 start.
 
 ### Fase 7 — Motiverend dashboard
 
