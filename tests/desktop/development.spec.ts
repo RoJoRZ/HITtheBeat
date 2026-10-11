@@ -1,12 +1,13 @@
 import { test, expect, _electron as electron } from '@playwright/test';
 import { Mp3Encoder } from '@breezystack/lamejs';
 import { createServer } from 'vite';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 test('development server loads desktop bridge, local font and injected styles', async () => {
   test.skip(Boolean(process.env.HITTHEBEAT_TEST_EXECUTABLE), 'Development server is tested with the development runtime.');
+  const { version } = JSON.parse(await readFile('package.json', 'utf8'));
   const data = await mkdtemp(path.join(tmpdir(), 'hitthebeat-dev-test-'));
   const server = await createServer();
   try {
@@ -15,7 +16,7 @@ test('development server loads desktop bridge, local font and injected styles', 
     try {
       const page = await desktop.firstWindow();
       await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
-      await expect(page.getByText('HITtheBeat · v0.0.8')).toBeVisible();
+      await expect(page.getByText(`HITtheBeat · v${version}`)).toBeVisible();
       expect(await page.locator('.app-shell').evaluate(element => getComputedStyle(element).display)).toBe('grid');
       await page.evaluate(() => document.fonts.ready);
       expect(await page.evaluate(() => document.fonts.check('16px "Source Sans 3"'))).toBe(true);
@@ -26,7 +27,8 @@ test('development server loads desktop bridge, local font and injected styles', 
         const exercise = await window.hitthebeat!.saveExercise({ title: 'Ontwikkelproef', description: '', bpm: 120, duration: 2, detectedBpm: null, analysisStatus: 'unavailable', audio: { name: 'dev.mp3', bytes: new Uint8Array(bytes) } });
         await window.hitthebeat!.saveRoutine({ title: 'Dev rondje', blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [{ id: crypto.randomUUID(), bpm: 60, repetitions: 1, start: 0, end: 2 }] }] });
       }, [...Buffer.concat(chunks.map(chunk => Buffer.from(chunk)))]);
-      await page.getByRole('button', { name: 'Eigen bibliotheek bekijken' }).click();
+      await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+    await page.reload();
       await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
       await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
       await page.getByRole('button', { name: 'Afspelen', exact: true }).click();

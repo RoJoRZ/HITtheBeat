@@ -19,7 +19,11 @@ test('desktop loads offline, exposes only its narrow bridge, navigates and reope
         await page.reload();
         await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
         await expect(page.getByText(`HITtheBeat · v${version}`)).toBeVisible();
-        await page.getByRole('button', { name: 'Eigen bibliotheek bekijken' }).click();
+        await expect(page.getByRole('button', { name: /Eigen bibliotheek bekijken|Voorbeeldschermen bekijken/ })).toHaveCount(0);
+        await expect(page.getByRole('heading', { name: 'Begin met jouw oefeningen' })).toBeVisible();
+        await page.getByRole('button', { name: 'Naar oefeningen', exact: true }).click();
+        await expect(page.getByRole('button', { name: 'Oefening toevoegen', exact: true })).toBeEnabled();
+        await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
         await expect(page.getByRole('button', { name: 'Oefenrondje maken' })).toBeDisabled();
         expect(await page.evaluate(() => typeof (window as unknown as { require?: unknown }).require)).toBe('undefined');
         const preferences = await desktop.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getLastWebPreferences());

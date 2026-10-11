@@ -14,7 +14,8 @@ test('own routine editor saves independent builds, validates and preserves order
     await page.evaluate(async () => {
       for (const title of ['Wisselslag', 'Akkoorden']) await window.hitthebeat!.saveExercise({ title, description: '', bpm: 120, detectedBpm: null, analysisStatus: 'unavailable', duration: 60, audio: { name: 'synthetic.mp3', bytes: new Uint8Array([73,68,51,0,0,0,0,0,0,0,0,0]) } });
     });
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken' }).click();
+    await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+    await page.reload();
     await page.getByRole('button', { name: 'Oefenrondje maken', exact: true }).click();
     await page.getByLabel('Naam van het rondje').fill('Warming-up');
     await page.getByLabel('Oefening blok 1').selectOption({ label: 'Wisselslag' });
@@ -58,7 +59,8 @@ test('own routine editor saves independent builds, validates and preserves order
     await expect(page.getByLabel('BPM oefening 1 stap 1', { exact: true })).toHaveValue('60');
     await app.close(); app = await launch(); page = await app.firstWindow();
     page.on('pageerror', reason => errors.push(reason.message));
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken' }).click();
+    await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+    await page.reload();
     await page.getByLabel('Opgeslagen oefenrondje').selectOption({ label: 'Techniek' });
     await expect(page.getByLabel('BPM oefening 2 stap 1', { exact: true })).toHaveValue('75');
     await expect(page.getByLabel('BPM oefening 2 stap 2', { exact: true })).toHaveValue('95');

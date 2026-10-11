@@ -17,7 +17,8 @@ test('create named passages, choose in a routine, save a live loop and reuse it 
     let page = await app.firstWindow(); const errors: string[] = []; page.on('pageerror', reason => errors.push(reason.message));
     await page.setViewportSize({ width: 1440, height: 960 });
     await page.evaluate(async bytes => { await window.hitthebeat!.saveExercise({ title: 'Gitaar', description: 'Ontspannen oefenen.', bpm: 120, duration: 4, detectedBpm: null, analysisStatus: 'unavailable', audio: { name: 'test.mp3', bytes: new Uint8Array(bytes) } }); }, [...track()]);
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+    await page.reload();
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
     await page.getByRole('button', { name: 'Fragment toevoegen', exact: true }).click();
     await page.getByLabel('Fragmentnaam', { exact: true }).fill('Overgang');
@@ -73,7 +74,6 @@ test('create named passages, choose in a routine, save a live loop and reuse it 
     await page.getByRole('button', { name: 'Rondje opslaan', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('opgeslagen');
     await app.close(); app = await launch(); page = await app.firstWindow();
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken', exact: true }).click();
     await expect(page.getByLabel('Begin A oefening 1 stap 1', { exact: true })).toHaveValue('0.6');
     await expect(page.getByLabel('Einde B oefening 1 stap 1', { exact: true })).toHaveValue('1.2');
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();

@@ -30,7 +30,8 @@ test('real routine restores interrupted pass, plays repeats in order and advance
         { id: crypto.randomUUID(), exerciseId: sources[1].id, steps: [step(120, 1, 2.2)] },
       ] });
     }, [...track()]);
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken' }).click();
+    await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+    await page.reload();
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await expect(page.getByRole('region', { name: 'Oefeningen in dit rondje' })).toContainText('Akkoorden');
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
@@ -106,7 +107,8 @@ test('missing audio does not advance or count a pass and stopping keeps the save
     const { readdir } = await import('node:fs/promises');
     const media = path.join(root, 'library', 'media');
     for (const filename of await readdir(media)) await rm(path.join(media, filename));
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken' }).click();
+    await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+    await page.reload();
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('ontbreekt');
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeDisabled();

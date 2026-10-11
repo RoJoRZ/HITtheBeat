@@ -177,11 +177,11 @@ Gebruik **Jouw muziekmoment** als bovenregel (in de bestaande hoofdletterstijl),
 
 ## Benoemde fragmenten (v0.0.11)
 
-Gebruik in voorbeeld- en eigen sessietabellen dezelfde fragmentkiezer: Volledige track, de fragmenten van de gekozen oefening als Naam · A–B s, en Eigen fragment A–B. Toon begin- en eindtijden naast de keuze en accepteer zowel punt als komma. Een bewaarde selectie waarvan de bron is gewijzigd of verwijderd krijgt de tekst bewaarde selectie met haar oorspronkelijke tijden.
+Gebruik in de sessietabel de fragmentkiezer: Volledige track, de fragmenten van de gekozen oefening als Naam · A–B s, en Eigen fragment A–B. Toon begin- en eindtijden naast de keuze en accepteer zowel punt als komma. Een bewaarde selectie waarvan de bron is gewijzigd of verwijderd krijgt de tekst bewaarde selectie met haar oorspronkelijke tijden.
 
 Bij een oefening staat een paneel Opgeslagen fragmenten met namen, tijden en acties voor toevoegen/bewerken/verwijderen. Het compacte formulier bevat naam, Begin A (seconden), Einde B (seconden), bewaren en annuleren. De speler biedt onder de A/B-bediening Fragment opslaan, gevolgd door een naamveld en een zichtbare bevestiging. De bediening voor Terug naar rondje blijft beschikbaar. Gebruik de bestaande donkere panelen, Mandarijn-acties en focusstijl.
 
 
-## Geplande fase 6B — Eigen omgeving zonder omschakelen
+## Fase 6B — Eigen omgeving zonder omschakelen (v0.0.12)
 
-De dagelijkse interface opent direct op Mijn oefensessies met eigen gegevens. De voorbeeldbanner en knoppen om tussen voorbeelden en eigen bibliotheek te wisselen verdwijnen. Bij een lege bibliotheek krijgt het toevoegen van de eerste oefening een duidelijke actie. Voortgang toont echte historie totdat het dashboard is gebouwd. Deze fase is afgesproken op 11 oktober 2026 en nog niet geïmplementeerd.
+De dagelijkse interface opent direct op Mijn oefensessies met eigen gegevens. De voorbeeldbanner en knoppen om tussen voorbeelden en eigen bibliotheek te wisselen verdwijnen. Bij een lege bibliotheek krijgt het toevoegen van de eerste oefening een duidelijke actie. Voortgang toont echte historie totdat het dashboard is gebouwd. Deze fase is geïmplementeerd op 11 oktober 2026. De lege startpagina toont Begin met jouw oefeningen en de actie Naar oefeningen; daar staat Oefening toevoegen.

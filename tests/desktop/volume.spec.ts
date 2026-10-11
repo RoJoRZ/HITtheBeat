@@ -16,7 +16,8 @@ test('import normalizes quiet and loud MP3, volume and mute survive exercise cha
   try {
     let page = await app.firstWindow(); const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
     await page.context().setOffline(true);
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+    await page.reload();
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
     for (const [name, amplitude] of [['Zacht', 1600], ['Luid', 16000]] as const) {
       await page.getByRole('button', { name: 'Oefening toevoegen', exact: true }).click();
@@ -68,7 +69,6 @@ test('import normalizes quiet and loud MP3, volume and mute survive exercise cha
     await page.screenshot({ path: 'test-results/volume-player.png', fullPage: true });
     await page.getByRole('button', { name: 'Geluid dempen', exact: true }).click();
     await app.close(); app = await launch(); page = await app.firstWindow();
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken', exact: true }).click();
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
     await expect(page.getByRole('slider', { name: 'Volume', exact: true })).toHaveValue('43');
     await expect(page.getByRole('button', { name: 'Dempen opheffen', exact: true })).toBeVisible();

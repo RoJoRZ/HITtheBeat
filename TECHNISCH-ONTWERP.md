@@ -194,3 +194,10 @@ SQLite schema 5 voegt een JSON-lijst fragments toe aan oefeningen en fragment_id
 Een sessiestap kopieert naam, ID en grenzen bij kiezen. De grenzen blijven leidend voor validatie, afspelen, duur en serie-evaluaties. Een gewijzigde of verwijderde bibliotheekbron maakt oudere opbouwen niet ongeldig. De kiezer toont dan de bewaarde selectie naast actuele keuzes. Het opnieuw kiezen van de bron neemt de huidige waarden over. Bestaande stappen zonder metadata blijven geldig. Sessiemomentopnamen worden niet herschreven.
 
 FragmentSelect en DecimalInput worden gedeeld door beide tabellen. DecimalInput houdt de onbewerkte invoer tijdens focus vast en geeft de numerieke waarde door, met ondersteuning voor decimale komma; lege en onvolledige invoer kan worden gecorrigeerd zonder het veld te vervangen. SaveCurrentFragment schrijft de actuele loopgrenzen zonder de audiomotor of runner te herconfigureren. LibraryScreen ververst de fragmenten na bewaren; de audiolader reageert op audio-instellingen in plaats van een algemene updatedAt-wijziging, zodat fragmentopslag de loop niet herstart.
+
+
+## 19. Eigen omgeving als vaste start (v0.0.12)
+
+App start direct op routines. ExampleScreens, fictieve data en de bijbehorende SVG zijn verwijderd, evenals de omschakelstatus en voorbeeldbanner. RoutineScreen blijft gemount bij navigatie zodat een onopgeslagen opbouw behouden blijft. Oefeningen, rondjespeler en historie gebruiken uitsluitend de bestaande desktopkoppeling. Audioproef gebruikt nog de afzonderlijke gegenereerde testmelodie.
+
+Deze wijziging vereist geen databasemigratie: schema 5, bestanden en sessiemomentopnamen blijven intact. Desktoptests vullen hun geïsoleerde bibliotheek vóór herladen of heropenen en controleren direct de echte routes. Historische ontwerpen en testfixtures blijven buiten de productinterface.

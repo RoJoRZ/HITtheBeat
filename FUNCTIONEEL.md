@@ -71,7 +71,7 @@ Stappen kunnen worden toegevoegd, gewijzigd, verwijderd en verplaatst. De opbouw
 Een oefenrondje kan via een bewerkbare tabel worden ingevoerd. Iedere rij beschrijft één stap van een oefening met de volgende gegevens:
 
 - Oefening.
-- Fragment: volledige track, een benoemd fragment van deze oefening of eigen A–B-grenzen in seconden. De voorbeeldschermen en eigen bibliotheek gebruiken hiervoor dezelfde keuzebediening.
+- Fragment: volledige track, een benoemd fragment van deze oefening of eigen A–B-grenzen in seconden. De sessietabel gebruikt hiervoor één keuzebediening.
 - Aantal herhalingen.
 - Gewenst tempo in BPM.
 
@@ -314,8 +314,8 @@ Bij de oefening staan de bewaarde fragmenten met naam en tijden, plus bewerken e
 
 ## 21. Direct naar eigen gegevens, zonder voorbeeldschermen
 
-Vastgesteld op 11 oktober 2026: de gebruiker wil een afzonderlijke ontwikkelfase voor het verwijderen van de voorbeeldschermen en direct starten met de eigen bibliotheek. Dit wordt fase 6B, vóór het dashboard van fase 7, en is nog niet geïmplementeerd.
+Vastgesteld op 11 oktober 2026: de gebruiker wil een afzonderlijke ontwikkelfase voor het verwijderen van de voorbeeldschermen en direct starten met de eigen bibliotheek. Fase 6B is geïmplementeerd in v0.0.12, vóór het dashboard van fase 7.
 
 De app opent direct op Mijn oefensessies in de eigen omgeving. De omschakelknoppen en fictieve bibliotheek, sessietabel, speler, evaluatie en dashboard verdwijnen uit de dagelijkse interface. Zonder oefeningen helpt een leeg scherm de muzikant een eerste eigen MP3 toe te voegen. Bestaande oefeningen, benoemde fragmenten, opbouwen, evaluaties en historie blijven behouden en zijn meteen beschikbaar. Voortgang toont uitsluitend eigen resultaten; tot het dashboard gereed is blijft dat de bestaande sessiehistorie.
 
-De losse Audioproef valt niet automatisch onder het verwijderen van de voorbeeldschermen. Historische renders en geïsoleerde testgegevens kunnen als ontwikkelmateriaal blijven bestaan, buiten de appinterface.
+De losse Audioproef blijft beschikbaar, inclusief haar testmelodie. Historische renders en geïsoleerde testgegevens kunnen als ontwikkelmateriaal blijven bestaan, buiten de appinterface.

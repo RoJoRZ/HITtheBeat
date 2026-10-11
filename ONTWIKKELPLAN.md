@@ -26,7 +26,7 @@ Datum: 10 oktober 2026. Status: fase 0 heeft een Mac-proefversie gereed voor fee
 | 7 | Dashboard op basis van echte sessies. | Motivatie, begrijpelijkheid en zinvolle voortgang. | 6 en 6B. |
 | 8 | Geteste distributieversie voor beide platforms. | Zelfstandig installeren en delen met een proefgebruiker. | 0–7. |
 
-De eerstvolgende fase is 6B; daarna volgen 7 en 8. De fasen zijn controleerbare mijlpalen, geen schattingen in dagen. Na de eerste audioproef kan de resterende inspanning beter worden ingeschat.
+Fase 6B is geleverd in v0.0.12; na gebruiksfeedback volgen 7 en 8. De fasen zijn controleerbare mijlpalen, geen schattingen in dagen. Na de eerste audioproef kan de resterende inspanning beter worden ingeschat.
 
 ## 3. Fases en acceptatie
 
@@ -100,9 +100,9 @@ Stand 10 oktober 2026: v0.0.7 biedt de evaluaties en sessiehistorie. Een serie b
 
 ### Fase 6B — Eigen bibliotheek als vaste omgeving
 
-Op 11 oktober 2026 vraagt de gebruiker expliciet om een afzonderlijke fase voor het verwijderen van de voorbeeldschermen en direct starten in de eigen omgeving. Deze fase komt vóór het dashboard en is nog niet gebouwd.
+Op 11 oktober 2026 vraagt de gebruiker expliciet om een afzonderlijke fase voor het verwijderen van de voorbeeldschermen en direct starten in de eigen omgeving. Deze fase komt vóór het dashboard en is geleverd in v0.0.12; zie `docs/FASE-6B.md`.
 
-Open de app direct op Mijn oefensessies met de eigen bibliotheek. Verwijder de voorbeeldschermen, fictieve oefeningen/grafieken en de omschakelknoppen Eigen bibliotheek bekijken en Voorbeeldschermen bekijken uit de dagelijkse app. De losse Audioproef is een apart hulpmiddel; deze afspraak beslist niet automatisch over het verwijderen daarvan.
+Open de app direct op Mijn oefensessies met de eigen bibliotheek. Verwijder de voorbeeldschermen, fictieve oefeningen/grafieken en de omschakelknoppen Eigen bibliotheek bekijken en Voorbeeldschermen bekijken uit de dagelijkse app. De losse Audioproef blijft beschikbaar als apart hulpmiddel.
 
 Een lege bibliotheek toont een duidelijke eerste stap: een eigen MP3 toevoegen. Met bestaande gegevens zijn oefeningen, fragmenten, sessie-opbouwen en historie direct beschikbaar. Tot fase 7 toont Voortgang de echte sessiehistorie en geen voorbeeldgrafieken. Historische designrenders en testfixtures mogen als ontwikkelmateriaal bewaard blijven, zonder toegang vanuit de app.
 

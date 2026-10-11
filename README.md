@@ -18,14 +18,15 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 - [Normalisatie en volumeregeling](docs/VOLUME.md)
 - [Evaluatie met toetsenbord](docs/EVALUATIE-TOETSEN.md)
 - [Benoemde fragmenten bewaren en hergebruiken](docs/FRAGMENTEN.md)
+- [Direct starten met eigen gegevens](docs/FASE-6B.md)
 
 ## Eerste proefversie
 
-Versie 0.0.11 biedt een **eigen bibliotheek**: MP3 importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. Kies ‘Eigen bibliotheek bekijken’ en vervolgens ‘Oefeningen’. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
+Versie 0.0.12 biedt een **eigen bibliotheek**: MP3 importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. De app opent direct op Mijn oefensessies. Kies ‘Oefeningen’ om MP3’s toe te voegen; een lege bibliotheek wijst je hierheen. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
 
 Onder **Mijn oefensessies** kun je eigen rondjes opslaan met geordende oefenblokken en per stap fragment, herhalingen en BPM. Kies per stap de volledige track, een benoemd fragment van de oefening of eigen A–B-grenzen. De geplande totale duur rekent direct mee. Met **Rondje starten** speelt de speler alle stappen en herhalingen, met evaluatie bij fragmentwissels en tussen oefeningen. Je kunt een passage vrij loopen en daarna dezelfde geplande herhaling opnieuw starten.
 
-De **voorbeeldschermen** tonen daarnaast een rondjetabel, het gehele rondje in de speler, evaluatie en dashboard. Voorbeeldwijzigingen worden niet opgeslagen. Eigen rondjes evalueren nu na iedere fragmentserie. Hetzelfde/Sneller/Rustiger past de volgende sessie aan voor alleen het gekozen oefenblok. Resultaten en notities staan bewaard bij Voortgang; grafieken volgen in fase 7. De losse Audioproef blijft beschikbaar. Evalueren kan met toetsen: eerst een cijfer 1–5, daarna 1 langzamer / 2 gelijk / 3 sneller, eventueel een aantal BPM. Enter bewaart de huidige keuzes en gaat door; zonder invoer zijn dat 3/5 en gelijk houden. Alles is ook aanklikbaar.
+Eigen rondjes evalueren nu na iedere fragmentserie. Hetzelfde/Sneller/Rustiger past de volgende sessie aan voor alleen het gekozen oefenblok. Resultaten en notities staan bewaard bij Voortgang; grafieken volgen in fase 7. De losse Audioproef blijft beschikbaar. Evalueren kan met toetsen: eerst een cijfer 1–5, daarna 1 langzamer / 2 gelijk / 3 sneller, eventueel een aantal BPM. Enter bewaart de huidige keuzes en gaat door; zonder invoer zijn dat 3/5 en gelijk houden. Alles is ook aanklikbaar.
 
 Nieuwe MP3’s krijgen standaard volumenormalisatie zonder het bronbestand te wijzigen. Voor bestaande oefeningen: **Bewerken → Volume normaliseren → Oefening opslaan**. De echte spelers hebben een gedeelde volumeschuif en dempenknop; de instelling blijft op deze computer bewaard.
 
@@ -50,7 +51,7 @@ pnpm test:desktop
 pnpm start
 ```
 
-De desktoptests controleren de ontwikkelserver en het gebouwde scherm uit `dist/`. Daarom komt `pnpm build` vóór `pnpm test:desktop`. De tests van de gebouwde app controleren navigatie, offline audio, MP3-import, de geïsoleerde desktopkoppeling en de route door de voorbeeldschermen, inclusief duurberekening en kleinere vensters. De ontwikkeltest meet daarnaast tempo/transpositie en loops in een OfflineAudioContext. Ontwikkeltests gebruiken een tijdelijke gebruikersmap. Screenshots staan in `test-results/` en gaan niet automatisch naar Git. Met de omgevingsvariabele `HITTHEBEAT_TEST_EXECUTABLE` kun je dezelfde test op een verpakte executable richten; de ontwikkelservertest en de DSP-bronmoduletest worden dan overgeslagen. De bibliotheek- en heropentests gebruiken een tijdelijke gebruikersmap via `--user-data-dir`, ook in de verpakte app.
+De desktoptests controleren de ontwikkelserver en het gebouwde scherm uit `dist/`. Daarom komt `pnpm build` vóór `pnpm test:desktop`. De tests van de gebouwde app controleren navigatie, offline audio, MP3-import, de geïsoleerde desktopkoppeling en de eigen oefenroute, inclusief lege start, duurberekening, fragmenten, evaluaties en kleinere vensters. De ontwikkeltest meet daarnaast tempo/transpositie en loops in een OfflineAudioContext. Ontwikkeltests gebruiken een tijdelijke gebruikersmap. Screenshots staan in `test-results/` en gaan niet automatisch naar Git. Met de omgevingsvariabele `HITTHEBEAT_TEST_EXECUTABLE` kun je dezelfde test op een verpakte executable richten; de ontwikkelservertest en de DSP-bronmoduletest worden dan overgeslagen. De bibliotheek- en heropentests gebruiken een tijdelijke gebruikersmap via `--user-data-dir`, ook in de verpakte app.
 
 Een browservoorvertoning is mogelijk met `pnpm preview`; dit is geen vervanging voor de Electron-test en toont geen informatie uit het desktopproces.
 

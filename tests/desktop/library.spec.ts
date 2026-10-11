@@ -26,7 +26,8 @@ test('own library imports, estimates, corrects, edits and reopens copied media o
     let page = await desktop.firstWindow(); const errors: string[] = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.context().setOffline(true);
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken' }).click();
+    await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+    await page.reload();
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
     await page.getByRole('button', { name: 'Oefening toevoegen', exact: true }).click();
     await page.getByLabel('MP3-bestand').setInputFiles(source);
@@ -59,7 +60,8 @@ test('own library imports, estimates, corrects, edits and reopens copied media o
     await page.screenshot({ path: 'test-results/phase3-library.png', fullPage: true });
     await desktop.close(); await rm(source); desktop = await launch(); page = await desktop.firstWindow();
     page.on('pageerror', error => errors.push(error.message));
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken' }).click();
+    await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+    await page.reload();
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
     await expect(page.getByText('Bewaar mijn nieuwe opdracht.', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();

@@ -27,7 +27,8 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
       await window.hitthebeat!.saveRoutine({ title: 'Ander rondje', blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [step(100, 1, .2, .7)] }] });
       return routine.id;
     }, [...track()]);
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+    await page.reload();
     await page.getByLabel('Opgeslagen oefenrondje').selectOption(routineId);
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
@@ -84,7 +85,6 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await page.locator('#main').focus();
     await page.screenshot({ path: 'test-results/phase6-history.png', fullPage: true });
     await app.close(); app = await launch(); page = await app.firstWindow();
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken', exact: true }).click();
     await page.getByLabel('Opgeslagen oefenrondje').selectOption(routineId);
     await expect(page.getByLabel('BPM oefening 1 stap 2', { exact: true })).toHaveValue('100');
     const saved = await page.evaluate(async () => (await window.hitthebeat!.listSessions())[0]);
@@ -119,7 +119,8 @@ test('a conflicting plan edit leaves evaluation open and can be saved without ov
       const exercise = await window.hitthebeat!.saveExercise({ title: 'Proef', description: '', bpm: 120, duration: 4, detectedBpm: null, analysisStatus: 'unavailable', audio: { name: 'test.mp3', bytes: new Uint8Array(bytes) } });
       await window.hitthebeat!.saveRoutine({ title: 'Rondje', blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [{ id: crypto.randomUUID(), bpm: 120, start: .2, end: .7, repetitions: 1 }] }] });
     }, [...track()]);
-    await page.getByRole('button', { name: 'Eigen bibliotheek bekijken', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
+    await page.reload();
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Oefening afgerond', exact: true })).toBeVisible();
