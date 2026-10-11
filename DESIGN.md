@@ -185,3 +185,8 @@ Bij een oefening staat een paneel Opgeslagen fragmenten met namen, tijden en act
 ## Fase 6B — Eigen omgeving zonder omschakelen (v0.0.12)
 
 De dagelijkse interface opent direct op Mijn oefensessies met eigen gegevens. De voorbeeldbanner en knoppen om tussen voorbeelden en eigen bibliotheek te wisselen verdwijnen. Bij een lege bibliotheek krijgt het toevoegen van de eerste oefening een duidelijke actie. Voortgang toont echte historie totdat het dashboard is gebouwd. Deze fase is geïmplementeerd op 11 oktober 2026. De lege startpagina toont Begin met jouw oefeningen en de actie Naar oefeningen; daar staat Oefening toevoegen.
+
+
+## Sessies als startoverzicht (v0.0.13)
+
+Mijn oefensessies toont Recente oefensessies met maximaal tien kaarten in de bestaande donkere panelen. Elke kaart bevat naam, aantal oefeningen, geplande duur en laatste oefenmoment. Gebruik Mandarijn voor Starten en een secundaire knop voor Bewerken. Nieuwe oefensessie staat bovenaan. Alleen bij meer dan tien is Alle oefensessies zichtbaar; daar staan een gelabeld zoekveld en Terug naar recente sessies. De editor verschijnt pas na Nieuwe oefensessie of Bewerken en biedt Terug naar overzicht. Kaarten passen in één kolom op smalle vensters.

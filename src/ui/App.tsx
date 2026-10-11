@@ -21,6 +21,7 @@ const navigation = [
 ] as const;
 
 export function App() {
+  const [overviewKey, setOverviewKey] = useState(0);
   const [session, setSession] = useState<SessionRecord | null>(null);
   const [sessionDone, setSessionDone] = useState(false), [leaving, setLeaving] = useState(false);
   const stopSession = useRef<(() => Promise<void>) | null>(null), starting = useRef(false);
@@ -28,7 +29,7 @@ export function App() {
   const exitDialog = useRef<HTMLDialogElement>(null), destination = useRef<Page>('routines');
   function navigate(next: Page) {
     if (page === 'session' && !sessionDone) { destination.current = next; setLeaving(true); exitDialog.current?.showModal(); }
-    else { setSession(null); setPage(next); window.scrollTo(0, 0); }
+    else { if (page === 'session') setOverviewKey(value => value + 1); setSession(null); setPage(next); window.scrollTo(0, 0); }
   }
   const [page, setPage] = useState<Page>('routines');
   const [version, setVersion] = useState('');
@@ -58,8 +59,8 @@ export function App() {
         {sessionError && <p role="alert" className="error">{sessionError}</p>}
         {desktopError && <p role="alert" className="error">De appgegevens konden niet worden geladen. Sluit de app en probeer opnieuw.</p>}
         {page === 'session' && session ? <SessionPlayer session={session} stopRef={stopSession} active={!leaving} leave={() => navigate('routines')} finished={() => setSessionDone(true)} /> : page === 'audio' ? <AudioLab /> : page === 'exercises' ? <LibraryScreen /> : page === 'progress' ? <SessionHistory /> : null}
-        <div hidden={page !== 'routines'}><RoutineScreen active={page === 'routines'} library={() => setPage('exercises')} start={async routine => { if (starting.current) return; starting.current = true; setSessionError(''); try { const saved = await window.hitthebeat!.startSession(routine.id); setSession(saved); setSessionDone(false); setLeaving(false); setPage('session'); window.scrollTo(0, 0); } catch (reason) { setSessionError(reason instanceof Error ? reason.message : 'Het rondje kon niet starten.'); } finally { starting.current = false; } }} /></div>
-        <dialog ref={exitDialog} className="tab-dialog" onCancel={event => { if (stopping) event.preventDefault(); else setLeaving(false); }}><h2>Rondje stoppen?</h2>{sessionError && <p role="alert" className="error">{sessionError}</p>}<p>Je opgeslagen rondje blijft bewaard. Je gespeelde tijd en resultaten worden bewaard als gestopte sessie.</p><div className="row-actions"><button className="secondary" disabled={stopping} onClick={() => { setLeaving(false); exitDialog.current?.close(); }}>Verder oefenen</button><button className="primary" disabled={stopping} onClick={async () => { setStopping(true); setSessionError(''); try { if (!stopSession.current) throw new Error('De speler is nog niet gereed.'); await stopSession.current(); setSession(null); setPage(destination.current); setLeaving(false); exitDialog.current?.close(); } catch { setSessionError('De sessie kon niet worden bewaard. Probeer opnieuw of kies Verder oefenen.'); } finally { setStopping(false); } }}>Stoppen en terug</button></div></dialog>
+        <div hidden={page !== 'routines'}><RoutineScreen overviewKey={overviewKey} active={page === 'routines'} library={() => setPage('exercises')} start={async routine => { if (starting.current) return; starting.current = true; setSessionError(''); try { const saved = await window.hitthebeat!.startSession(routine.id); setSession(saved); setSessionDone(false); setLeaving(false); setPage('session'); window.scrollTo(0, 0); } catch (reason) { setSessionError(reason instanceof Error ? reason.message : 'Het rondje kon niet starten.'); } finally { starting.current = false; } }} /></div>
+        <dialog ref={exitDialog} className="tab-dialog" onCancel={event => { if (stopping) event.preventDefault(); else setLeaving(false); }}><h2>Rondje stoppen?</h2>{sessionError && <p role="alert" className="error">{sessionError}</p>}<p>Je opgeslagen rondje blijft bewaard. Je gespeelde tijd en resultaten worden bewaard als gestopte sessie.</p><div className="row-actions"><button className="secondary" disabled={stopping} onClick={() => { setLeaving(false); exitDialog.current?.close(); }}>Verder oefenen</button><button className="primary" disabled={stopping} onClick={async () => { setStopping(true); setSessionError(''); try { if (!stopSession.current) throw new Error('De speler is nog niet gereed.'); await stopSession.current(); setOverviewKey(value => value + 1); setSession(null); setPage(destination.current); setLeaving(false); exitDialog.current?.close(); } catch { setSessionError('De sessie kon niet worden bewaard. Probeer opnieuw of kies Verder oefenen.'); } finally { setStopping(false); } }}>Stoppen en terug</button></div></dialog>
       </main>
     </div>
   );

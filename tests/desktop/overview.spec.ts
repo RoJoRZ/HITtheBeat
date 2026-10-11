@@ -1,0 +1,65 @@
+import { test, expect, _electron as electron } from '@playwright/test';
+import { Mp3Encoder } from '@breezystack/lamejs';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
+test('recent sessions limit, browse/search, direct start and return, editor and persistence', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-overview-'));
+  const executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
+  const launch = () => electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  let app = await launch();
+  try {
+    let page = await app.firstWindow();
+    await expect(page.getByRole('heading', { name: 'Recente oefensessies' })).toBeVisible();
+    await expect(page.getByLabel('Naam van het rondje')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Alle oefensessies', exact: true })).toHaveCount(0);
+    const encoder = new Mp3Encoder(1, 44100, 128);
+    const audio = Buffer.concat([Buffer.from(encoder.encodeBuffer(Int16Array.from({ length: 44100 }, (_, i) => Math.sin(i * 2 * Math.PI * 440 / 44100) * 10000))), Buffer.from(encoder.flush())]);
+    const ids = await page.evaluate(async bytes => {
+      const exercise = await window.hitthebeat!.saveExercise({ title: 'Bron', description: '', bpm: 120, duration: 1, detectedBpm: null, analysisStatus: 'unavailable', audio: { name: 'bron.mp3', bytes: new Uint8Array(bytes) } });
+      const ids = [];
+      for (let i = 1; i <= 10; i++) ids.push((await window.hitthebeat!.saveRoutine({ title: `Sessie ${String(i).padStart(2, '0')}`, blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [{ id: crypto.randomUUID(), repetitions: 2, bpm: 60, start: null, end: null }] }] })).id);
+      return ids;
+    }, [...audio]);
+    await page.reload();
+    await expect(page.getByRole('article')).toHaveCount(10);
+    await expect(page.getByRole('button', { name: 'Alle oefensessies', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('article').first()).toContainText('0:04 gepland');
+    await page.getByRole('button', { name: 'Nieuwe oefensessie', exact: true }).click();
+    await page.getByLabel('Naam van het rondje').fill('Nieuwe warming-up');
+    await page.getByRole('button', { name: 'Rondje opslaan', exact: true }).click();
+    await expect(page.getByRole('status')).toContainText('opgeslagen');
+    await page.getByRole('button', { name: 'Terug naar overzicht' }).click();
+    await expect(page.getByRole('article')).toHaveCount(10);
+    await expect(page.getByRole('article').first()).toHaveAccessibleName('Nieuwe warming-up');
+    await page.getByRole('button', { name: 'Alle oefensessies', exact: true }).click();
+    await expect(page.getByRole('article')).toHaveCount(11);
+    await page.getByLabel('Zoek op naam').fill('SESSIE 01');
+    await expect(page.getByRole('article')).toHaveCount(1);
+    await page.getByLabel('Zoek op naam').fill('bestaat niet');
+    await expect(page.getByText('Geen oefensessies gevonden.', { exact: true })).toBeVisible();
+    await page.getByLabel('Zoek op naam').fill('sessie 01');
+    await page.getByRole('article').getByRole('button', { name: 'Starten', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
+    await page.getByRole('button', { name: 'Rondje stoppen', exact: true }).click();
+    await page.getByRole('button', { name: 'Stoppen en terug', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Recente oefensessies' })).toBeVisible();
+    await expect(page.getByRole('article').first()).toHaveAccessibleName('Sessie 01');
+    await expect(page.getByRole('article').first()).toContainText('Laatst geoefend:');
+    await expect(page.getByLabel('Naam van het rondje')).toHaveCount(0);
+    await page.getByRole('article').first().getByRole('button', { name: 'Bewerken' }).click();
+    await page.getByLabel('Naam van het rondje').fill('Onopgeslagen');
+    await page.getByRole('button', { name: 'Terug naar overzicht' }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.getByRole('button', { name: 'Wijzigingen verwerpen' }).click();
+    await expect(page.getByRole('article').first()).toHaveAccessibleName('Sessie 01');
+    await app.close(); app = await launch(); page = await app.firstWindow();
+    await expect(page.getByRole('article').first()).toHaveAccessibleName('Sessie 01');
+    await expect(page.getByLabel('Naam van het rondje')).toHaveCount(0);
+    await page.setViewportSize({ width: 960, height: 700 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: 'test-results/session-overview.png', fullPage: true });
+    expect(await page.evaluate(async id => (await window.hitthebeat!.listRoutines()).some(item => item.id === id), ids[0])).toBe(true);
+  } finally { await app.close(); await rm(root, { recursive: true, force: true }); }
+});

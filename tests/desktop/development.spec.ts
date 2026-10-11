@@ -28,8 +28,8 @@ test('development server loads desktop bridge, local font and injected styles', 
         await window.hitthebeat!.saveRoutine({ title: 'Dev rondje', blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [{ id: crypto.randomUUID(), bpm: 60, repetitions: 1, start: 0, end: 2 }] }] });
       }, [...Buffer.concat(chunks.map(chunk => Buffer.from(chunk)))]);
       await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
-    await page.reload();
-      await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
+      await page.reload();
+      await page.getByRole('article', { name: 'Dev rondje', exact: true }).getByRole('button', { name: 'Starten' }).click();
       await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
       await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
       await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeVisible();

@@ -319,3 +319,14 @@ Vastgesteld op 11 oktober 2026: de gebruiker wil een afzonderlijke ontwikkelfase
 De app opent direct op Mijn oefensessies in de eigen omgeving. De omschakelknoppen en fictieve bibliotheek, sessietabel, speler, evaluatie en dashboard verdwijnen uit de dagelijkse interface. Zonder oefeningen helpt een leeg scherm de muzikant een eerste eigen MP3 toe te voegen. Bestaande oefeningen, benoemde fragmenten, opbouwen, evaluaties en historie blijven behouden en zijn meteen beschikbaar. Voortgang toont uitsluitend eigen resultaten; tot het dashboard gereed is blijft dat de bestaande sessiehistorie.
 
 De losse Audioproef blijft beschikbaar, inclusief haar testmelodie. Historische renders en geïsoleerde testgegevens kunnen als ontwikkelmateriaal blijven bestaan, buiten de appinterface.
+
+
+## 22. Startoverzicht met recente oefensessies (v0.0.13)
+
+Op 11 oktober 2026 kiest de gebruiker een overzicht als beginscherm, in plaats van een automatisch geopende sessie-editor. Mijn oefensessies toont maximaal tien recente opgeslagen sessie-opbouwen. Alleen bij meer dan tien verschijnt Alle oefensessies; dit opent het volledige overzicht met zoeken op naam, zonder onderscheid tussen hoofdletters en kleine letters. Terug naar recente sessies herstelt het overzicht van tien.
+
+Iedere sessie toont naam, aantal oefeningen, geplande oefenduur zonder evaluatiepauzes en het laatste oefenmoment, of Nog niet geoefend. Starten opent direct de speler; Bewerken opent de tabel. Nieuwe oefensessie opent een nieuwe opbouw. Zonder oefeningen blijft de route naar de eerste MP3 beschikbaar. Ongeldige sessies blijven zichtbaar en bewerkbaar, maar kunnen pas na herstel starten.
+
+De volgorde gebruikt het meest recente startmoment van de opgeslagen sessie, ook na stoppen of onderbreken. Een nooit gestarte sessie gebruikt haar laatste opslagmoment; zo zijn nieuwe sessies direct terug te vinden. Een sessie-opbouw verschijnt één keer, ongeacht het aantal uitvoeringen. De afzonderlijke uitvoeringen blijven bij Voortgang.
+
+Na afronden of stoppen keert de muzikant terug naar het overzicht. De editor heeft Terug naar overzicht; onopgeslagen wijzigingen vragen eerst om verder bewerken of verwerpen. Navigatie naar Oefeningen en terug behoudt de open editor en onopgeslagen invoer. Eigen oefeningen, opbouwen, fragmenten en historie blijven behouden.

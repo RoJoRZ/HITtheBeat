@@ -19,10 +19,11 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 - [Evaluatie met toetsenbord](docs/EVALUATIE-TOETSEN.md)
 - [Benoemde fragmenten bewaren en hergebruiken](docs/FRAGMENTEN.md)
 - [Direct starten met eigen gegevens](docs/FASE-6B.md)
+- [Recent sessieoverzicht](docs/SESSIEOVERZICHT.md)
 
 ## Eerste proefversie
 
-Versie 0.0.12 biedt een **eigen bibliotheek**: MP3 importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. De app opent direct op Mijn oefensessies. Kies ‘Oefeningen’ om MP3’s toe te voegen; een lege bibliotheek wijst je hierheen. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
+Versie 0.0.13 biedt een **eigen bibliotheek**: MP3 importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. De app opent op Mijn oefensessies met maximaal tien recente sessie-opbouwen. Kies Starten of Bewerken; bij meer dan tien opent Alle oefensessies het volledige overzicht met zoeken. Kies ‘Oefeningen’ om MP3’s toe te voegen; een lege bibliotheek wijst je hierheen. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
 
 Onder **Mijn oefensessies** kun je eigen rondjes opslaan met geordende oefenblokken en per stap fragment, herhalingen en BPM. Kies per stap de volledige track, een benoemd fragment van de oefening of eigen A–B-grenzen. De geplande totale duur rekent direct mee. Met **Rondje starten** speelt de speler alle stappen en herhalingen, met evaluatie bij fragmentwissels en tussen oefeningen. Je kunt een passage vrij loopen en daarna dezelfde geplande herhaling opnieuw starten.
 

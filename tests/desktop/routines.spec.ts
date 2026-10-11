@@ -16,7 +16,7 @@ test('own routine editor saves independent builds, validates and preserves order
     });
     await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
     await page.reload();
-    await page.getByRole('button', { name: 'Oefenrondje maken', exact: true }).click();
+    await page.getByRole('button', { name: 'Nieuwe oefensessie', exact: true }).click();
     await page.getByLabel('Naam van het rondje').fill('Warming-up');
     await page.getByLabel('Oefening blok 1').selectOption({ label: 'Wisselslag' });
     await page.getByLabel('BPM oefening 1 stap 1', { exact: true }).fill('60');
@@ -32,7 +32,7 @@ test('own routine editor saves independent builds, validates and preserves order
     await page.getByLabel('Einde B oefening 1 stap 1', { exact: true }).fill('22');
     await page.getByRole('button', { name: 'Rondje opslaan', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('opgeslagen');
-    await page.getByRole('button', { name: 'Oefenrondje maken', exact: true }).click();
+    await page.getByRole('button', { name: 'Nieuwe oefensessie', exact: true }).click();
     await page.getByLabel('Naam van het rondje').fill('Techniek');
     await page.getByLabel('Oefening blok 1').selectOption({ label: 'Wisselslag' });
     await page.getByLabel('BPM oefening 1 stap 1', { exact: true }).fill('75');
@@ -61,7 +61,7 @@ test('own routine editor saves independent builds, validates and preserves order
     page.on('pageerror', reason => errors.push(reason.message));
     await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
     await page.reload();
-    await page.getByLabel('Opgeslagen oefenrondje').selectOption({ label: 'Techniek' });
+    await page.getByRole('article', { name: 'Techniek', exact: true }).getByRole('button', { name: 'Bewerken', exact: true }).click();
     await expect(page.getByLabel('BPM oefening 2 stap 1', { exact: true })).toHaveValue('75');
     await expect(page.getByLabel('BPM oefening 2 stap 2', { exact: true })).toHaveValue('95');
     await page.getByRole('button', { name: 'Stap omhoog oefening 2 stap 3', exact: true }).click();
@@ -74,7 +74,7 @@ test('own routine editor saves independent builds, validates and preserves order
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.getByRole('button', { name: 'Rondje verwijderen', exact: true }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Rondje verwijderen', exact: true }).click();
-    await expect(page.getByLabel('Opgeslagen oefenrondje').locator('option', { hasText: 'Techniek' })).toHaveCount(0);
+    await expect(page.getByRole('article', { name: 'Techniek', exact: true })).toHaveCount(0);
     expect(await page.evaluate(async () => (await window.hitthebeat!.listExercises()).length)).toBe(2);
     expect(errors).toEqual([]);
   } finally { await app.close(); await rm(data, { recursive: true, force: true }); }

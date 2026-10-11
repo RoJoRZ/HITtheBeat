@@ -201,3 +201,10 @@ FragmentSelect en DecimalInput worden gedeeld door beide tabellen. DecimalInput 
 App start direct op routines. ExampleScreens, fictieve data en de bijbehorende SVG zijn verwijderd, evenals de omschakelstatus en voorbeeldbanner. RoutineScreen blijft gemount bij navigatie zodat een onopgeslagen opbouw behouden blijft. Oefeningen, rondjespeler en historie gebruiken uitsluitend de bestaande desktopkoppeling. Audioproef gebruikt nog de afzonderlijke gegenereerde testmelodie.
 
 Deze wijziging vereist geen databasemigratie: schema 5, bestanden en sessiemomentopnamen blijven intact. Desktoptests vullen hun geïsoleerde bibliotheek vóór herladen of heropenen en controleren direct de echte routes. Historische ontwerpen en testfixtures blijven buiten de productinterface.
+
+
+## 20. Recent sessieoverzicht (v0.0.13)
+
+RoutineOverview ontvangt de bestaande routines, oefeningen en sessiehistorie via RoutineScreen. Per routine-id bepaalt het laatste startedAt de sortering; bij ontbrekende historie geldt updatedAt. Titel en id breken gelijke tijdstempels deterministisch. De recente weergave neemt tien opbouwen; de volledige weergave filtert lokaal op naam. Duur en validatie gebruiken dezelfde modellen als de editor. Er is geen nieuwe database of migratie.
+
+RoutineScreen start zonder draft in overzichtsmodus. Bewerken en aanmaken openen de bestaande editor; teruggaan gebruikt de bestaande controle op onopgeslagen wijzigingen. App verhoogt overviewKey bij verlaten van de speler; dit wist de editorselectie en ververst routines, oefeningen en historie. Andere navigatie houdt de editor gemount. De speler blijft starten vanaf een opgeslagen momentopname met de bestaande beveiliging tegen dubbel starten.

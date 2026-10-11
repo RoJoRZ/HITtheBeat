@@ -165,3 +165,8 @@ Bespreek de resterende keuzes bij de fase waar ze nodig zijn en leg de uitkomst 
 ### Aanvulling vóór fase 7 — Benoemde fragmenten (v0.0.11)
 
 Op verzoek zijn fragmentbeheer bij oefeningen, dezelfde fragmentkeuze en tijdinvoer in voorbeeld- en eigen sessietabellen en bewaren vanuit vrije fragmenttraining toegevoegd. Bestaande sessies behouden hun instellingen. Zie `docs/FRAGMENTEN.md` voor proefstappen en controles. Gebruiksfeedback op deze aanvulling komt vóór het dashboard.
+
+
+### Aanvulling na fase 6B — Recente oefensessies (v0.0.13)
+
+De gebruiker heeft een startoverzicht met maximaal tien recente sessies goedgekeurd. Bij meer dan tien verschijnt Alle oefensessies met zoeken. Starten en Bewerken zijn gescheiden; de tabel opent alleen op verzoek. Na spelen komt het overzicht terug. Controleer de grens tien/elf, zoeken, recent sorteren, directe start, bewaren/heropenen en bescherming van onopgeslagen wijzigingen. Zie `docs/SESSIEOVERZICHT.md`. Daarna blijft fase 7 de volgende grote fase.

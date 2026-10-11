@@ -29,7 +29,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     }, [...track()]);
     await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
     await page.reload();
-    await page.getByLabel('Opgeslagen oefenrondje').selectOption(routineId);
+    await page.getByRole('article', { name: 'Techniek', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Fragmentserie afgerond', exact: true })).toBeVisible();
@@ -77,6 +77,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await page.keyboard.press('Enter');
     await expect(page.getByText('Je resultaten zijn bewaard bij Voortgang.', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Terug naar mijn rondjes', exact: true }).click();
+    await page.getByRole('article', { name: 'Techniek', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await expect(page.getByLabel('BPM oefening 1 stap 1', { exact: true })).toHaveValue('80');
     await page.getByRole('button', { name: 'Voortgang', exact: true }).click();
     await expect(page.getByText('8 speelbeurten afgerond', { exact: false })).toBeVisible();
@@ -85,7 +86,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await page.locator('#main').focus();
     await page.screenshot({ path: 'test-results/phase6-history.png', fullPage: true });
     await app.close(); app = await launch(); page = await app.firstWindow();
-    await page.getByLabel('Opgeslagen oefenrondje').selectOption(routineId);
+    await page.getByRole('article', { name: 'Techniek', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await expect(page.getByLabel('BPM oefening 1 stap 2', { exact: true })).toHaveValue('100');
     const saved = await page.evaluate(async () => (await window.hitthebeat!.listSessions())[0]);
     expect(saved.status).toBe('completed'); expect(saved.progress.passes).toBe(8);
@@ -98,7 +99,8 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await page.getByRole('button', { name: 'Rondje stoppen', exact: true }).click();
     await page.getByRole('button', { name: 'Stoppen en terug', exact: true }).click();
-    await expect(page.getByLabel('Naam van het rondje')).toBeVisible();
+    await expect(page.getByRole('article', { name: 'Techniek', exact: true })).toBeVisible();
+    await page.getByRole('article', { name: 'Techniek', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     expect(await page.evaluate(async () => (await window.hitthebeat!.listSessions())[0].status)).toBe('stopped');
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
@@ -121,6 +123,7 @@ test('a conflicting plan edit leaves evaluation open and can be saved without ov
     }, [...track()]);
     await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
     await page.reload();
+    await page.getByRole('article', { name: 'Rondje', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Oefening afgerond', exact: true })).toBeVisible();

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
-import type { Exercise, Routine, RoutineBlock, RoutineInput, RoutineStep } from '../library/types';
+import type { Exercise, Routine, RoutineBlock, RoutineInput, RoutineStep, SessionRecord } from '../library/types';
 import { plannedSeconds, validateRoutine } from '../../electron/routine-model.mjs';
 import { DecimalInput, FragmentSelect } from './FragmentControls';
 import { durationLabel } from './controls';
+import { RoutineOverview } from './RoutineOverview';
 
 const uuid = () => crypto.randomUUID();
 const newStep = (bpm: number): RoutineStep => ({ id: uuid(), bpm, repetitions: 1, start: null, end: null });
@@ -14,32 +15,33 @@ function Numeric({ label, value, change, step = .1, min, max }: { label: string;
   return <input aria-label={label} type="number" step={step} min={min} max={max} value={Number.isFinite(value) ? value : ''} onChange={event => change(event.target.value.trim() ? event.target.valueAsNumber : NaN)} />;
 }
 
-export function RoutineScreen({ active, library, start }: { active: boolean; library: () => void; start: (routine: Routine, exercises: Exercise[]) => void }) {
+export function RoutineScreen({ active, overviewKey, library, start }: { active: boolean; overviewKey: number; library: () => void; start: (routine: Routine, exercises: Exercise[]) => void }) {
   const [items, setItems] = useState<Routine[]>([]), [exercises, setExercises] = useState<Exercise[]>([]);
   const [draft, setDraft] = useState<RoutineInput | null>(null), [dirty, setDirty] = useState(false);
   const [loading, setLoading] = useState(true), [saving, setSaving] = useState(false);
   const [error, setError] = useState(''), [status, setStatus] = useState('');
-  const initialized = useRef(false), dialog = useRef<HTMLDialogElement>(null);
+  const [sessions, setSessions] = useState<SessionRecord[]>([]), [editor, setEditor] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
   const pending = useRef<(() => void) | null>(null);
   const [deleting, setDeleting] = useState(false);
   useEffect(() => {
     if (!active) return;
     let alive = true;
     if (!window.hitthebeat) { setLoading(false); setError('Open rondjes in de desktopapp.'); return; }
-    Promise.all([window.hitthebeat.listRoutines(), window.hitthebeat.listExercises()]).then(([rounds, sources]) => {
+    Promise.all([window.hitthebeat.listRoutines(), window.hitthebeat.listExercises(), window.hitthebeat.listSessions()]).then(([rounds, sources, history]) => {
       if (!alive) return;
-      setItems(rounds); setExercises(sources);
-      if (!initialized.current) { setDraft(rounds[0] ?? null); initialized.current = true; }
-      else if (!dirty) setDraft(current => current?.id ? rounds.find(item => item.id === current.id) ?? rounds[0] ?? null : current);
+      setItems(rounds); setExercises(sources); setSessions(history);
+      if (!dirty) setDraft(current => current?.id ? rounds.find(item => item.id === current.id) ?? null : current);
     }).catch(reason => { if (alive) setError(errorText(reason)); }).finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
-  }, [active]);
+  }, [active, overviewKey]);
+  useEffect(() => { setEditor(false); setDraft(null); setDirty(false); setError(''); setStatus(''); }, [overviewKey]);
   function edit(next: RoutineInput) { setDraft(next); setDirty(true); setStatus(''); setError(''); }
   function switchTo(next: () => void) {
     if (dirty) { pending.current = next; setDeleting(false); dialog.current?.showModal(); }
     else next();
   }
-  function choose(item: RoutineInput | null) { setDraft(item); setDirty(false); setError(''); setStatus(''); }
+  function choose(item: RoutineInput | null) { setEditor(Boolean(item)); setDraft(item); setDirty(false); setError(''); setStatus(''); }
   function create() { switchTo(() => { choose({ title: 'Nieuw oefenrondje', blocks: exercises[0] ? [newBlock(exercises[0])] : [] }); setDirty(true); }); }
   function blockChange(id: string, change: Partial<RoutineBlock>) { if (draft) edit({ ...draft, blocks: draft.blocks.map(block => block.id === id ? { ...block, ...change } : block) }); }
   function stepChange(block: RoutineBlock, id: string, change: Partial<RoutineStep>) { blockChange(block.id, { steps: block.steps.map(step => step.id === id ? { ...step, ...change } : step) }); }
@@ -59,10 +61,10 @@ export function RoutineScreen({ active, library, start }: { active: boolean; lib
     finally { setSaving(false); }
   }
   return <div className="screen-stack routine-editor" aria-busy={saving || loading}>
-    <div className="round-heading"><label className="round-picker">Mijn rondjes<select aria-label="Opgeslagen oefenrondje" value={draft?.id ?? ''} disabled={saving || loading} onChange={event => { const selected = items.find(item => item.id === event.target.value); if (selected) switchTo(() => choose(selected)); }}><option value="" disabled>{draft ? 'Nieuw rondje' : 'Kies een rondje'}</option>{items.map(item => <option key={item.id} value={item.id}>{item.title}</option>)}</select></label><button className="secondary" onClick={create} disabled={saving || loading || !exercises.length}><Plus size={18} />Oefenrondje maken</button></div>
+    {editor && <div className="round-heading"><button className="secondary" disabled={saving || loading} onClick={() => switchTo(() => choose(null))}>Terug naar overzicht</button><label className="round-picker">Mijn rondjes<select aria-label="Opgeslagen oefenrondje" value={draft?.id ?? ''} disabled={saving || loading} onChange={event => { const selected = items.find(item => item.id === event.target.value); if (selected) switchTo(() => choose(selected)); }}><option value="" disabled>{draft ? 'Nieuw rondje' : 'Kies een rondje'}</option>{items.map(item => <option key={item.id} value={item.id}>{item.title}</option>)}</select></label><button className="secondary" onClick={create} disabled={saving || loading || !exercises.length}><Plus size={18} />Nieuwe oefensessie</button></div>}
     {error && <p role="alert" className="error">{error}</p>}
     {!loading && !exercises.length && <section className="panel"><h2>Begin met jouw oefeningen</h2><p>Voeg eerst een MP3 toe. Daarna kun je oefeningen samenbrengen in een rondje.</p><button className="primary" onClick={library}>Naar oefeningen</button></section>}
-    {!loading && exercises.length > 0 && !draft && <section className="panel"><h2>Jouw eerste oefenrondje</h2><p>Maak bijvoorbeeld een warming-up of een rondje voor techniek.</p></section>}
+    {!editor && <RoutineOverview key={overviewKey} items={items} exercises={exercises} sessions={sessions} loading={loading} create={create} edit={item => choose(item)} start={start} />}
     {draft && <fieldset className="routine-fields" disabled={saving || loading}><div className="round-heading"><label className="routine-name">Naam van het rondje<input maxLength={160} value={draft.title} onChange={event => edit({ ...draft, title: event.target.value })} /></label><div className="total-duration"><span>Totale duur · gepland</span><strong data-testid="own-round-duration" aria-live="polite">{invalid ? '—' : durationLabel(total)} <small>min</small></strong></div></div>
       <section className="panel table-panel"><div className="table-scroll"><table className="routine-table own-routine-table"><caption>Kies de volledige track, een opgeslagen fragment of eigen A–B-grenzen. Tijden zijn seconden in de originele track.</caption><thead><tr><th>Fragment</th><th>Begin A</th><th>Einde B</th><th>Herhalingen</th><th>BPM</th><th>Stapacties</th></tr></thead>{draft.blocks.map((block, blockIndex) => {
         const exercise = exercises.find(item => item.id === block.exerciseId);
@@ -76,7 +78,7 @@ export function RoutineScreen({ active, library, start }: { active: boolean; lib
     </fieldset>}
     <dialog ref={dialog} className="tab-dialog" onCancel={() => { pending.current = null; }}><h2>{deleting ? 'Rondje verwijderen?' : 'Je hebt nog wijzigingen'}</h2><p>{deleting ? 'De oefeningen in je bibliotheek blijven bewaard.' : 'Sla eerst op om deze opbouw te bewaren, of verwerp je wijzigingen.'}</p><div className="row-actions"><button className="secondary" onClick={() => { pending.current = null; dialog.current?.close(); }}>Verder bewerken</button><button className="primary" onClick={async () => {
       if (deleting && draft?.id) {
-        try { await window.hitthebeat!.deleteRoutine(draft.id); const remaining = items.filter(item => item.id !== draft.id); setItems(remaining); choose(remaining[0] ?? null); }
+        try { await window.hitthebeat!.deleteRoutine(draft.id); const remaining = items.filter(item => item.id !== draft.id); setItems(remaining); choose(null); }
         catch (reason) { setError(errorText(reason)); }
       } else pending.current?.();
       pending.current = null; dialog.current?.close();

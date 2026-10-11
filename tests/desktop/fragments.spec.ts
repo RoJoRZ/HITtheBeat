@@ -32,7 +32,7 @@ test('create named passages, choose in a routine, save a live loop and reuse it 
     const fragment = await page.evaluate(async () => (await window.hitthebeat!.listExercises())[0].fragments![0]);
     expect(fragment.start).toBe(.25); expect(fragment.end).toBe(2.75);
     await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
-    await page.getByRole('button', { name: 'Oefenrondje maken', exact: true }).click();
+    await page.getByRole('button', { name: 'Nieuwe oefensessie', exact: true }).click();
     await page.getByLabel('Naam van het rondje').fill('Fragmenttraining');
     await page.getByLabel('Fragment oefening 1 stap 1', { exact: true }).selectOption(fragment.id);
     await expect(page.getByLabel('Begin A oefening 1 stap 1', { exact: true })).toHaveValue('0.25');
@@ -65,6 +65,7 @@ test('create named passages, choose in a routine, save a live loop and reuse it 
     await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Rondje stoppen', exact: true }).click();
     await page.getByRole('button', { name: 'Stoppen en terug', exact: true }).click();
+    await page.getByRole('article', { name: 'Fragmenttraining', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await page.getByLabel('Fragment oefening 1 stap 1', { exact: true }).selectOption('fragment');
     await page.getByLabel('Begin A oefening 1 stap 1', { exact: true }).fill('');
     await page.getByLabel('Begin A oefening 1 stap 1', { exact: true }).pressSequentially('0,5');
@@ -74,6 +75,7 @@ test('create named passages, choose in a routine, save a live loop and reuse it 
     await page.getByRole('button', { name: 'Rondje opslaan', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('opgeslagen');
     await app.close(); app = await launch(); page = await app.firstWindow();
+    await page.getByRole('article', { name: 'Fragmenttraining', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await expect(page.getByLabel('Begin A oefening 1 stap 1', { exact: true })).toHaveValue('0.6');
     await expect(page.getByLabel('Einde B oefening 1 stap 1', { exact: true })).toHaveValue('1.2');
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();

@@ -376,3 +376,9 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .own-routine-table input[inputmode=decimal] { width: 105px; }
 
 .routine-table input[inputmode=decimal] { width: 105px; background: var(--raised); color: #f2f4f6; border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; min-height: 44px; }
+
+.session-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 18px; }
+.session-card { display: flex; flex-direction: column; gap: 12px; }
+.session-card h3 { margin: 0; font-size: 23px; overflow-wrap: anywhere; }
+.session-card p { margin: 0; }
+.session-card .row-actions { margin-top: auto; padding-top: 8px; }

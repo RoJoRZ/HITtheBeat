@@ -50,7 +50,7 @@ test('import normalizes quiet and loud MP3, volume and mute survive exercise cha
       await window.hitthebeat!.saveRoutine({ title: 'Niveaus', blocks: sources.map(source => ({ id: crypto.randomUUID(), exerciseId: source.id, steps: [{ id: crypto.randomUUID(), repetitions: 1, bpm: 120, start: .2, end: 1.7 }] })) });
     });
     await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
-    await page.getByLabel('Opgeslagen oefenrondje').selectOption({ label: 'Niveaus' });
+    await page.getByRole('article', { name: 'Niveaus', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await expect(page.getByRole('slider', { name: 'Volume', exact: true })).toHaveValue('43');
     await expect(page.getByRole('button', { name: 'Dempen opheffen', exact: true })).toBeVisible();

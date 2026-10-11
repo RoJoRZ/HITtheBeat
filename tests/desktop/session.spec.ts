@@ -32,6 +32,7 @@ test('real routine restores interrupted pass, plays repeats in order and advance
     }, [...track()]);
     await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
     await page.reload();
+    await page.getByRole('article').getByRole('button', { name: 'Bewerken' }).click();
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await expect(page.getByRole('region', { name: 'Oefeningen in dit rondje' })).toContainText('Akkoorden');
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
@@ -84,6 +85,7 @@ test('real routine restores interrupted pass, plays repeats in order and advance
     expect(history.progress.played.some(item => item.mode === 'fragment' && item.a === .4 && item.b === .9 && item.bpm === 60 && item.pitch === 3 && item.seconds > .5 && item.completed === 0)).toBe(true);
     expect(history.progress.times.planned + history.progress.times.fragment).toBeGreaterThan(history.progress.times.planned);
     await page.getByRole('button', { name: 'Terug naar mijn rondjes', exact: true }).click();
+    await page.getByRole('article', { name: 'Mijn hele rondje', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await expect(page.getByLabel('Naam van het rondje')).toHaveValue('Mijn hele rondje');
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await page.getByRole('button', { name: 'Oefening overslaan', exact: true }).click();
@@ -109,6 +111,7 @@ test('missing audio does not advance or count a pass and stopping keeps the save
     for (const filename of await readdir(media)) await rm(path.join(media, filename));
     await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
     await page.reload();
+    await page.getByRole('article').getByRole('button', { name: 'Bewerken' }).click();
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('ontbreekt');
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeDisabled();
@@ -118,6 +121,7 @@ test('missing audio does not advance or count a pass and stopping keeps the save
     await expect(page.getByRole('alert')).toContainText('ontbreekt');
     await page.getByRole('button', { name: 'Rondje stoppen', exact: true }).click();
     await page.getByRole('button', { name: 'Stoppen en terug', exact: true }).click();
+    await page.getByRole('article', { name: 'Bewaard rondje', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await expect(page.getByLabel('Naam van het rondje')).toHaveValue('Bewaard rondje');
     await page.getByRole('button', { name: 'Rondje starten', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('ontbreekt');
