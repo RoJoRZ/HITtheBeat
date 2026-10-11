@@ -30,7 +30,7 @@ test('own library imports, estimates, corrects, edits and reopens copied media o
     await page.reload();
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
     await page.getByRole('button', { name: 'Oefening toevoegen', exact: true }).click();
-    await page.getByLabel('MP3-bestand').setInputFiles(source);
+    await page.getByLabel('Audiobestand (MP3 of M4A)', { exact: true }).setInputFiles(source);
     await expect(page.getByRole('status')).toContainText('Geschat tempo:', { timeout: 15000 });
     await expect(page.getByLabel('Geluidsniveau normaliseren', { exact: true })).toBeChecked();
     const estimated = Number((await page.getByRole('status').innerText()).match(/tempo: ([\d.]+)/)![1]);
@@ -72,10 +72,10 @@ test('own library imports, estimates, corrects, edits and reopens copied media o
     await page.setViewportSize({ width: 960, height: 700 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.getByRole('button', { name: 'Oefening toevoegen', exact: true }).click();
-    await page.getByLabel('MP3-bestand').setInputFiles({ name: 'broken.mp3', mimeType: 'audio/mpeg', buffer: Buffer.from('corrupt MP3 contents') });
+    await page.getByLabel('Audiobestand (MP3 of M4A)', { exact: true }).setInputFiles({ name: 'broken.mp3', mimeType: 'audio/mpeg', buffer: Buffer.from('ID3corrupt MP3 contents') });
     await expect(page.getByRole('alert')).toContainText('kan niet worden gelezen');
     await expect(page.getByRole('button', { name: 'Oefening opslaan' })).toBeDisabled();
-    await page.getByLabel('MP3-bestand').setInputFiles({ name: 'constant-tone.mp3', mimeType: 'audio/mpeg', buffer: mp3(true) });
+    await page.getByLabel('Audiobestand (MP3 of M4A)', { exact: true }).setInputFiles({ name: 'constant-tone.mp3', mimeType: 'audio/mpeg', buffer: mp3(true) });
     await expect(page.getByRole('status')).toContainText('Geen duidelijk tempo gevonden');
     await page.getByRole('textbox', { name: 'Naam', exact: true }).fill('Zonder tablatuur');
     await page.getByLabel('Origineel BPM', { exact: true }).fill('90');

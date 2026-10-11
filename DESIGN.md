@@ -199,3 +199,7 @@ Volg render 17 met drie rustige samenvattingskaarten, de tempo-grafiek met conte
 Gebruik een mandarijnlijn en punten voor BPM, met gelabelde assen en exacte waarden in een uitklapbare tabel. Eén meting toont één punt. De onderdeelkeuze noemt sessie-opbouw, oefenblok, oefening, fragment, geplande/vrije training, oorspronkelijk BPM en bronduur; afwijkende toonhoogte staat erbij. Herhaal de actieve context leesbaar onder de kiezer.
 
 Onder de grafiek volgt Jouw oefenritme met dagbalken en een tabel met tijden. De bestaande historie blijft onderaan beschikbaar, gefilterd op dezelfde periode. Toon lege resultaten zonder voorbeeldprestaties. Cijfers 1–5 en notities blijven zelfevaluaties; voeg geen automatische labels over speelkwaliteit toe.
+
+## Instellingen en audio-import (v0.0.15)
+
+De zijbalk bevat Mijn oefensessies, Oefeningen, Voortgang en Instellingen. De tijdelijke Audioproef is verwijderd. Instellingen gebruikt dezelfde panelen, typografie en Mandarijn-acties. Lokale bibliotheek legt de ongewijzigde kopieën uit en biedt Bibliotheekmap openen. Audio importeren noemt MP3, M4A met AAC, de 50 MB-grens en de ALAC-beperking. Het oefenformulier heeft één zichtbaar label Audiobestand (MP3 of M4A) en meldt fouten vóór opslaan.

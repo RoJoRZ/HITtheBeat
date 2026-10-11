@@ -21,7 +21,7 @@ test('import normalizes quiet and loud MP3, volume and mute survive exercise cha
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
     for (const [name, amplitude] of [['Zacht', 1600], ['Luid', 16000]] as const) {
       await page.getByRole('button', { name: 'Oefening toevoegen', exact: true }).click();
-      await page.getByLabel('MP3-bestand').setInputFiles({ name: `${name}.mp3`, mimeType: 'audio/mpeg', buffer: mp3(amplitude) });
+      await page.getByLabel('Audiobestand (MP3 of M4A)', { exact: true }).setInputFiles({ name: `${name}.mp3`, mimeType: 'audio/mpeg', buffer: mp3(amplitude) });
       await expect(page.getByRole('status')).toContainText('Geen duidelijk tempo gevonden');
       await expect(page.getByText(/Gemeten aanpassing:/)).toBeVisible();
       await page.getByLabel('Origineel BPM', { exact: true }).fill('120');

@@ -175,3 +175,7 @@ De gebruiker heeft een startoverzicht met maximaal tien recente sessies goedgeke
 ### Oplevering fase 7 — v0.0.14
 
 De gebruiker heeft opdracht gegeven voor het dashboard. Voortgang toont echte oefentijd, oefendagen, sessies, dagbalken, contextgebonden tempo-punten, beoordelingen en historie. Week/maand/alle tijd gebruiken dezelfde filtering; geplande en vrije training blijven gescheiden. Zie `docs/FASE-7.md` voor betekenis van de cijfers en controles. Geef ruimte voor feedback voordat fase 8 (afronden en delen) start.
+
+### Tussenstap vóór verdere distributie — v0.0.15
+
+Op verzoek: losse Audioproef verwijderen, Bibliotheekmap openen naar Instellingen verplaatsen met uitleg over kopieën, en MP3-import uitbreiden met M4A AAC. Deze stap krijgt afzonderlijke opslag-, decoder-, import-, herstart- en navigatiecontroles. Zie docs/IMPORT-INSTELLINGEN.md. Dit rondt fase 8 nog niet af: installatieprogramma’s, externe distributie/licenties, ondertekening en echte Windows-gebruikstest blijven open.

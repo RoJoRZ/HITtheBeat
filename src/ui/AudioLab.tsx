@@ -2,7 +2,7 @@ import { outputVolume, useOutput } from '../audio/output-volume';
 import { SaveCurrentFragment } from './FragmentControls';
 import { VolumeControl } from './VolumeControl';
 import { useEffect, useId, useRef, useState } from 'react';
-import { Play, Pause, RotateCcw, Repeat2, Upload, Minus, Plus } from 'lucide-react';
+import { Play, Pause, RotateCcw, Repeat2, Minus, Plus } from 'lucide-react';
 import type { Exercise } from '../library/types';
 import { AudioEngine, validateAudioSettings } from '../audio/engine';
 
@@ -16,9 +16,8 @@ export function NumberField({ label, value, change, disabled, step }: { label: s
   return <div className="audio-number-field"><label htmlFor={id}>{label}</label><div className="audio-stepper"><button type="button" className="adjust" aria-label={`${label} verlagen`} disabled={disabled} onClick={() => change(value - step)}><Minus size={16} /></button><input id={id} type="number" step={step} value={draft} disabled={disabled} onChange={event => setDraft(event.target.value)} onBlur={() => { change(draft.trim() ? Number(draft) : NaN); setDraft(formatted); }} onKeyDown={event => { if (event.key === 'Enter') event.currentTarget.blur(); }} /><button type="button" className="adjust" aria-label={`${label} verhogen`} disabled={disabled} onClick={() => change(value + step)}><Plus size={16} /></button></div></div>;
 }
 
-export function AudioLab({ saved, onFragmentSaved }: { saved?: Exercise; onFragmentSaved?: (item: Exercise) => void }) {
-  const embedded = Boolean(saved);
-  const originalBpm = saved?.bpm ?? 90;
+export function AudioLab({ saved, onFragmentSaved }: { saved: Exercise; onFragmentSaved?: (item: Exercise) => void }) {
+  const originalBpm = saved.bpm;
   const output = useOutput();
   const engine = useRef<AudioEngine | null>(null);
   const generation = useRef(0);
@@ -60,15 +59,14 @@ export function AudioLab({ saved, onFragmentSaved }: { saved?: Exercise; onFragm
     return () => window.removeEventListener('keydown', onKey);
   });
 
-  async function load(file?: File) {
+  async function load() {
     const id = ++generation.current;
     engine.current?.dispose();
     const audio = new AudioEngine();
     engine.current = audio; audio.setVolume(outputVolume());
     setBusy(true); setError(''); setDuration(0); setName(''); setWave([]); setPlaying(false); setPosition(0);
     try {
-      if (file && file.size > 50 * 1024 * 1024) throw new Error('Kies voor deze proef een bestand van maximaal 50 MB.');
-      const buffer = saved ? await audio.load(new Uint8Array((await window.hitthebeat!.readAudio(saved.id)).bytes).buffer, saved.normalizeAudio !== false ? saved.normalizationDb ?? null : null) : file ? await audio.load(await file.arrayBuffer()) : await audio.demo();
+      const buffer = await audio.load(new Uint8Array((await window.hitthebeat!.readAudio(saved.id)).bytes).buffer, saved.normalizeAudio !== false ? saved.normalizationDb ?? null : null);
       if (id !== generation.current) return;
       const data = buffer.getChannelData(0);
       const peaks = Array.from({ length: 220 }, (_, i) => {
@@ -79,7 +77,7 @@ export function AudioLab({ saved, onFragmentSaved }: { saved?: Exercise; onFragm
       });
       const max = Math.max(.001, ...peaks);
       setWave(peaks.map(value => value / max));
-      setName(saved?.audioName ?? file?.name ?? 'Voorbeeldmelodie · 90 BPM'); setDuration(buffer.duration);
+      setName(saved.audioName); setDuration(buffer.duration);
       setA(0); setB(buffer.duration); setLoop(false); setSource(originalBpm); setTarget(originalBpm); setPitch(0);
       configuration.current = { source: originalBpm, target: originalBpm, pitch: 0, a: 0, b: buffer.duration, loop: false };
     } catch (reason) {
@@ -87,7 +85,7 @@ export function AudioLab({ saved, onFragmentSaved }: { saved?: Exercise; onFragm
       if (id === generation.current) setError(reason instanceof Error ? reason.message : 'Dit audiobestand kan niet worden geopend.');
     } finally { if (id === generation.current) setBusy(false); }
   }
-  useEffect(() => { if (saved) void load(); }, [saved?.id, saved?.bpm, saved?.normalizationDb, saved?.normalizeAudio]);
+  useEffect(() => { void load(); }, [saved.id, saved.bpm, saved.normalizationDb, saved.normalizeAudio]);
 
   function settings(next: { source?: number; target?: number; pitch?: number; a?: number; b?: number; loop?: boolean }) {
     const values = { ...configuration.current, ...next };
@@ -101,11 +99,10 @@ export function AudioLab({ saved, onFragmentSaved }: { saved?: Exercise; onFragm
     command(audio.configure(values.target / values.source, values.pitch, values.a, values.b, values.loop));
   }
   const field = (label: string, value: number, change: (value: number) => void, step = 1) => <NumberField label={label} value={value} change={change} disabled={!duration || busy} step={step} />;
-  return <section className={`audio-lab${embedded ? ' audio-embedded' : ''}`} aria-label="Audioproef">
-    {!embedded && <div className="audio-import"><div><h2>Luister. Vertraag. Herhaal.</h2><p>Probeer de speler met je eigen MP3 of WAV.</p></div><div className="import-actions"><button className="secondary" disabled={busy} onClick={() => void load()}>Voorbeeldmelodie laden</button><label className="primary file-button"><Upload size={18} /> Bestand kiezen<input aria-label="Audiobestand kiezen" type="file" accept=".mp3,.wav,audio/mpeg,audio/wav" disabled={busy} onChange={event => { const file = event.target.files?.[0]; if (file) void load(file); event.target.value = ''; }} /></label></div></div>}
+  return <section className="audio-lab audio-embedded" aria-label="Oefeningspeler">
     {error && <p role="alert" className="error">{error}</p>}
     <div className="player-card" aria-busy={busy}>
-      <p className="eyebrow">{saved ? 'SPELER · EIGEN OEFENING' : 'AUDIOPROEF'}</p><h2>{busy ? 'Audio laden…' : name || 'Kies een track om te beginnen'}</h2>
+      <p className="eyebrow">SPELER · EIGEN OEFENING</p><h2>{busy ? 'Audio laden…' : name || 'Kies een track om te beginnen'}</h2>
       <svg className="waveform" viewBox="0 0 880 140" role="img" aria-label="Golfvorm van de track" preserveAspectRatio="none">
         <rect x={duration ? a / duration * 880 : 0} y="0" width={duration ? (b - a) / duration * 880 : 880} height="140" fill="currentColor" opacity={loop ? .12 : .04} />
         {wave.map((peak, i) => <line key={i} x1={i * 4 + 2} x2={i * 4 + 2} y1={70 - Math.max(2, peak * 60)} y2={70 + Math.max(2, peak * 60)} stroke="currentColor" strokeWidth="2" opacity={i / wave.length * duration <= position ? 1 : .38} />)}
@@ -114,11 +111,11 @@ export function AudioLab({ saved, onFragmentSaved }: { saved?: Exercise; onFragm
       <input className="seek" aria-label="Afspeelpositie" type="range" min="0" max={duration || 1} step="0.01" value={position} disabled={!duration || busy} onChange={event => command(engine.current?.seek(event.target.valueAsNumber))} />
       <div className="time-row"><span>{time(position)}</span><span>{time(duration)} · bij dit tempo {time(duration * source / target)}</span></div>
       <div className="playback-controls"><div className="transport"><button className="secondary" aria-label="Terug naar start" disabled={!duration || busy} onClick={restart}><RotateCcw size={21} /></button><button className="primary play-button" disabled={!duration || busy} onClick={toggle}>{playing ? <Pause size={23} /> : <Play size={23} />}{playing ? 'Pauzeren' : 'Afspelen'}</button><button className="secondary" aria-pressed={loop} disabled={!duration || busy} onClick={() => settings({ loop: !loop })}><Repeat2 size={21} /> Loop</button></div>
-      <div className="audio-settings">{!embedded && field('Origineel BPM', source, value => settings({ source: value }))}{field('Speeltempo BPM', target, value => settings({ target: value }))}{field('Toonhoogte (halve tonen)', pitch, value => settings({ pitch: value }))}</div></div>
+      <div className="audio-settings">{field('Speeltempo BPM', target, value => settings({ target: value }))}{field('Toonhoogte (halve tonen)', pitch, value => settings({ pitch: value }))}</div></div>
       <VolumeControl />
       <div className="loop-settings">{field('Begin A (seconden)', a, value => settings({ a: value }), .1)}<button className="secondary" disabled={!duration || busy} onClick={() => settings({ a: position })}>A hier</button>{field('Einde B (seconden)', b, value => settings({ b: value }), .1)}<button className="secondary" disabled={!duration || busy} onClick={() => settings({ b: position })}>B hier</button></div>
-      {saved && <SaveCurrentFragment exerciseId={saved.id} start={a} end={Math.min(b, saved.duration)} disabled={!duration || busy} saved={onFragmentSaved} />}
+      <SaveCurrentFragment exerciseId={saved.id} start={a} end={Math.min(b, saved.duration)} disabled={!duration || busy} saved={onFragmentSaved} />
     </div>
-    <aside className="audio-note"><strong>{saved ? 'Oefen in je eigen tempo' : 'Even proberen'}</strong><p>Spatie: afspelen / pauzeren · 1: terug naar start (bij een loop naar A). Klik eerst buiten een invoerveld of knop om deze toetsen te gebruiken.</p><p>{saved ? `Origineel tempo: ${saved.bpm} BPM. Pas dit aan via Bewerken.` : 'Origineel BPM vul je in deze proef zelf in.'} Bevestig getallen met Enter of verlaat het veld. Tempo: 25–300% · toonhoogte: −12 tot +12 halve tonen. {saved ? 'Deze oefening is opgeslagen in je lokale bibliotheek.' : 'Deze proef slaat het bestand niet op.'}</p></aside>
+    <aside className="audio-note"><strong>Oefen in je eigen tempo</strong><p>Spatie: afspelen / pauzeren · 1: terug naar start (bij een loop naar A). Klik eerst buiten een invoerveld of knop om deze toetsen te gebruiken.</p><p>Origineel tempo: {saved.bpm} BPM. Pas dit aan via Bewerken. Bevestig getallen met Enter of verlaat het veld. Tempo: 25–300% · toonhoogte: −12 tot +12 halve tonen. Deze oefening is opgeslagen in je lokale bibliotheek.</p></aside>
   </section>;
 }

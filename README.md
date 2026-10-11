@@ -21,16 +21,17 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 - [Direct starten met eigen gegevens](docs/FASE-6B.md)
 - [Recent sessieoverzicht](docs/SESSIEOVERZICHT.md)
 - [Voortgangsdashboard](docs/FASE-7.md)
+- [M4A-import en Instellingen](docs/IMPORT-INSTELLINGEN.md)
 
 ## Eerste proefversie
 
-Versie 0.0.14 biedt een **eigen bibliotheek**: MP3 importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. De app opent op Mijn oefensessies met maximaal tien recente sessie-opbouwen. Kies Starten of Bewerken; bij meer dan tien opent Alle oefensessies het volledige overzicht met zoeken. Kies ‘Oefeningen’ om MP3’s toe te voegen; een lege bibliotheek wijst je hierheen. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
+Versie 0.0.15 biedt een **eigen bibliotheek**: MP3 of M4A met AAC importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. De app opent op Mijn oefensessies met maximaal tien recente sessie-opbouwen. Kies Starten of Bewerken; bij meer dan tien opent Alle oefensessies het volledige overzicht met zoeken. Kies ‘Oefeningen’ om MP3 of M4A met AAC toe te voegen; een lege bibliotheek wijst je hierheen. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
 
 Onder **Mijn oefensessies** kun je eigen rondjes opslaan met geordende oefenblokken en per stap fragment, herhalingen en BPM. Kies per stap de volledige track, een benoemd fragment van de oefening of eigen A–B-grenzen. De geplande totale duur rekent direct mee. Met **Rondje starten** speelt de speler alle stappen en herhalingen, met evaluatie bij fragmentwissels en tussen oefeningen. Je kunt een passage vrij loopen en daarna dezelfde geplande herhaling opnieuw starten.
 
-Eigen rondjes evalueren nu na iedere fragmentserie. Hetzelfde/Sneller/Rustiger past de volgende sessie aan voor alleen het gekozen oefenblok. Voortgang toont oefentijd, oefendagen, sessies en tempo-ontwikkeling met beoordelingen en notities. Kies week, maand of alle tijd; volledige tracks, fragmenten en vrije training blijven herkenbaar gescheiden. De losse Audioproef blijft beschikbaar. Evalueren kan met toetsen: eerst een cijfer 1–5, daarna 1 langzamer / 2 gelijk / 3 sneller, eventueel een aantal BPM. Enter bewaart de huidige keuzes en gaat door; zonder invoer zijn dat 3/5 en gelijk houden. Alles is ook aanklikbaar.
+Eigen rondjes evalueren nu na iedere fragmentserie. Hetzelfde/Sneller/Rustiger past de volgende sessie aan voor alleen het gekozen oefenblok. Voortgang toont oefentijd, oefendagen, sessies en tempo-ontwikkeling met beoordelingen en notities. Kies week, maand of alle tijd; volledige tracks, fragmenten en vrije training blijven herkenbaar gescheiden. Instellingen bevat Bibliotheekmap openen en uitleg over de ongewijzigde lokale kopieën. De losse Audioproef is verwijderd. Evalueren kan met toetsen: eerst een cijfer 1–5, daarna 1 langzamer / 2 gelijk / 3 sneller, eventueel een aantal BPM. Enter bewaart de huidige keuzes en gaat door; zonder invoer zijn dat 3/5 en gelijk houden. Alles is ook aanklikbaar.
 
-Nieuwe MP3’s krijgen standaard volumenormalisatie zonder het bronbestand te wijzigen. Voor bestaande oefeningen: **Bewerken → Volume normaliseren → Oefening opslaan**. De echte spelers hebben een gedeelde volumeschuif en dempenknop; de instelling blijft op deze computer bewaard.
+Nieuwe audiobestanden krijgen standaard volumenormalisatie zonder het bronbestand te wijzigen. Voor bestaande oefeningen: **Bewerken → Volume normaliseren → Oefening opslaan**. De echte spelers hebben een gedeelde volumeschuif en dempenknop; de instelling blijft op deze computer bewaard.
 
 ## Ontwikkelen
 
@@ -53,7 +54,7 @@ pnpm test:desktop
 pnpm start
 ```
 
-De desktoptests controleren de ontwikkelserver en het gebouwde scherm uit `dist/`. Daarom komt `pnpm build` vóór `pnpm test:desktop`. De tests van de gebouwde app controleren navigatie, offline audio, MP3-import, de geïsoleerde desktopkoppeling en de eigen oefenroute, inclusief lege start, duurberekening, fragmenten, evaluaties en kleinere vensters. De ontwikkeltest meet daarnaast tempo/transpositie en loops in een OfflineAudioContext. Ontwikkeltests gebruiken een tijdelijke gebruikersmap. Screenshots staan in `test-results/` en gaan niet automatisch naar Git. Met de omgevingsvariabele `HITTHEBEAT_TEST_EXECUTABLE` kun je dezelfde test op een verpakte executable richten; de ontwikkelservertest en de DSP-bronmoduletest worden dan overgeslagen. De bibliotheek- en heropentests gebruiken een tijdelijke gebruikersmap via `--user-data-dir`, ook in de verpakte app.
+De desktoptests controleren de ontwikkelserver en het gebouwde scherm uit `dist/`. Daarom komt `pnpm build` vóór `pnpm test:desktop`. De tests van de gebouwde app controleren navigatie, offline audio, MP3- en AAC-M4A-import, de geïsoleerde desktopkoppeling en de eigen oefenroute, inclusief lege start, duurberekening, fragmenten, evaluaties en kleinere vensters. De ontwikkeltest meet daarnaast tempo/transpositie en loops in een OfflineAudioContext. Ontwikkeltests gebruiken een tijdelijke gebruikersmap. Screenshots staan in `test-results/` en gaan niet automatisch naar Git. Met de omgevingsvariabele `HITTHEBEAT_TEST_EXECUTABLE` kun je dezelfde test op een verpakte executable richten; de ontwikkelservertest en de DSP-bronmoduletest worden dan overgeslagen. De bibliotheek- en heropentests gebruiken een tijdelijke gebruikersmap via `--user-data-dir`, ook in de verpakte app.
 
 Een browservoorvertoning is mogelijk met `pnpm preview`; dit is geen vervanging voor de Electron-test en toont geen informatie uit het desktopproces.
 
@@ -73,3 +74,5 @@ Meegeleverde fonts en schermcode werken zonder netwerkverbinding. Persoonlijke a
 De broncode heeft nog geen door de eigenaar gekozen open-sourcelicentie (`UNLICENSED`). De gebruikte afhankelijkheden hebben eigen licenties. Kies vóór externe broncodedistributie een projectlicentie en lever voor de uiteindelijke app de vereiste derdepartijvermeldingen mee. Dit staat los van het gratis kunnen ontwikkelen en lokaal testen.
 
 Benoemde fragmenten maak je bij **Oefeningen → Opgeslagen fragmenten → Fragment toevoegen**. Tijdens vrije fragmenttraining en in de losse speler kun je de huidige A–B-selectie met **Fragment opslaan** bewaren en later kiezen in iedere oefensessie.
+
+Audio-import ondersteunt MP3 en onbeveiligde M4A met AAC tot 50 MB. Apple Lossless (ALAC) wordt nog niet ondersteund; exporteer zulke tracks eerst als MP3 of M4A met AAC.

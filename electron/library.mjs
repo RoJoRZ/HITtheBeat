@@ -1,3 +1,4 @@
+import { audioFormat } from './audio-format.mjs';
 import { validateFragment } from './fragment-model.mjs';
 import { sessionId, validateProgress, validateEvaluation } from './session-model.mjs';
 import { validateRoutine } from './routine-model.mjs';
@@ -21,12 +22,11 @@ function text(value, maximum) {
 function number(value) { if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error('Controleer tempo en duur.'); return value; }
 /** @param {Asset} asset @param {'audio'|'image'} kind */
 function validateAsset(asset, kind) {
-  if (!asset || !(asset.bytes instanceof Uint8Array) || asset.bytes.length < 12 || asset.bytes.length > (kind === 'audio' ? 50 : 12) * 1024 * 1024) throw new Error(kind === 'audio' ? 'Kies een MP3 van maximaal 50 MB.' : 'Kies een PNG, JPEG of WebP van maximaal 12 MB.');
+  if (!asset || !(asset.bytes instanceof Uint8Array) || asset.bytes.length < 12 || asset.bytes.length > (kind === 'audio' ? 50 : 12) * 1024 * 1024) throw new Error(kind === 'audio' ? 'Kies een MP3 of M4A van maximaal 50 MB.' : 'Kies een PNG, JPEG of WebP van maximaal 12 MB.');
   const name = text(asset.name, 240);
   const bytes = asset.bytes;
   if (kind === 'audio') {
-    if (!name.toLowerCase().endsWith('.mp3') || !(Buffer.from(bytes.subarray(0, 3)).toString() === 'ID3' || (bytes[0] === 255 && (bytes[1] & 224) === 224))) throw new Error('Dit bestand is geen herkenbare MP3.');
-    return { extension: 'mp3', mime: 'audio/mpeg', name };
+    return { ...audioFormat(name, bytes), name };
   }
   if (Buffer.from(bytes.subarray(0, 8)).equals(Buffer.from([137,80,78,71,13,10,26,10]))) return { extension: 'png', mime: 'image/png', name };
   if (bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) return { extension: 'jpg', mime: 'image/jpeg', name };
@@ -101,7 +101,7 @@ export async function openLibrary(root) {
   };
   /** @param {string} filename */
   const mediaPath = filename => {
-    if (!/^[0-9a-f-]{36}\.(mp3|png|jpg|webp)$/.test(filename)) throw new Error('Ongeldig bibliotheekbestand.');
+    if (!/^[0-9a-f-]{36}\.(mp3|m4a|png|jpg|webp)$/.test(filename)) throw new Error('Ongeldig bibliotheekbestand.');
     return path.join(media, filename);
   };
   return {
@@ -118,11 +118,11 @@ export async function openLibrary(root) {
       const normalizationDb = input.normalizationDb === undefined ? old?.normalization_db ?? null : input.normalizationDb;
       const normalizeAudio = input.normalizeAudio === undefined ? Boolean(old?.normalize_audio ?? true) : input.normalizeAudio;
       if ((normalizationDb !== null && (typeof normalizationDb !== 'number' || !Number.isFinite(normalizationDb) || normalizationDb < -60 || normalizationDb > 12 + 1e-9)) || typeof normalizeAudio !== 'boolean') throw new Error('Ongeldige volumenormalisatie.');
-      if (!old && !input.audio) throw new Error('Kies een MP3-bestand.');
+      if (!old && !input.audio) throw new Error('Kies een MP3- of M4A-bestand.');
       if (old && input.audio) throw new Error('Voeg een gewijzigde audiotrack als nieuwe oefening toe.');
       const audioInfo = input.audio ? validateAsset(input.audio, 'audio') : null;
       const imageInfo = input.image ? validateAsset(input.image, 'image') : null;
-      const audioFile = audioInfo ? `${randomUUID()}.mp3` : String(old?.audio_file);
+      const audioFile = audioInfo ? `${randomUUID()}.${audioInfo.extension}` : String(old?.audio_file);
       const imageFile = imageInfo ? `${randomUUID()}.${imageInfo.extension}` : input.image === null ? null : old?.image_file ?? null;
       /** @type {string[]} */ const created = [];
       const id = input.id ?? randomUUID(), updated = new Date().toISOString();
@@ -169,7 +169,7 @@ export async function openLibrary(root) {
       const row = rowFor(id);
       const filename = kind === 'audio' ? row.audio_file : row.image_file;
       if (!filename) return null;
-      try { return { bytes: new Uint8Array(await readFile(mediaPath(String(filename)))), mime: kind === 'audio' ? 'audio/mpeg' : String(row.image_mime) }; }
+      try { return { bytes: new Uint8Array(await readFile(mediaPath(String(filename)))), mime: kind === 'audio' ? (String(filename).endsWith('.m4a') ? 'audio/mp4' : 'audio/mpeg') : String(row.image_mime) }; }
       catch { throw new Error('Het bibliotheekbestand ontbreekt of kan niet worden gelezen.'); }
     },
     listRoutines() { return db.prepare('SELECT * FROM routines ORDER BY title COLLATE NOCASE, id').all().map(routineFrom); },

@@ -5,7 +5,7 @@ export async function analyzeAudio(bytes: ArrayBuffer, signal: AbortSignal) {
   const context = new OfflineAudioContext(2, 1, 44100);
   let buffer: AudioBuffer;
   try { buffer = await context.decodeAudioData(bytes); }
-  catch { throw new Error('Deze MP3 kan niet worden gelezen. Kies een ander bestand.'); }
+  catch { throw new Error('Dit audiobestand kan niet worden gelezen. Kies een MP3 of M4A met AAC die op deze computer kan worden afgespeeld.'); }
   if (signal.aborted) throw new DOMException('Geannuleerd', 'AbortError');
   if (buffer.duration < .1) throw new Error('De audiotrack is te kort.');
   const normalization = normalizationLevel(Array.from({ length: buffer.numberOfChannels }, (_, index) => buffer.getChannelData(index)), buffer.sampleRate);

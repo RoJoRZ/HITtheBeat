@@ -15,7 +15,7 @@ De applicatie moet ten minste op macOS (MacBook) en Windows werken. Ontwikkeling
 Een oefening bevat:
 
 - Een naam.
-- Een kort MP3-bestand.
+- Een kort MP3- of M4A-bestand met AAC (maximaal 50 MB).
 - Optioneel een afbeelding van tablatuur of bladmuziek.
 - Een beschrijving met uitleg en belangrijke aandachtspunten.
 - Het oorspronkelijke tempo in BPM.
@@ -38,7 +38,7 @@ De precieze bediening en stapgrootte van de toonhoogte-instelling worden nog uit
 
 ### 3.1 Geluidsniveau en spelervolume
 
-Bij het toevoegen van een MP3 wordt het geluidsniveau automatisch gemeten. Normalisatie staat standaard aan en brengt zachte en luide oefeningen dichter bij elkaar. Eén vaste niveaucorrectie geldt voor de gehele MP3 en alle fragmenten daarvan; verschillen binnen de muziek blijven behouden. Het originele bestand blijft ongewijzigd bewaard. De muzikant kan normalisatie per oefening uitschakelen.
+Bij het toevoegen van een MP3 of M4A met AAC wordt het geluidsniveau automatisch gemeten. Normalisatie staat standaard aan en brengt zachte en luide oefeningen dichter bij elkaar. Eén vaste niveaucorrectie geldt voor het gehele audiobestand en alle fragmenten daarvan; verschillen binnen de muziek blijven behouden. Het originele bestand blijft ongewijzigd bewaard. De muzikant kan normalisatie per oefening uitschakelen.
 
 Bestaande oefeningen worden niet ongemerkt aangepast. Via Bewerken → Volume normaliseren kan het niveau alsnog worden gemeten en met Oefening opslaan worden bewaard. De gemeten correctie is zichtbaar bij de oefening. Stilte en vrijwel onhoorbare audio worden niet versterkt; sterke versterking en audiopieken begrenzen de correctie. Daardoor hoeven alle bestanden niet exact even luid te klinken.
 
@@ -318,7 +318,7 @@ Vastgesteld op 11 oktober 2026: de gebruiker wil een afzonderlijke ontwikkelfase
 
 De app opent direct op Mijn oefensessies in de eigen omgeving. De omschakelknoppen en fictieve bibliotheek, sessietabel, speler, evaluatie en dashboard verdwijnen uit de dagelijkse interface. Zonder oefeningen helpt een leeg scherm de muzikant een eerste eigen MP3 toe te voegen. Bestaande oefeningen, benoemde fragmenten, opbouwen, evaluaties en historie blijven behouden en zijn meteen beschikbaar. Voortgang toont uitsluitend eigen resultaten; tot het dashboard gereed is blijft dat de bestaande sessiehistorie.
 
-De losse Audioproef blijft beschikbaar, inclusief haar testmelodie. Historische renders en geïsoleerde testgegevens kunnen als ontwikkelmateriaal blijven bestaan, buiten de appinterface.
+Vanaf v0.0.15 is de losse Audioproef met testmelodie verwijderd (zie hoofdstuk 24). Historische renders en geïsoleerde testgegevens kunnen als ontwikkelmateriaal blijven bestaan, buiten de appinterface.
 
 
 ## 22. Startoverzicht met recente oefensessies (v0.0.13)
@@ -347,3 +347,12 @@ Een meetpunt is één sessie: voor geplande training het hoogste werkelijk gespe
 Het laatste resultaat toont gespeeld BPM, status en de laatste bewaarde evaluatie van dit onderdeel in die sessie, met cijfer indien aanwezig, notitie en de destijds gekozen tempo-aanpassing. Die beoordeling is de eigen inschatting van de muzikant en geen automatische kwaliteitsmeting. Een hoger BPM wordt niet als bewezen beheersing gepresenteerd. Oude resultaten zonder cijfer blijven ongeclassificeerd.
 
 Alle berekeningen lezen opgeslagen sessiemomentopnamen. Achteraf wijzigen of verwijderen van oefeningen, fragmenten of sessie-opbouwen verandert eerdere resultaten niet. Er is geen nieuwe opslagmigratie nodig.
+
+
+## 24. Audioformaten en Instellingen (v0.0.15)
+
+Op verzoek van de gebruiker verdwijnt de losse Audioproef uit de app. Oefeningen en oefensessies blijven de routes om eigen muziek te spelen. Instellingen staat in de zijbalk; daar staat Bibliotheekmap openen, met uitleg over lokale opslag. Deze actie staat niet meer bij Oefeningen.
+
+Import accepteert MP3 en onbeveiligde M4A met AAC, maximaal 50 MB. M4A is een container: Apple Lossless (ALAC), beveiligde tracks en onleesbare of andere niet-ondersteunde varianten worden met een duidelijke melding geweigerd. Omzetten gebeurt niet automatisch. Duurbepaling, BPM-analyse, volumenormalisatie, fragmenten en beide spelers werken voor de ondersteunde formaten hetzelfde.
+
+De bibliotheek bevat ongewijzigde kopieën van geïmporteerde audio en afbeeldingen, met interne bestandsnamen, plus de database met oefeningen en resultaten. De oorspronkelijke bestanden blijven op hun eigen locatie; verplaatsen of verwijderen daarvan breekt een opgeslagen oefening niet. Normalisatie wordt tijdens afspelen toegepast en herschrijft de audio niet. Bestaande gegevens blijven behouden.

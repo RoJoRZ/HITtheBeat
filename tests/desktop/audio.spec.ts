@@ -12,9 +12,12 @@ test('audio controls load MP3 offline, validate loops, and respect keyboard focu
     const page = await desktop.firstWindow();
     const errors: string[] = [];
     page.on('pageerror', error => errors.push(error.message));
-    await page.getByRole('button', { name: 'Audioproef', exact: true }).click();
+    const encoder = new Mp3Encoder(1, 44100, 128), chunks: Uint8Array[] = [];
+    for (let start = 0; start < 44100 * 8; start += 1152) chunks.push(encoder.encodeBuffer(Int16Array.from({ length: Math.min(1152, 44100 * 8 - start) }, (_, i) => Math.sin(2 * Math.PI * 440 * (start + i) / 44100) * 12000)));
+    chunks.push(encoder.flush());
+    await page.evaluate(async bytes => { await window.hitthebeat!.saveExercise({ title: 'Toetsen oefenen', description: '', bpm: 90, duration: 8, detectedBpm: null, analysisStatus: 'unavailable', audio: { name: 'test-440Hz.mp3', bytes: new Uint8Array(bytes) } }); }, [...Buffer.concat(chunks.map(chunk => Buffer.from(chunk)))]);
     await page.context().setOffline(true);
-    await page.getByRole('button', { name: 'Voorbeeldmelodie laden' }).click();
+    await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeVisible();
@@ -53,7 +56,7 @@ test('audio controls load MP3 offline, validate loops, and respect keyboard focu
     await page.getByLabel('Begin A (seconden)', { exact: true }).fill('3');
     await page.keyboard.press('Enter');
     await expect(page.getByRole('alert')).toContainText('fragment');
-    await page.getByLabel('Origineel BPM', { exact: true }).focus();
+    await page.getByLabel('Speeltempo BPM', { exact: true }).focus();
     await page.keyboard.press('Space');
     await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeVisible();
     await page.locator('h1').click();
@@ -62,21 +65,10 @@ test('audio controls load MP3 offline, validate loops, and respect keyboard focu
     await page.getByRole('button', { name: 'Pauzeren', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeVisible();
     await page.screenshot({ path: 'test-results/audio-player.png', fullPage: true });
-    const encoder = new Mp3Encoder(1, 44100, 128);
-    const chunks: Uint8Array[] = [];
-    for (let start = 0; start < 44100 * 2; start += 1152) {
-      const pcm = Int16Array.from({ length: Math.min(1152, 88200 - start) }, (_, i) => Math.sin(2 * Math.PI * 440 * (start + i) / 44100) * 12000);
-      chunks.push(encoder.encodeBuffer(pcm));
-    }
-    chunks.push(encoder.flush());
-    await page.getByLabel('Audiobestand kiezen').setInputFiles({ name: 'test-440Hz.mp3', mimeType: 'audio/mpeg', buffer: Buffer.concat(chunks.map(chunk => Buffer.from(chunk))) });
-    await expect(page.getByRole('heading', { name: 'test-440Hz.mp3' })).toBeVisible();
-    await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeVisible({ timeout: 5000 });
     await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
-    await page.getByRole('button', { name: 'Audioproef', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeDisabled();
+    await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toHaveCount(0);
     expect(errors).toEqual([]);
   } finally { await desktop.close(); await rm(root, { recursive: true, force: true }); }
 });

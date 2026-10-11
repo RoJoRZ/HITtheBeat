@@ -58,19 +58,6 @@ export class AudioEngine {
     this.duration = buffer.duration;
     this.b = buffer.duration;
   }
-  demo(duration = 8, bpm = 90) {
-    const buffer = this.context.createBuffer(1, this.context.sampleRate * duration, this.context.sampleRate);
-    const channel = buffer.getChannelData(0);
-    const notes = [220, 261.63, 329.63, 392, 329.63, 261.63];
-    for (let i = 0; i < channel.length; i++) {
-      const time = i / buffer.sampleRate;
-      const beat = time * bpm / 60;
-      const age = (beat % 1) * 60 / bpm;
-      const phase = 2 * Math.PI * notes[Math.floor(beat) % notes.length] * age;
-      channel[i] = .28 * Math.min(1, age * 200) * Math.exp(-age * 5) * (Math.sin(phase) + .25 * Math.sin(phase * 2));
-    }
-    return this.loadBuffer(buffer).then(() => buffer);
-  }
   setVolume(value: number) {
     if (!Number.isFinite(value) || value < 0 || value > 1) throw new Error('Kies een volume van 0–100%.');
     if (this.disposed) return;

@@ -1,0 +1,60 @@
+import { test, expect, _electron as electron } from '@playwright/test';
+import { mkdtemp, rm, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { tmpdir } from 'node:os';
+
+test('settings replaces audio demo; AAC imports, normalizes and plays after source deletion and restart', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-aac-'));
+  const bytes = await readFile('tests/fixtures/pulse-aac.m4a');
+  const source = path.join(root, 'Mijn passage.M4A'); await writeFile(source, bytes);
+  const executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
+  const launch = () => electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${path.join(root, 'data')}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  let desktop = await launch();
+  try {
+    let page = await desktop.firstWindow(); await page.context().setOffline(true);
+    await expect(page.getByRole('button', { name: 'Audioproef', exact: true })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Instellingen', exact: true }).click();
+    await expect(page.getByText(/audiokopieën zijn ongewijzigd/)).toBeVisible();
+    await desktop.evaluate(({ shell }) => { shell.openPath = async value => { (globalThis as any).openedLibrary = value; return ''; }; });
+    await page.getByRole('button', { name: 'Bibliotheekmap openen' }).click();
+    await expect.poll(() => desktop.evaluate(() => (globalThis as any).openedLibrary)).toBe(path.join(root, 'data', 'library'));
+    await expect(page.getByRole('button', { name: 'Bibliotheekmap openen' })).toBeEnabled();
+    await page.screenshot({ path: 'test-results/settings.png', fullPage: true });
+    await desktop.evaluate(({ shell }) => { shell.openPath = async () => 'Test failure'; });
+    await page.getByRole('button', { name: 'Bibliotheekmap openen' }).click();
+    await expect(page.getByRole('alert')).toContainText('kon niet worden geopend');
+    await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Bibliotheekmap openen' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Oefening toevoegen', exact: true }).click();
+    await page.getByLabel('Audiobestand (MP3 of M4A)', { exact: true }).setInputFiles(source);
+    await expect(page.getByRole('status')).toContainText('Geschat tempo:', { timeout: 15000 });
+    await expect(page.getByRole('textbox', { name: 'Naam', exact: true })).toHaveValue('Mijn passage');
+    await page.getByLabel('Origineel BPM', { exact: true }).fill('120');
+    await page.getByRole('button', { name: 'Oefening opslaan' }).click();
+    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
+    const media = await page.evaluate(async () => { const bridge = window.hitthebeat!; const exercise = (await bridge.listExercises())[0]; const audio = await bridge.readAudio(exercise.id); return { mime: audio.mime, bytes: Array.from(audio.bytes), gain: exercise.normalizationDb }; });
+    expect(media.mime).toBe('audio/mp4'); expect(media.bytes).toEqual(Array.from(bytes)); expect(media.gain).not.toBeNull();
+    await desktop.close(); await rm(source); desktop = await launch(); page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
+    await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Pauzeren', exact: true }).click();
+    await page.evaluate(async () => {
+      const exercise = (await window.hitthebeat!.listExercises())[0];
+      await window.hitthebeat!.saveRoutine({ title: 'M4A sessie', blocks: [{ id: crypto.randomUUID(), exerciseId: exercise.id, steps: [{ id: crypto.randomUUID(), start: .5, end: 2.5, bpm: 90, repetitions: 2 }] }] });
+    });
+    await page.reload();
+    await page.getByRole('article').getByRole('button', { name: 'Starten', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
+    await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Pauzeren', exact: true }).click();
+    await desktop.close(); desktop = await launch(); page = await desktop.firstWindow();
+    await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
+    await page.getByRole('button', { name: 'Oefening toevoegen', exact: true }).click();
+    await page.getByLabel('Audiobestand (MP3 of M4A)', { exact: true }).setInputFiles('tests/fixtures/pulse-alac.m4a');
+    await expect(page.getByRole('alert')).toContainText('Apple Lossless');
+    await expect(page.getByRole('button', { name: 'Oefening opslaan' })).toBeDisabled();
+  } finally { await desktop.close(); await rm(root, { recursive: true, force: true }); }
+});
