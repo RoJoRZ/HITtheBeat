@@ -1,4 +1,4 @@
-import { countInSeconds } from '../../electron/count-in-model.mjs';
+import { countInSeconds, countInForBlock } from '../../electron/count-in-model.mjs';
 import { isMetronome, sourceSeconds } from '../../electron/exercise-model.mjs';
 import type { Exercise, Routine } from '../library/types.ts';
 import { plannedSeconds, validateRoutine } from '../../electron/routine-model.mjs';
@@ -29,15 +29,15 @@ export function series(run: Run) {
   return { start, end };
 }
 export type Action = 'play' | 'pause' | 'ended' | 'restart' | 'fragment' | 'return' | 'next' | 'skip' | 'repeat' | 'counted';
-const startingPhase = (run: Run): Phase => run.routine.countIn?.enabled ? 'countin' : 'playing';
+const startingPhase = (run: Run): Phase => countInForBlock(run.routine, current(run).block)?.enabled ? 'countin' : 'playing';
 export function advance(run: Run, action: Action): Run {
   const { block, step } = current(run);
   if (action === 'counted' && run.phase === 'countin') return { ...run, phase: 'playing' };
   if (action === 'play' && ['ready', 'paused'].includes(run.phase)) return { ...run, phase: run.phase === 'ready' || run.resumeCountIn ? startingPhase(run) : 'playing' };
   if (action === 'pause' && ['playing','countin'].includes(run.phase)) return { ...run, phase: 'paused', resumeCountIn: run.phase === 'countin' };
   if (action === 'fragment' && ['ready', 'playing', 'countin', 'paused'].includes(run.phase)) return { ...run, phase: 'fragment', resumePlaying: ['playing','countin'].includes(run.phase) };
-  if (action === 'return' && run.phase === 'fragment') return { ...run, phase: run.resumePlaying ? startingPhase(run) : 'paused', resumeCountIn: Boolean(run.routine.countIn?.enabled), revision: run.revision + 1 };
-  if (action === 'restart' && ['ready', 'playing', 'countin', 'paused'].includes(run.phase)) return { ...run, phase: run.phase === 'paused' || run.phase === 'ready' ? run.phase : startingPhase(run), resumeCountIn: Boolean(run.routine.countIn?.enabled), revision: run.revision + 1 };
+  if (action === 'return' && run.phase === 'fragment') return { ...run, phase: run.resumePlaying ? startingPhase(run) : 'paused', resumeCountIn: Boolean(countInForBlock(run.routine, current(run).block)?.enabled), revision: run.revision + 1 };
+  if (action === 'restart' && ['ready', 'playing', 'countin', 'paused'].includes(run.phase)) return { ...run, phase: run.phase === 'paused' || run.phase === 'ready' ? run.phase : startingPhase(run), resumeCountIn: Boolean(countInForBlock(run.routine, current(run).block)?.enabled), revision: run.revision + 1 };
   if (action === 'ended' && run.phase === 'playing') {
     const next = { ...run, phase: startingPhase(run), passes: run.passes + 1, revision: run.revision + 1 };
     if (run.repetition + 1 < step.repetitions) return { ...next, repetition: run.repetition + 1 };
@@ -48,7 +48,8 @@ export function advance(run: Run, action: Action): Run {
   if ((action === 'next' && run.phase === 'review') || (action === 'skip' && ['ready', 'playing', 'countin', 'paused'].includes(run.phase))) {
     if (action === 'next' && run.step + 1 < block.steps.length) return { ...run, step: run.step + 1, repetition: 0, phase: startingPhase(run), revision: run.revision + 1 };
     const statuses = run.statuses.map((status, index) => index === run.block && action === 'skip' ? 'skipped' as const : status);
-    return { ...run, block: Math.min(run.block + 1, run.routine.blocks.length - 1), step: 0, repetition: 0, phase: run.block + 1 === run.routine.blocks.length ? 'complete' : startingPhase(run), revision: run.revision + 1, statuses };
+    const next = { ...run, block: Math.min(run.block + 1, run.routine.blocks.length - 1), step: 0, repetition: 0, revision: run.revision + 1, statuses };
+    return { ...next, phase: run.block + 1 === run.routine.blocks.length ? 'complete' : startingPhase(next) };
   }
   return run;
 }
@@ -76,7 +77,7 @@ export function remainingPreparation(run: Run, currentRemaining?: number) {
   for (let b = run.block; b < run.routine.blocks.length; b++) {
     const block = run.routine.blocks[b];
     for (let s = b === run.block ? run.step + (run.phase === 'review' ? 1 : 0) : 0; s < block.steps.length; s++) {
-      const step = block.steps[s], count = countInSeconds(run.routine, step.bpm);
+      const step = block.steps[s], count = countInSeconds({ countIn: countInForBlock(run.routine, block) }, step.bpm);
       const currentStep = b === run.block && s === run.step;
       total += count * (step.repetitions - (currentStep ? run.repetition : 0));
       if (currentStep && (run.phase === 'playing' || (run.phase === 'paused' && !run.resumeCountIn))) total -= count;

@@ -1,3 +1,4 @@
+import { countInForBlock, hasCountIn } from './count-in-model.mjs';
 import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
 /** @typedef {{mode:'planned'|'fragment', block:number, step:number, a:number, b:number, bpm:number, pitch:number, seconds:number, completed:number}} Played */
 /** @typedef {{seq:number, block:number, step:number, repetition:number, phase:string, passes:number, statuses:string[], times:{planned:number,fragment:number,pause:number,preparation?:number}, played:Played[]}} Progress */
@@ -16,9 +17,9 @@ export function validateProgress(input, snapshot) {
   if (!input || !integer(input.seq, Number.MAX_SAFE_INTEGER) || !integer(input.block, snapshot.routine.blocks.length - 1)) return fail();
   const block = snapshot.routine.blocks[input.block];
   if (!integer(input.step, block.steps.length - 1) || !integer(input.repetition, block.steps[input.step].repetitions - 1) || !['ready','playing','countin','paused','fragment','review','complete'].includes(input.phase) || !integer(input.passes, 1000000)) return fail();
-  if (input.phase === 'countin' && !snapshot.routine.countIn?.enabled) return fail();
+  if (input.phase === 'countin' && !countInForBlock(snapshot.routine, block)?.enabled) return fail();
   if (!Array.isArray(input.statuses) || input.statuses.length !== snapshot.routine.blocks.length || input.statuses.some(status => !['pending','completed','skipped'].includes(status))) return fail();
-  if (!input.times || !seconds(input.times.planned) || !seconds(input.times.fragment) || !seconds(input.times.pause) || (input.times.preparation !== undefined && (!seconds(input.times.preparation) || (!snapshot.routine.countIn?.enabled && input.times.preparation !== 0))) || !Array.isArray(input.played) || input.played.length > 100000) return fail();
+  if (!input.times || !seconds(input.times.planned) || !seconds(input.times.fragment) || !seconds(input.times.pause) || (input.times.preparation !== undefined && (!seconds(input.times.preparation) || (!hasCountIn(snapshot.routine) && input.times.preparation !== 0))) || !Array.isArray(input.played) || input.played.length > 100000) return fail();
   let passes = 0, planned = 0, fragment = 0;
   const played = input.played.map(item => {
     if (!item || !['planned','fragment'].includes(item.mode) || !integer(item.block, snapshot.routine.blocks.length - 1)) return fail();

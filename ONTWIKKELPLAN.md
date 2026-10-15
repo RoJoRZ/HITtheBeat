@@ -197,3 +197,6 @@ Gebruiksfeedback op issue #1 verwerkt in v0.0.18: maten instellen en bewaren per
 ### Issue #2 — Aftelmaat (v0.0.19)
 
 Na gebruiksgoedkeuring van v0.0.18 is issue #2 afzonderlijk gebouwd: optionele aftelmaat per sessie, eigen maatsoort standaard 4/4, iedere geplande herhaling op haar BPM, onderscheidbaar geluid en eigen tijdregistratie. Geplande totale duur bevat voorbereiding; oefentijd/dashboard niet. De geaccepteerde metronoomcommit is de basis van de nieuwe issuebranch; niet zelfstandig mergen. De volgende grote stap blijft #3 (los tablatuurvenster), na gebruiksfeedback. Zie docs/AFTELMAAT.md.
+
+
+Gebruiksfeedback op issue #2 wordt verwerkt in v0.0.20: aftellen en maatsoort per oefenblok, direct op de kopregel naast de oefennaam. Verschillende oefeningen in dezelfde sessie kiezen onafhankelijk hun aftelmaat. Migratie behoudt eerder ingestelde aftelmaten en historie. Dit is een correctie binnen #2, geen start van #3; zie docs/AFTELMAAT.md voor de controles.

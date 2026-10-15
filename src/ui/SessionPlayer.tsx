@@ -1,4 +1,4 @@
-import { countInSeconds } from '../../electron/count-in-model.mjs';
+import { countInSeconds, countInForBlock, hasCountIn } from '../../electron/count-in-model.mjs';
 import { isMetronome, exerciseBars, validTempo, meterBeats } from '../../electron/exercise-model.mjs';
 import { MetronomeEngine } from '../audio/metronome';
 type PlayerEngine = AudioEngine | MetronomeEngine;
@@ -55,6 +55,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   const evaluationId = useRef(crypto.randomUUID());
   useEffect(() => { setReviewError(''); }, [choice, delta, rating, note]);
   const { exercise, step, block } = current(run);
+  const countIn = countInForBlock(routine, block);
   useEffect(() => { audioRef.current?.setVolume(outputVolume()); }, [output]);
   function entry(settings: Omit<Played, 'seconds'|'completed'>) {
     let item = played.current.find(item => item.mode === settings.mode && item.block === settings.block && item.step === settings.step && item.a === settings.a && item.b === settings.b && item.bpm === settings.bpm && item.pitch === settings.pitch);
@@ -135,7 +136,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
         }
         assetId.current = `${selected.block.id}:${isMetronome(selected.exercise) ? selected.exercise.duration : ''}`; setLoaded(true);
       }
-      await audio.playSegment(selected.step.start ?? 0, selected.step.end ?? audio.duration, selected.step.bpm / selected.exercise.bpm, 0, ['playing','countin'].includes(snapshot.phase), snapshot.phase === 'countin' ? snapshot.routine.countIn : undefined, selected.step.bpm);
+      await audio.playSegment(selected.step.start ?? 0, selected.step.end ?? audio.duration, selected.step.bpm / selected.exercise.bpm, 0, ['playing','countin'].includes(snapshot.phase), snapshot.phase === 'countin' ? countInForBlock(snapshot.routine, selected.block) : undefined, selected.step.bpm);
       if (!alive.current || token !== generation.current) return;
       if (!activeRef.current && ['playing','countin'].includes(state.current.phase)) { await audio.pause(); commit(advance(state.current, 'pause')); }
       setPosition(audio.position); setCountRemaining(audio.countRemaining); measure();
@@ -158,13 +159,13 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
     else {
       const wasPlaying = ['playing','countin'].includes(state.current.phase), next = advance(state.current, wasPlaying ? 'pause' : 'play');
       if (wasPlaying) await audio.pause();
-      else if (next.phase === 'countin') { const selected = current(next); await audio.playSegment(selected.step.start ?? 0, selected.step.end ?? audio.duration, selected.step.bpm / selected.exercise.bpm, 0, true, next.routine.countIn, selected.step.bpm); }
+      else if (next.phase === 'countin') { const selected = current(next); await audio.playSegment(selected.step.start ?? 0, selected.step.end ?? audio.duration, selected.step.bpm / selected.exercise.bpm, 0, true, countInForBlock(next.routine, selected.block), selected.step.bpm); }
       else await audio.playPause();
       commit(next);
     }
   });
   const restart = () => operate(async audio => {
-    if (state.current.phase !== 'fragment' && routine.countIn?.enabled) { await audio.pause(); commit(advance(state.current, 'restart')); }
+    if (state.current.phase !== 'fragment' && countIn?.enabled) { await audio.pause(); commit(advance(state.current, 'restart')); }
     else await audio.seek(state.current.phase === 'fragment' ? freeRef.current.loop ? freeRef.current.a : 0 : current(state.current).step.start ?? 0);
   });
   async function enterFragment() {
@@ -236,7 +237,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
     {error && <div role="alert" className="error"><p>{error}</p><button className="secondary" onClick={() => commit({ ...state.current, phase: 'paused', revision: state.current.revision + 1 })}>Audio opnieuw laden</button><button className="text-button" onClick={leave}>Terug naar sessies</button></div>}
     {complete ? <section className="panel"><h2>{run.statuses.includes('skipped') ? 'Sessie beëindigd' : 'Sessie afgerond'}</h2><p>{run.passes} speelbeurten afgerond. {run.statuses.filter(value => value === 'skipped').length} oefeningen overgeslagen.</p><p>{busy ? 'Resultaten bewaren…' : saveError ? 'Bewaar je resultaten voordat je dit scherm verlaat.' : 'Je resultaten zijn bewaard bij Voortgang.'}</p><button className="primary" disabled={busy || Boolean(saveError)} onClick={leave}>Terug naar mijn sessies</button></section> : <><h2 className="session-exercise-title">{exercise.title}</h2><Notation item={exercise} />
     {review ? <section className="panel session-review"><h2>{lastSeries ? 'Oefening afgerond' : 'Fragmentserie afgerond'}</h2><p>{exercise.title} · Stappen {range.start + 1}–{range.end + 1} · {isMetronome(exercise) ? `Metronoom ${exercise.meter} · ${exerciseBars(step, exercise)} maten` : step.start === null ? 'Volledige track' : `${step.fragmentName ? `${step.fragmentName} · ` : 'Fragment '}${step.start}–${step.end} seconden`}</p><SessionReview tempoRule={isMetronome(exercise) ? '20–300 BPM' : undefined} disabled={busy || !active} choice={choice} setChoice={setChoice} delta={delta} setDelta={setDelta} rating={rating} setRating={setRating} note={note} setNote={setNote} preview={preview.map(item => `${item.before} → ${Number.isFinite(item.after) ? item.after : '—'}`).join(' · ')} invalid={invalidAdjustment} submit={action => void evaluate(action)} nextLabel={!lastSeries ? 'Verder met volgende fragment' : run.block + 1 === routine.blocks.length ? 'Sessie afronden' : 'Verder met volgende oefening'} /></section> : <section className="audio-lab audio-embedded" aria-label="Sessiespeler"><div className="player-card" aria-busy={busy}>
-      {isCounting && <div className="count-in-panel" role="status" aria-live="off" data-testid="count-in"><strong>Aftellen · {routine.countIn!.meter}</strong><span>Tel {Math.min(meterBeats(routine.countIn!.meter), Math.floor((countInSeconds(routine, step.bpm) - Math.min(countInSeconds(routine, step.bpm), countRemaining)) / (countInSeconds(routine, step.bpm) / meterBeats(routine.countIn!.meter))) + 1)} van {meterBeats(routine.countIn!.meter)} · {step.bpm} BPM</span></div>}
+      {isCounting && <div className="count-in-panel" role="status" aria-live="off" data-testid="count-in"><strong>Aftellen · {countIn!.meter}</strong><span>Tel {Math.min(meterBeats(countIn!.meter), Math.floor((countInSeconds({ countIn }, step.bpm) - Math.min(countInSeconds({ countIn }, step.bpm), countRemaining)) / (countInSeconds({ countIn }, step.bpm) / meterBeats(countIn!.meter))) + 1)} van {meterBeats(countIn!.meter)} · {step.bpm} BPM</span></div>}
       <div className="session-pass"><strong>{isFree ? 'Vrij fragment oefenen' : `Stap ${run.step + 1} van ${block.steps.length} · Herhaling ${run.repetition + 1} van ${step.repetitions}`}</strong><span data-testid="session-bpm">{isFree ? free.bpm : step.bpm} BPM</span></div>
       {!isFree && <p className="caption" data-testid="planned-settings">{isMetronome(exercise) ? `Metronoom ${exercise.meter} · ${exerciseBars(step, exercise)} maten` : step.start === null ? 'Volledige track' : `${step.fragmentName ? `${step.fragmentName} · ` : 'Fragment '}${step.start}–${step.end} seconden`}{!isMetronome(exercise) && ' · Toonhoogte origineel'}</p>}
       <p className="caption">{busy ? 'Audio voorbereiden…' : isFree ? 'Je plek in de sessie blijft bewaard. Vrije loops tellen niet mee als herhalingen.' : 'De volgende herhaling en stap beginnen automatisch.'}</p>
@@ -246,7 +247,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
       <VolumeControl />
       {isFree && <><div className="audio-settings">{field('Speeltempo BPM', free.bpm, bpm => freeSettings({ bpm }))}{field('Toonhoogte (halve tonen)', free.pitch, pitch => freeSettings({ pitch }))}<button className="secondary" aria-pressed={free.loop} onClick={() => freeSettings({ loop: !free.loop })} disabled={busy}>Loop</button></div><div className="loop-settings">{field('Begin A (seconden)', free.a, a => freeSettings({ a }), .1)}<button className="secondary" disabled={busy} onClick={() => freeSettings({ a: position })}>A hier</button>{field('Einde B (seconden)', free.b, b => freeSettings({ b }), .1)}<button className="secondary" disabled={busy} onClick={() => freeSettings({ b: position })}>B hier</button></div><SaveCurrentFragment exerciseId={exercise.id} start={free.a} end={Math.min(free.b, exercise.duration)} disabled={busy || !active} /></>}
     </div></section>}</>}
-    <section className="panel session-times" aria-label="Tijd in deze sessie"><span>Sessie afgespeeld <strong data-testid="time-planned">{durationLabel(times.planned)}</strong></span><span>Fragmenttraining <strong data-testid="time-fragment">{durationLabel(times.fragment)}</strong></span>{routine.countIn?.enabled && <span>Aftellen <strong data-testid="time-preparation">{durationLabel(times.preparation)}</strong></span>}<span>Gepauzeerd <strong>{durationLabel(times.pause)}</strong></span></section>
+    <section className="panel session-times" aria-label="Tijd in deze sessie"><span>Sessie afgespeeld <strong data-testid="time-planned">{durationLabel(times.planned)}</strong></span><span>Fragmenttraining <strong data-testid="time-fragment">{durationLabel(times.fragment)}</strong></span>{hasCountIn(routine) && <span>Aftellen <strong data-testid="time-preparation">{durationLabel(times.preparation)}</strong></span>}<span>Gepauzeerd <strong>{durationLabel(times.pause)}</strong></span></section>
     <p className="caption">{review ? 'Evaluatie: cijfer 1–5 → tempo 1–3 → aantal BPM. Enter bewaart en gaat door.' : 'Spatie: afspelen/pauzeren · 1: herhaling opnieuw, in vrije loop naar A.'} Toetsen blijven beschikbaar voor invoervelden en knoppen. Oefentijd is sessie-afspelen plus fragmenttraining; pauzes, aftellen en evaluaties tellen niet mee. Aftellen begint opnieuw na pauzeren tijdens de aftelmaat, herstarten of terugkeer uit fragmenttraining.</p>
   </div>;
 }

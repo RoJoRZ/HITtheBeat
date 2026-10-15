@@ -42,7 +42,7 @@ export async function openLibrary(root) {
   const db = new DatabaseSync(path.join(root, 'library.sqlite'));
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;');
   const version = /** @type {{user_version:number}} */ (db.prepare('PRAGMA user_version').get()).user_version;
-  if (version > 8) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
+  if (version > 9) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
   if (version === 0) db.exec(`BEGIN IMMEDIATE;
     CREATE TABLE exercises (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL,
       bpm REAL NOT NULL CHECK(bpm>0), detected_bpm REAL, analysis_status TEXT NOT NULL, duration REAL NOT NULL,
@@ -85,6 +85,11 @@ export async function openLibrary(root) {
   if (version < 8) db.exec(`BEGIN IMMEDIATE;
     ALTER TABLE routines ADD COLUMN count_in TEXT;
     PRAGMA user_version=8; COMMIT;`);
+  if (version < 9) db.exec(`BEGIN IMMEDIATE;
+    ALTER TABLE routine_blocks ADD COLUMN count_in TEXT;
+    UPDATE routine_blocks SET count_in=(SELECT count_in FROM routines WHERE routines.id=routine_blocks.routine_id);
+    UPDATE routines SET count_in=NULL;
+    PRAGMA user_version=9; COMMIT;`);
   // An unclosed run is preserved, never promoted to a completed session.
   db.prepare("UPDATE sessions SET status='interrupted', ended_at=updated_at WHERE status='running'").run();
   /** @param {string} id */
@@ -98,7 +103,7 @@ export async function openLibrary(root) {
   /** @param {Record<string, any>} row */
   const routineFrom = row => ({ ...(row.count_in ? { countIn: JSON.parse(String(row.count_in)) } : {}), id: String(row.id), title: String(row.title), updatedAt: String(row.updated_at),
     blocks: db.prepare('SELECT * FROM routine_blocks WHERE routine_id=? ORDER BY position').all(String(row.id)).map(block => ({
-      id: String(block.id), exerciseId: String(block.exercise_id),
+      ...(block.count_in ? { countIn: JSON.parse(String(block.count_in)) } : {}), id: String(block.id), exerciseId: String(block.exercise_id),
       steps: db.prepare('SELECT * FROM routine_steps WHERE block_id=? ORDER BY position').all(String(block.id)).map(step => ({
         ...(step.bars == null ? {} : { bars: Number(step.bars) }), id: String(step.id), repetitions: Number(step.repetitions), bpm: Number(step.bpm),
         ...(step.fragment_id ? { fragmentId: String(step.fragment_id), fragmentName: String(step.fragment_name) } : {}),
@@ -232,10 +237,10 @@ export async function openLibrary(root) {
       if (clean.id && !db.prepare('SELECT id FROM routines WHERE id=?').get(id)) throw new Error('Deze sessie bestaat niet meer.');
       db.exec('BEGIN IMMEDIATE;');
       try {
-        db.prepare('INSERT INTO routines (id,title,updated_at,count_in) VALUES (?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, updated_at=excluded.updated_at, count_in=excluded.count_in').run(id, clean.title, new Date(Math.max(Date.now(), Date.parse(String(db.prepare('SELECT updated_at FROM routines WHERE id=?').get(id)?.updated_at ?? '1970-01-01')) + 1)).toISOString(), clean.countIn ? JSON.stringify(clean.countIn) : null);
+        db.prepare('INSERT INTO routines (id,title,updated_at,count_in) VALUES (?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, updated_at=excluded.updated_at, count_in=excluded.count_in').run(id, clean.title, new Date(Math.max(Date.now(), Date.parse(String(db.prepare('SELECT updated_at FROM routines WHERE id=?').get(id)?.updated_at ?? '1970-01-01')) + 1)).toISOString(), null);
         db.prepare('DELETE FROM routine_blocks WHERE routine_id=?').run(id);
         clean.blocks.forEach((block, index) => {
-          db.prepare('INSERT INTO routine_blocks VALUES (?,?,?,?)').run(block.id, id, block.exerciseId, index);
+          db.prepare('INSERT INTO routine_blocks (id,routine_id,exercise_id,position,count_in) VALUES (?,?,?,?,?)').run(block.id, id, block.exerciseId, index, block.countIn || clean.countIn ? JSON.stringify(block.countIn ?? clean.countIn) : null);
           block.steps.forEach((step, position) => db.prepare('INSERT INTO routine_steps VALUES (?,?,?,?,?,?,?,?,?,?)').run(step.id, block.id, position, step.repetitions, step.bpm, step.start, step.end, step.fragmentId ?? null, step.fragmentName ?? null, step.bars ?? null));
         });
         db.exec('COMMIT;');

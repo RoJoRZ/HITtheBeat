@@ -427,3 +427,12 @@ Vrije fragmenttraining krijgt niet bij iedere loop een aftelmaat. Na terugkeer b
 De editor en het startoverzicht nemen aftellen mee in de geplande totale duur en tonen de afteltijd afzonderlijk. De editor toont tevens de geplande oefentijd. Tijdens spelen bevat Resterend sessie zowel de nog te spelen muziek als de resterende geplande aftelmaten. Extra aftellen na handmatig opnieuw starten kan de werkelijk bestede tijd verlengen.
 
 Werkelijk verbruikte afteltijd wordt apart opgeslagen en getoond bij de sessietijden en historie. Ze telt niet mee in gespeelde oefentijd, herhalingen, oefendagen of tempo-meetpunten van het dashboard. Een sessie die alleen aftelt en wordt gestopt blijft zichtbaar in de historie, zonder als geoefende sessie te tellen. Pauzes en evaluaties blijven eveneens buiten de oefentijd. Oude resultaten zonder afteltijd behouden hun betekenis.
+
+
+### Correctie na gebruikstest — aftellen per oefening in de sessie (v0.0.20)
+
+De aftelinstelling staat in de kopregel van elk oefenblok in de sessietabel, naast de oefennaam: een vinkje Aftellen en een maatsoortkeuze (standaard 4/4, ook 3/4 of 6/8). Dit vervangt het algemene aftelpaneel uit v0.0.19. Iedere oefening binnen dezelfde sessie kan onafhankelijk wel/niet aftellen en een andere aftelmaat gebruiken. De keuze geldt voor alle stappen en herhalingen van dat oefenblok. Ze hoort bij de sessie-opbouw; dezelfde bibliotheekoefening kan in een ander blok of een andere sessie een andere keuze hebben.
+
+Bij een volgende oefening gebruikt de speler de instellingen van die volgende oefening. Opbouwen en resterende duur tellen de aftelmaten per oefenblok op. Werkelijk verbruikte afteltijd blijft apart zichtbaar, ook wanneer de volgende oefening aftellen uit heeft staan. De bestaande transport-, tempo- en evaluatieregels blijven gelden voor de blokken met aftellen ingeschakeld.
+
+Bij upgraden wordt een eerder opgeslagen algemene aftelinstelling overgenomen voor alle bestaande blokken van die sessie, zodat hun gedrag behouden blijft. Nieuw toegevoegde oefenblokken beginnen met aftellen uit. Historische momentopnamen blijven ongewijzigd leesbaar met hun oorspronkelijke instelling. Dit verandert de maatsoort of het aantal maten van de bibliotheekmetronoom niet.

@@ -1,7 +1,7 @@
 import { validateCountIn } from './count-in-model.mjs';
 import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
 /** @typedef {{id:string, repetitions:number, bpm:number, start:number|null, end:number|null,fragmentId?:string,fragmentName?:string,bars?:number}} RoutineStep */
-/** @typedef {{id:string, exerciseId:string, steps:RoutineStep[]}} RoutineBlock */
+/** @typedef {{id:string, exerciseId:string, steps:RoutineStep[], countIn?:import('./count-in-model.mjs').CountIn}} RoutineBlock */
 /** @typedef {{id?:string, title:string, blocks:RoutineBlock[], countIn?:import('./count-in-model.mjs').CountIn}} RoutineInput */
 /** @typedef {{id:string, bpm:number, duration:number,kind?:string,meter?:string,bars?:number}} SourceExercise */
 
@@ -40,7 +40,7 @@ export function validateRoutine(input, exercises) {
       if (step.fragmentId !== undefined && (typeof step.fragmentId !== 'string' || !uuid.test(step.fragmentId) || typeof step.fragmentName !== 'string' || !step.fragmentName.trim() || step.fragmentName.length > 160 || step.fragmentName.includes('\0') || step.start === null)) throw new Error('Controleer het benoemde fragment.');
       return { ...(isMetronome(exercise) && step.bars !== undefined ? { bars: step.bars } : {}), ...(step.fragmentId ? { fragmentId: step.fragmentId, fragmentName: step.fragmentName } : {}), id: stepId, repetitions: step.repetitions, bpm: step.bpm, start: step.start, end: step.end };
     });
-    return { id, exerciseId: exercise.id, steps };
+    return { id, exerciseId: exercise.id, steps, ...(block.countIn === undefined ? {} : { countIn: validateCountIn(block.countIn) }) };
   });
   if (input.id !== undefined && !uuid.test(input.id)) throw new Error('Ongeldig sessie.');
   return { id: input.id, title: input.title.trim(), blocks, ...(input.countIn === undefined ? {} : { countIn: validateCountIn(input.countIn) }) };

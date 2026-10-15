@@ -12,5 +12,11 @@ export function countInSeconds(routine, bpm) {
   if (!Number.isFinite(bpm) || bpm <= 0) throw new Error('Kies een positief tempo voor de aftelmaat.');
   return metronomeSeconds({ meter: routine.countIn.meter, bpm, duration: 0 }, 1);
 }
+/** Legacy session settings only apply to snapshots without block settings.
+ * @param {{countIn?:CountIn}} routine @param {{countIn?:CountIn}} block
+ */
+export function countInForBlock(routine, block) { return block.countIn ?? routine.countIn; }
 /** @param {import('./routine-model.mjs').RoutineInput} routine */
-export function plannedPreparation(routine) { return routine.blocks.reduce((total, block) => total + block.steps.reduce((sum, step) => sum + step.repetitions * countInSeconds(routine, step.bpm), 0), 0); }
+export function hasCountIn(routine) { return routine.blocks.some(block => countInForBlock(routine, block)?.enabled); }
+/** @param {import('./routine-model.mjs').RoutineInput} routine */
+export function plannedPreparation(routine) { return routine.blocks.reduce((total, block) => total + block.steps.reduce((sum, step) => sum + step.repetitions * countInSeconds({ countIn: countInForBlock(routine, block) }, step.bpm), 0), 0); }

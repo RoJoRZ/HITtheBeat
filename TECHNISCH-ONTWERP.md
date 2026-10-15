@@ -261,3 +261,10 @@ Een kleine gedeelde `click.ts` bevat oscillator/envelope-aanmaak; metronoom beho
 De sessiemeting splitst een meetinterval op de geplande muziekstart, ook wanneer een UI-tick over die grens valt: `times.preparation` gaat apart van `planned`/`fragment`/`pause`. Alleen muziek voegt Played-seconden en voltooide beurten toe. De voortgangsvalidator accepteert de nieuwe fase alleen bij ingeschakeld aftellen, valideert de tijd en weigert teruglopende voorbereidingstijd. Dashboardtotalen blijven uitsluitend planned + fragment gebruiken. Oude checkpoints zonder het optionele veld blijven valide.
 
 De frontend-TypeScriptconfig staat expliciete .ts-imports toe (noEmit); de gedeelde audiomodules kunnen daardoor ook direct door Node-brontests worden gelezen. Geen nieuwe dependency of externe dienst. Oude versies ondersteunen schema 8 niet. Zie docs/AFTELMAAT.md voor impact, controles en resterende platform-/luisterbeoordeling.
+
+
+### Aftelmaat per oefenblok — v0.0.20, schema 9
+
+`routine_blocks.count_in` bewaart nullable JSON met enabled/meter. Migratie 8→9 kopieert de oude `routines.count_in` naar alle bestaande blokken en wist daarna de algemene waarde; nieuwe blokken erven deze niet. Opslaan normaliseert eventueel oud routine-input naar de blokken. De oude kolom blijft voor schemacompatibiliteit aanwezig. Historische snapshots worden niet herschreven: `countInForBlock` gebruikt uitsluitend bij ontbrekende blokinstelling de oude sessie-instelling. Expliciet uit op een blok gaat vóór een oude ingeschakelde sessie-instelling.
+
+Validatie, runner, geplande voorbereiding en beide spelerroutes gebruiken de actieve blokinstelling. Overgang naar een ander blok kiest de startfase pas na wijziging van de blokindex. De voortgangsvalidator staat countin alleen toe wanneer het huidige blok aftellen aan heeft; eerder opgebouwde voorbereidingstijd blijft geldig zodra enig blok aftellen gebruikt. Het dashboard rekent nog steeds uitsluitend muziektijd. De audio-engines en audioklokplanning zijn ongewijzigd. Oudere appversies kunnen schema 9 niet openen.

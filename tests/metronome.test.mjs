@@ -85,7 +85,7 @@ test('schema 5 upgrade retains original media, boundaries and old snapshots with
     const db = new DatabaseSync(path.join(root, 'library.sqlite'));
     const snapshot = { routine: session.routine, exercises: session.exercises.map(({ kind, meter, bars, ...rest }) => rest) };
     db.prepare('UPDATE sessions SET snapshot=?').run(JSON.stringify(snapshot));
-    db.exec('ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; PRAGMA user_version=5;'); db.close();
+    db.exec('ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; PRAGMA user_version=5;'); db.close();
     library = await openLibrary(root);
     assert.equal(library.list()[0].kind, 'audio'); assert.equal(library.list()[0].duration, 6);
     assert.deepEqual((await library.read(audio.id, 'audio')).bytes, bytes); assert.deepEqual(library.listRoutines()[0], plan);
@@ -120,7 +120,7 @@ test('schema 6 promotes a common count, preserves conflicting legacy steps until
     db.prepare('UPDATE routine_steps SET bars=2 WHERE id=?').run(first.blocks[0].steps[0].id);
     db.prepare('UPDATE routine_steps SET bars=4 WHERE id=?').run(first.blocks[0].steps[1].id);
     db.prepare('UPDATE routine_steps SET bars=6 WHERE id=?').run(second.blocks[0].steps[0].id);
-    db.exec('ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; PRAGMA user_version=6;'); db.close();
+    db.exec('ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; PRAGMA user_version=6;'); db.close();
     library = await openLibrary(root);
     assert.equal(library.list().find(item => item.id === b.id).bars, 6);
     const stale = library.listRoutines().find(item => item.id === first.id);

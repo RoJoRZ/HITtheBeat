@@ -19,15 +19,20 @@ test('session count-in persists, counts each pass at its BPM, pauses/restarts, r
     },bytes);
     await page.reload();await page.context().setOffline(true);
     await page.getByRole('article',{name:'Samen aftellen'}).getByRole('button',{name:'Bewerken'}).click();
-    await expect(page.getByLabel('Aftellen vóór iedere herhaling')).not.toBeChecked();
-    await expect(page.getByLabel('Maatsoort aftelmaat',{exact:true})).toHaveValue('4/4');
-    await page.getByLabel('Aftellen vóór iedere herhaling').check();
-    await expect(page.getByTestId('planned-preparation')).toContainText('Oefentijd 0:04 · Aftellen 0:06 · Totaal 0:10');
+    await expect(page.getByLabel('Aftellen oefening 1',{exact:true})).not.toBeChecked();
+    await expect(page.getByLabel('Maatsoort aftelmaat oefening 1',{exact:true})).toHaveValue('4/4');
+    await page.getByLabel('Aftellen oefening 1',{exact:true}).check();
+    await expect(page.getByLabel('Aftellen oefening 2',{exact:true})).not.toBeChecked();
+    await page.getByLabel('Aftellen oefening 2',{exact:true}).check();
+    await page.getByLabel('Maatsoort aftelmaat oefening 2',{exact:true}).selectOption('3/4');
+    await expect(page.getByTestId('planned-preparation')).toContainText('Oefentijd 0:04 · Aftellen 0:06 · Totaal 0:09');
+    await page.screenshot({path:'test-results/count-in-editor.png',fullPage:true});
     await page.getByRole('button',{name:'Sessie opslaan',exact:true}).click();
     await app.close();app=await launch();page=await app.firstWindow();page.on('pageerror',e=>errors.push(e.message));
     await page.context().setOffline(true);
     await page.getByRole('article',{name:'Samen aftellen'}).getByRole('button',{name:'Bewerken'}).click();
-    await expect(page.getByLabel('Aftellen vóór iedere herhaling')).toBeChecked();
+    await expect(page.getByLabel('Aftellen oefening 1',{exact:true})).toBeChecked();
+    await expect(page.getByLabel('Maatsoort aftelmaat oefening 2',{exact:true})).toHaveValue('3/4');
     await page.getByRole('button',{name:'Sessie starten',exact:true}).click();
     await page.getByRole('button',{name:'Afspelen',exact:true}).click();
     await expect(page.getByTestId('count-in')).toContainText('240 BPM');
@@ -48,10 +53,12 @@ test('session count-in persists, counts each pass at its BPM, pauses/restarts, r
     await expect(page.getByTestId('count-in')).toContainText('120 BPM');
     await page.screenshot({path:'test-results/count-in-player.png',fullPage:true});
     await expect(page.getByRole('heading',{name:'Oefening afgerond',exact:true})).toBeVisible({timeout:10000});
+    await expect(page.getByRole('button',{name:'Verder met volgende oefening',exact:true})).toBeEnabled();
     await page.keyboard.press('Enter');
     await expect(page.getByRole('heading',{name:'Metronoom',exact:true})).toBeVisible();
-    await expect(page.getByTestId('count-in')).toContainText('4/4'); // Session meter is independent of exercise 6/8.
+    await expect(page.getByTestId('count-in')).toContainText('3/4'); // Per-block count meter is independent of the exercise's 6/8.
     await expect(page.getByRole('heading',{name:'Oefening afgerond',exact:true})).toBeVisible({timeout:10000});
+    await expect(page.getByRole('button',{name:'Sessie afronden',exact:true})).toBeEnabled();
     await page.keyboard.press('Enter');
     await expect(page.getByRole('heading',{name:'Sessie afgerond',exact:true})).toBeVisible();
     await expect.poll(()=>page.evaluate(async()=>(await window.hitthebeat!.listSessions())[0].status)).toBe('completed');
@@ -83,11 +90,12 @@ test('stopping during count-in saves preparation without a completed pass or pra
   const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-count-stop-')),executablePath=process.env.HITTHEBEAT_TEST_EXECUTABLE;
   const app=await electron.launch({executablePath,args:[...(executablePath?[]:['.']),`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
   try{const page=await app.firstWindow();await expect(page.locator('h1')).toBeVisible();await page.waitForLoadState('load');
-    await page.evaluate(async()=>{const api=window.hitthebeat!,source=await api.saveExercise({kind:'metronome',meter:'6/8',bars:1,title:'Rustig',description:'',bpm:60,duration:0,detectedBpm:null,analysisStatus:'unavailable'});await api.saveRoutine({title:'Stop in aftelmaat',countIn:{enabled:true,meter:'3/4'},blocks:[{id:crypto.randomUUID(),exerciseId:source.id,steps:[{id:crypto.randomUUID(),bpm:60,repetitions:1,start:null,end:null}]}]});});
+    await page.evaluate(async()=>{const api=window.hitthebeat!,source=await api.saveExercise({kind:'metronome',meter:'6/8',bars:1,title:'Rustig',description:'',bpm:60,duration:0,detectedBpm:null,analysisStatus:'unavailable'});await api.saveRoutine({title:'Stop in aftelmaat',blocks:[{countIn:{enabled:true,meter:'3/4'},id:crypto.randomUUID(),exerciseId:source.id,steps:[{id:crypto.randomUUID(),bpm:60,repetitions:1,start:null,end:null}]}]});});
     await page.reload();await page.getByRole('article',{name:'Stop in aftelmaat'}).getByRole('button',{name:'Starten',exact:true}).click();
     await page.getByRole('button',{name:'Afspelen',exact:true}).click();await expect(page.getByTestId('count-in')).toContainText('3/4');
     await expect(page.getByTestId('time-preparation')).not.toHaveText('0:00',{timeout:2000});
     await page.getByRole('button',{name:'Mijn oefensessies',exact:true}).click();await page.getByRole('button',{name:'Stoppen en terug',exact:true}).click();
+    await expect.poll(()=>page.evaluate(async()=>(await window.hitthebeat!.listSessions())[0].status)).toBe('stopped');
     const record=(await page.evaluate(()=>window.hitthebeat!.listSessions()))[0];expect(record.status).toBe('stopped');expect(record.progress.passes).toBe(0);expect(record.progress.times.planned).toBe(0);expect(record.progress.times.preparation).toBeGreaterThan(0);expect(record.progress.played).toHaveLength(0);
   }finally{await app.close();await rm(root,{recursive:true,force:true});}
 });
