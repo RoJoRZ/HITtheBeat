@@ -1,6 +1,6 @@
 # Voorgestelde aanvulling op AGENTS.md
 
-**Concept ter goedkeuring — 15 oktober 2026.** Dit bestand is reviewmateriaal, geen nieuwe actieve agentinstructie. De bestaande root-AGENTS.md blijft in deze analyse ongewijzigd. Na akkoord komt onderstaande tekst vóór de bestaande afspraken te staan. De bestaande designkeuzes, functionele afspraken, gebruiksfeedback en testbeperkingen blijven behouden. Dit is een standaardwerkwijze voor de ontwikkelagent in deze repo; geen extra achtergrondagent, account of externe service.
+**Goedgekeurd op 15 oktober 2026; overgenomen in root-AGENTS.md.** Dit bestand bewaart het beoordeelde voorstel; de actuele instructies staan in root-AGENTS.md. De bestaande designkeuzes, functionele afspraken, gebruiksfeedback en testbeperkingen blijven behouden. Dit is een standaardwerkwijze voor de ontwikkelagent in deze repo; geen extra achtergrondagent, account of externe service.
 
 ---
 
@@ -54,4 +54,4 @@ Lever één testbaar issue tegelijk op zodat de gebruiker kan bijsturen. Begin a
 
 ---
 
-De huidige afspraken onder “Afspraken voor deze repository” worden hierna integraal behouden. Voeg na acceptatie een korte regel toe met datum en verwijzing naar de goedgekeurde analyse-PR. De gebruiker heeft op 15 oktober 2026 expliciet gekozen voor eerst analyse en plan; deze tekst activeren en functionele issues bouwen vereist die volgende goedkeuring.
+De bestaande afspraken zijn behouden. De gebruiker heeft de werkwijze en start van issue #1 op 15 oktober 2026 goedgekeurd.

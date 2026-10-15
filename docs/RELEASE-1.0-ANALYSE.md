@@ -1,6 +1,6 @@
 # Release 1.0 — analyse en implementatievoorstel
 
-Status: **voorstel ter goedkeuring**, 15 oktober 2026. Geen functionele codewijzigingen. De gebruiker kiest expliciet eerst analyse en plan. AGENTS.md blijft ongewijzigd; de voorgestelde aanvulling staat in [AGENTS-VOORSTEL.md](AGENTS-VOORSTEL.md).
+Status: **goedgekeurd**, 15 oktober 2026. De gebruiker heeft na de analyse akkoord gegeven op volgorde, werkwijze en uitgangspunten 1–3 (8 maten per sessiestap, BPM per kwartnoot ook bij 6/8, afteltijd afzonderlijk van oefentijd). AGENTS.md is daarop bijgewerkt. Deze voorbereidings-PR bevat geen functionele codewijzigingen. Start met issue #1 in een afzonderlijke PR; geen zelfstandige merges.
 
 ## Onderzoeksbasis
 

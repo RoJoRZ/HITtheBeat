@@ -390,3 +390,5 @@ Op 15 oktober 2026 vraagt de gebruiker de acht open GitHub-issues in milestone R
 | [#8](https://github.com/RoJoRZ/HITtheBeat/issues/8) | PR-builds en taggestuurde macOS-/Windows-installers via GitHub Actions; publiceren als release, Windows-installatie/audio/opslag testen en releaseproces beschrijven. Automatische appupdates vallen buiten scope. |
 
 Bestaand werkend gedrag en persoonlijke gegevens blijven tijdens deze analyse ongewijzigd. De voorgestelde bouwvolgorde is #1 → #2 → #3 → #4 → #5 → #7 → #6 → #8; dit is ter goedkeuring en sluit de bestaande afrondingsfase aan op de milestone. Nieuwe diensten of een grote architectuurvervanging zijn niet voorgesteld.
+
+Goedkeuring 15 oktober 2026: gebruiker geeft akkoord op de voorgestelde volgorde en werkwijze en opdracht te starten met #1. Een metronoomherhaling duurt standaard 8 maten, instelbaar per sessiestap. BPM is kwartnoten per minuut, ook bij 6/8. Afteltijd wordt afzonderlijk getoond en telt niet mee als gespeelde oefentijd (#2). De nieuwe functies zijn hiermee geautoriseerd, maar pas na hun afzonderlijke implementatie beschikbaar.
