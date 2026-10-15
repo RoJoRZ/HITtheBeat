@@ -207,3 +207,9 @@ De zijbalk bevat Mijn oefensessies, Oefeningen, Voortgang en Instellingen. De ti
 ## Compact appicoon — v0.0.16
 
 Op verzoek: een centrale H met symmetrische audiostreepjes, Mandarijn #FF922E op Studio donker #141719. Afgerond donker vlak met transparante buitenhoeken. Het volledige logo linksboven blijft behouden. Vectorbron: `design/app-icon.svg`; afgeleide PNG, ICNS en meerformaats-ICO in `build/`. Het icoon wordt toegepast in Dock, appvenster en Mac-/Windows-pakketten. Visuele gebruiksfeedback blijft welkom.
+
+## Metronoom als oefentype — issue #1, v0.0.17
+
+De bestaande Studio donker/Mandarijn-stijl blijft leidend. Oefentype staat bovenaan het formulier. Metronoom toont maatsoort, kwartnoot-BPM, naam, opdracht en optionele tablatuur; upload/analyse/normalisatie verdwijnen daar. Opgeslagen oefeningen houden hun type. De lijst en het detail benoemen Metronoom en maatsoort in plaats van een lege audiobestandsnaam of trackduur.
+
+De sessietabel gebruikt dezelfde kolommen en rijen: in Fragment / maten staat bij een metronoom een Maten-invoer (standaard 8); A en B zijn niet van toepassing. Het speelscherm behoudt tablatuur en opdracht. De waveform wordt voor metronoom vervangen door maatsoort, aantal maten en actuele tel, met dezelfde transport- en volumebediening. Vrij fragment oefenen is daar uitgeschakeld. Tempo en werkelijke duur blijven zichtbaar; evaluatie gebruikt de bestaande toetsenbediening. De losse metronoomspeler vermeldt expliciet dat lokale instellingen opgeslagen sessies niet wijzigen.

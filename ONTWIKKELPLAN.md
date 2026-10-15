@@ -187,3 +187,7 @@ De gebruiker kiest expliciet eerst een analyse en plan voor de acht milestone-is
 De voorgestelde issuebranch-/PR-werkwijze staat in docs/AGENTS-VOORSTEL.md. AGENTS.md blijft in de analyse ongewijzigd. Na akkoord per issue een afzonderlijk testbaar resultaat en PR; geen zelfstandige merges. De bestaande Windows-/luistercontroles en distributiekeuzes blijven open.
 
 Op 15 oktober 2026 keurt de gebruiker dit plan en de eerste drie uitgangspunten goed en geeft opdracht te starten. AGENTS.md neemt de nieuwe werkwijze over. Issue #1 wordt eerst afzonderlijk geïmplementeerd en getest; overige issues blijven gepland.
+
+### Issue #1 — Metronoom-oefeningen (v0.0.17)
+
+Eerste implementatie na akkoord: apart oefentype zonder audio, 3/4–4/4–6/8 met kwartnoot-BPM, 8 maten standaard en 1–128 per sessiestap, audioklokgestuurde klikjes en integratie in sessies/evaluaties/voortgang. Controlebewijs en handmatige stappen staan in docs/METRONOOM.md. Afzonderlijke issuebranch en PR; acceptatie en merge blijven bij de gebruiker. Issue #2 en verdere milestone-issues worden hierdoor niet automatisch afgerond.

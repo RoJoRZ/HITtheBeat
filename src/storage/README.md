@@ -1,3 +1,3 @@
 # Opslag
 
-Hier komt de opslaglaag voor oefeningen, rondjes en historie. Bestands- en databasewerk loopt via het hoofdproces en een beperkte API, niet rechtstreeks vanuit het scherm. Fase 0 bewaart nog geen oefeningen.
+De implementatie staat in `electron/library.mjs`: SQLite en beheerde media in het hoofdproces, bereikbaar via de beperkte preload-API. Schema 6 ondersteunt audio- en metronoom-oefeningen, opgeslagen sessie-opbouwen en historische momentopnamen. De renderer krijgt geen directe bestandstoegang. Deze map bevat geen tweede opslagimplementatie. Zie `TECHNISCH-ONTWERP.md`.

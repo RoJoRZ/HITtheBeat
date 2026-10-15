@@ -1,3 +1,4 @@
+import { isMetronome, meterBeats, validTempo } from './exercise-model.mjs';
 import { audioFormat } from './audio-format.mjs';
 import { validateFragment } from './fragment-model.mjs';
 import { sessionId, validateProgress, validateEvaluation } from './session-model.mjs';
@@ -7,9 +8,9 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 
-/** @typedef {{ id:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audioName:string, imageName:string|null, imageMime:string|null, updatedAt:string, normalizationDb:number|null, normalizeAudio:boolean, fragments:import('./fragment-model.mjs').Fragment[] }} Exercise */
+/** @typedef {{ kind?:string,meter?:string,id:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audioName:string, imageName:string|null, imageMime:string|null, updatedAt:string, normalizationDb:number|null, normalizeAudio:boolean, fragments:import('./fragment-model.mjs').Fragment[] }} Exercise */
 /** @typedef {{ name:string, bytes:Uint8Array }} Asset */
-/** @typedef {{ id?:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audio?:Asset, image?:Asset|null, normalizationDb?:number|null, normalizeAudio?:boolean }} SaveInput */
+/** @typedef {{ kind?:string,meter?:string,id?:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audio?:Asset, image?:Asset|null, normalizationDb?:number|null, normalizeAudio?:boolean }} SaveInput */
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /** @param {unknown} id */
 function validId(id) { if (typeof id !== 'string' || !idPattern.test(id)) throw new Error('Ongeldige oefening.'); return id; }
@@ -41,7 +42,7 @@ export async function openLibrary(root) {
   const db = new DatabaseSync(path.join(root, 'library.sqlite'));
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;');
   const version = /** @type {{user_version:number}} */ (db.prepare('PRAGMA user_version').get()).user_version;
-  if (version > 5) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
+  if (version > 6) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
   if (version === 0) db.exec(`BEGIN IMMEDIATE;
     CREATE TABLE exercises (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL,
       bpm REAL NOT NULL CHECK(bpm>0), detected_bpm REAL, analysis_status TEXT NOT NULL, duration REAL NOT NULL,
@@ -70,6 +71,11 @@ export async function openLibrary(root) {
     ALTER TABLE routine_steps ADD COLUMN fragment_id TEXT;
     ALTER TABLE routine_steps ADD COLUMN fragment_name TEXT;
     PRAGMA user_version=5; COMMIT;`);
+  if (version < 6) db.exec(`BEGIN IMMEDIATE;
+    ALTER TABLE exercises ADD COLUMN kind TEXT NOT NULL DEFAULT 'audio' CHECK(kind IN ('audio','metronome'));
+    ALTER TABLE exercises ADD COLUMN meter TEXT NOT NULL DEFAULT '4/4';
+    ALTER TABLE routine_steps ADD COLUMN bars INTEGER;
+    PRAGMA user_version=6; COMMIT;`);
   // An unclosed run is preserved, never promoted to a completed session.
   db.prepare("UPDATE sessions SET status='interrupted', ended_at=updated_at WHERE status='running'").run();
   /** @param {string} id */
@@ -85,14 +91,14 @@ export async function openLibrary(root) {
     blocks: db.prepare('SELECT * FROM routine_blocks WHERE routine_id=? ORDER BY position').all(String(row.id)).map(block => ({
       id: String(block.id), exerciseId: String(block.exercise_id),
       steps: db.prepare('SELECT * FROM routine_steps WHERE block_id=? ORDER BY position').all(String(block.id)).map(step => ({
-        id: String(step.id), repetitions: Number(step.repetitions), bpm: Number(step.bpm),
+        ...(step.bars == null ? {} : { bars: Number(step.bars) }), id: String(step.id), repetitions: Number(step.repetitions), bpm: Number(step.bpm),
         ...(step.fragment_id ? { fragmentId: String(step.fragment_id), fragmentName: String(step.fragment_name) } : {}),
         start: step.start === null ? null : Number(step.start), end: step.end === null ? null : Number(step.end),
       })),
     })),
   });
   /** @param {Record<string, any>} row @returns {Exercise} */
-  const present = row => ({ id: row.id, title: row.title, description: row.description, bpm: row.bpm, detectedBpm: row.detected_bpm, analysisStatus: row.analysis_status, duration: row.duration, audioName: row.audio_name, imageName: row.image_name, imageMime: row.image_mime, updatedAt: row.updated_at, normalizationDb: row.normalization_db, normalizeAudio: Boolean(row.normalize_audio), fragments: JSON.parse(String(row.fragments)) });
+  const present = row => ({ kind: row.kind, meter: row.meter, id: row.id, title: row.title, description: row.description, bpm: row.bpm, detectedBpm: row.detected_bpm, analysisStatus: row.analysis_status, duration: row.duration, audioName: row.audio_name, imageName: row.image_name, imageMime: row.image_mime, updatedAt: row.updated_at, normalizationDb: row.normalization_db, normalizeAudio: Boolean(row.normalize_audio), fragments: JSON.parse(String(row.fragments)) });
   /** @param {unknown} id */
   const rowFor = id => {
     const row = db.prepare('SELECT * FROM exercises WHERE id=?').get(validId(id));
@@ -111,14 +117,17 @@ export async function openLibrary(root) {
     async save(input) {
       if (!input || typeof input !== 'object') throw new Error('Ongeldige oefening.');
       const title = text(input.title, 160), description = text(input.description, 20000);
-      const bpm = number(input.bpm), duration = number(input.duration);
-      const detected = input.detectedBpm === null ? null : number(input.detectedBpm);
-      if (!title || bpm <= 0 || bpm > 1000 || duration < .1 || duration > 86400 || (detected !== null && (detected < 40 || detected > 240)) || !['estimated', 'unavailable', 'failed'].includes(input.analysisStatus)) throw new Error('Controleer de naam, het BPM en de audiogegevens.');
       const old = input.id ? rowFor(input.id) : null;
-      const normalizationDb = input.normalizationDb === undefined ? old?.normalization_db ?? null : input.normalizationDb;
-      const normalizeAudio = input.normalizeAudio === undefined ? Boolean(old?.normalize_audio ?? true) : input.normalizeAudio;
+      const kind = input.kind ?? String(old?.kind ?? 'audio'), meter = input.meter ?? String(old?.meter ?? '4/4');
+      if (!['audio','metronome'].includes(kind) || (old && old.kind !== kind)) throw new Error('Het oefentype kan na opslaan niet worden gewijzigd.');
+      if (kind === 'metronome') meterBeats(meter);
+      const bpm = number(input.bpm), duration = kind === 'metronome' ? 0 : number(input.duration);
+      const detected = input.detectedBpm === null ? null : number(input.detectedBpm);
+      if (!title || bpm <= 0 || bpm > 1000 || (kind === 'audio' && (duration < .1 || duration > 86400)) || (kind === 'metronome' && (!validTempo(bpm, {kind,bpm,duration}) || input.audio)) || (detected !== null && (detected < 40 || detected > 240)) || !['estimated', 'unavailable', 'failed'].includes(input.analysisStatus)) throw new Error('Controleer de naam, het BPM en de audiogegevens.');
+      const normalizationDb = kind === 'metronome' ? null : input.normalizationDb === undefined ? old?.normalization_db ?? null : input.normalizationDb;
+      const normalizeAudio = kind === 'metronome' ? false : input.normalizeAudio === undefined ? Boolean(old?.normalize_audio ?? true) : input.normalizeAudio;
       if ((normalizationDb !== null && (typeof normalizationDb !== 'number' || !Number.isFinite(normalizationDb) || normalizationDb < -60 || normalizationDb > 12 + 1e-9)) || typeof normalizeAudio !== 'boolean') throw new Error('Ongeldige volumenormalisatie.');
-      if (!old && !input.audio) throw new Error('Kies een MP3- of M4A-bestand.');
+      if (kind === 'audio' && !old && !input.audio) throw new Error('Kies een MP3- of M4A-bestand.');
       if (old && input.audio) {
         const fragments = present(old).fragments;
         if (fragments.some(fragment => fragment.end > duration)) throw new Error('De nieuwe audio is korter dan een opgeslagen fragment. Pas eerst de fragmentgrenzen aan.');
@@ -130,23 +139,23 @@ export async function openLibrary(root) {
       }
       const audioInfo = input.audio ? validateAsset(input.audio, 'audio') : null;
       const imageInfo = input.image ? validateAsset(input.image, 'image') : null;
-      const audioFile = audioInfo ? `${randomUUID()}.${audioInfo.extension}` : String(old?.audio_file);
+      const audioFile = kind === 'metronome' ? '' : audioInfo ? `${randomUUID()}.${audioInfo.extension}` : String(old?.audio_file);
       const imageFile = imageInfo ? `${randomUUID()}.${imageInfo.extension}` : input.image === null ? null : old?.image_file ?? null;
       /** @type {string[]} */ const created = [];
       const id = input.id ?? randomUUID(), updated = new Date().toISOString();
       try {
         if (input.audio) { created.push(audioFile); await writeFile(mediaPath(audioFile), input.audio.bytes, { flag: 'wx', mode: 0o600 }); }
         if (input.image && typeof imageFile === 'string') { created.push(imageFile); await writeFile(mediaPath(imageFile), input.image.bytes, { flag: 'wx', mode: 0o600 }); }
-        db.prepare(`INSERT INTO exercises (id,title,description,bpm,detected_bpm,analysis_status,duration,audio_name,audio_file,image_name,image_file,image_mime,updated_at,normalization_db,normalize_audio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        db.prepare(`INSERT INTO exercises (id,title,description,bpm,detected_bpm,analysis_status,duration,audio_name,audio_file,image_name,image_file,image_mime,updated_at,normalization_db,normalize_audio,kind,meter) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
           ON CONFLICT(id) DO UPDATE SET title=excluded.title, description=excluded.description, bpm=excluded.bpm,
           detected_bpm=excluded.detected_bpm, analysis_status=excluded.analysis_status, duration=excluded.duration,
           audio_name=excluded.audio_name, audio_file=excluded.audio_file, image_name=excluded.image_name,
           image_file=excluded.image_file, image_mime=excluded.image_mime, updated_at=excluded.updated_at,
-          normalization_db=excluded.normalization_db, normalize_audio=excluded.normalize_audio`).run(
+          normalization_db=excluded.normalization_db, normalize_audio=excluded.normalize_audio, kind=excluded.kind, meter=excluded.meter`).run(
           id, title, description, bpm, detected, input.analysisStatus, duration,
-          audioInfo?.name ?? String(old?.audio_name), audioFile,
+          kind === 'metronome' ? '' : audioInfo?.name ?? String(old?.audio_name), audioFile,
           imageInfo?.name ?? (input.image === null ? null : old?.image_name ?? null), imageFile,
-          imageInfo?.mime ?? (input.image === null ? null : old?.image_mime ?? null), updated, normalizationDb, normalizeAudio ? 1 : 0);
+          imageInfo?.mime ?? (input.image === null ? null : old?.image_mime ?? null), updated, normalizationDb, normalizeAudio ? 1 : 0, kind, meter);
       } catch (error) {
         await Promise.all(created.map(file => rm(mediaPath(file), { force: true })));
         throw error;
@@ -166,6 +175,7 @@ export async function openLibrary(root) {
     /** @param {string} exerciseId @param {import('./fragment-model.mjs').FragmentInput} input */
     saveFragment(exerciseId, input) {
       const row = rowFor(exerciseId), fragments = present(row).fragments;
+      if (isMetronome(present(row))) throw new Error('Metronoom-oefeningen hebben geen audiofragmenten.');
       const clean = validateFragment(input, Number(row.duration));
       if (input.id && !fragments.some(item => item.id === input.id)) throw new Error('Dit fragment bestaat niet meer.');
       if (fragments.some(item => item.id !== clean.id && item.name.toLocaleLowerCase('nl') === clean.name.toLocaleLowerCase('nl'))) throw new Error('Kies een unieke fragmentnaam bij deze oefening.');
@@ -193,7 +203,7 @@ export async function openLibrary(root) {
     listRoutines() { return db.prepare('SELECT * FROM routines ORDER BY title COLLATE NOCASE, id').all().map(routineFrom); },
     /** @param {import('./routine-model.mjs').RoutineInput} input */
     saveRoutine(input) {
-      const clean = validateRoutine(input, db.prepare('SELECT id,bpm,duration FROM exercises').all().map(row => ({ id: String(row.id), bpm: Number(row.bpm), duration: Number(row.duration) })));
+      const clean = validateRoutine(input, this.list());
       const id = clean.id ?? randomUUID();
       if (clean.id && !db.prepare('SELECT id FROM routines WHERE id=?').get(id)) throw new Error('Deze sessie bestaat niet meer.');
       db.exec('BEGIN IMMEDIATE;');
@@ -202,7 +212,7 @@ export async function openLibrary(root) {
         db.prepare('DELETE FROM routine_blocks WHERE routine_id=?').run(id);
         clean.blocks.forEach((block, index) => {
           db.prepare('INSERT INTO routine_blocks VALUES (?,?,?,?)').run(block.id, id, block.exerciseId, index);
-          block.steps.forEach((step, position) => db.prepare('INSERT INTO routine_steps VALUES (?,?,?,?,?,?,?,?,?)').run(step.id, block.id, position, step.repetitions, step.bpm, step.start, step.end, step.fragmentId ?? null, step.fragmentName ?? null));
+          block.steps.forEach((step, position) => db.prepare('INSERT INTO routine_steps VALUES (?,?,?,?,?,?,?,?,?,?)').run(step.id, block.id, position, step.repetitions, step.bpm, step.start, step.end, step.fragmentId ?? null, step.fragmentName ?? null, step.bars ?? null));
         });
         db.exec('COMMIT;');
       } catch (error) { db.exec('ROLLBACK;'); throw error; }

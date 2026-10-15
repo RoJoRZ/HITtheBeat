@@ -1,5 +1,5 @@
 # Audio
 
-`stretch.ts` laadt de lokale Signalsmith-worklet. `engine.ts` beheert decodering, audioklok, tempo/transpositie, A/B-loop en opruimen, los van React. De UI stuurt dezelfde commando’s via knoppen en toetsen. Zie `docs/FASE-1.md` voor metingen en nog open luister-/platformcontroles. Rondjes en hun herhalingen volgen in fase 5.
+`stretch.ts` laadt de lokale Signalsmith-worklet. `engine.ts` beheert decodering, audioklok, onafhankelijk tempo/toonhoogte, A/B-loop en opruimen. Het audiobereik is 25–300%. `metronome.ts` biedt dezelfde gebruikte transportbediening voor metronoom-oefeningen zonder bestand: maatsoort, kwartnoot-BPM en eindige klikplanning op de audioklok. Beide gebruiken het gedeelde volume; `output-volume.ts` bewaart volume/mute lokaal.
 
-Sinds v0.0.3 is het gekozen bereik 25–300%. Het audiocomponent wordt ook in het voorbeeldspeelscherm hergebruikt, met een op bron-BPM en duur ingestelde opgewekte melodie. Zie `docs/FASE-2.md` voor de ruimere metingen en schermcontroles.
+De spelers sturen commando's via knoppen en toetsen; `src/session/runner.ts` bepaalt herhalingen en overgangen. `bpm.ts`/Worker analyseren geïmporteerde audio; `normalization.ts` bepaalt de afzonderlijke niveaucorrectie. Zie `TECHNISCH-ONTWERP.md` en `docs/METRONOOM.md` voor huidige werking en beperkingen. Historische audioproeven staan in docs/FASE-1.md en FASE-2.md; de voorbeeldschermen zijn sinds v0.0.12 verwijderd.
