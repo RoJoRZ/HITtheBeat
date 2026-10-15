@@ -1,3 +1,4 @@
+import { scheduleCountIn, type CountIn } from './count-in';
 import { createStretch } from './stretch';
 import type { StretchNode } from 'signalsmith-stretch';
 
@@ -7,6 +8,7 @@ export function validateAudioSettings(rate: number, semitones: number, a: number
 
 export class AudioEngine {
   private context = new AudioContext();
+  private countTones: OscillatorNode[] = [];
   private gain = this.context.createGain();
   private output = this.context.createGain();
   private node?: StretchNode;
@@ -16,6 +18,9 @@ export class AudioEngine {
   private disposed = false;
   private segmentStart = 0;
   private segmentEnd: number | null = null;
+  get playbackStart() { return this.anchorTime; }
+  get countRemaining() { return this.playing ? Math.max(0, this.anchorTime - this.clock) : 0; }
+  get counting() { return this.countRemaining > 0; }
   get clock() { return this.context.currentTime; }
   duration = 0;
   playing = false;
@@ -31,7 +36,7 @@ export class AudioEngine {
     return result;
   }
   get position() {
-    let value = this.anchorPosition + (this.playing ? (this.context.currentTime - this.anchorTime) * this.rate : 0);
+    let value = this.anchorPosition + (this.playing ? Math.max(0, this.context.currentTime - this.anchorTime) * this.rate : 0);
     if (this.loop && value >= this.b) value = this.a + (value - this.a) % (this.b - this.a);
     return Math.max(0, Math.min(this.segmentEnd ?? this.duration, value));
   }
@@ -67,14 +72,21 @@ export class AudioEngine {
     if (!this.playing || this.ended || this.context.state !== 'running') this.output.gain.setValueAtTime(value, now);
     else this.output.gain.setTargetAtTime(value, now, .005);
   }
-  private async schedule() {
+  private cancelCountIn() { for (const tone of this.countTones) { try { tone.stop(); } catch { /* Already ended. */ } } this.countTones = []; }
+  private async schedule(countIn?: CountIn, countBpm = 1) {
+    this.cancelCountIn();
     if (!this.node) return;
-    this.anchorTime = this.context.currentTime;
-    await this.node.schedule({ active: this.playing, input: this.anchorPosition, output: this.anchorTime,
-      rate: this.rate, semitones: this.semitones, loopStart: this.loop ? this.a : 0, loopEnd: this.loop ? this.b : 0 });
+    const now = this.context.currentTime;
+    const lead = this.playing ? scheduleCountIn(this.context, this.output, countIn, countBpm, now) : { seconds: 0, nodes: [] };
+    this.countTones = lead.nodes; this.anchorTime = now + lead.seconds;
+    if (lead.seconds || !this.playing) { this.gain.gain.cancelScheduledValues(now); this.gain.gain.setValueAtTime(0, now); }
+    try { await this.node.schedule({ active: this.playing, input: this.anchorPosition, output: this.anchorTime,
+      rate: this.rate, semitones: this.semitones, loopStart: this.loop ? this.a : 0, loopEnd: this.loop ? this.b : 0 }); }
+    catch (reason) { this.cancelCountIn(); this.playing = false; throw reason; }
     // Gate the output on the audio clock, including in background windows.
-    this.gain.gain.cancelScheduledValues(this.anchorTime);
-    this.gain.gain.setValueAtTime(this.playing ? 1 : 0, this.context.currentTime);
+    this.gain.gain.cancelScheduledValues(now);
+    this.gain.gain.setValueAtTime(this.playing && !lead.seconds ? 1 : 0, this.context.currentTime);
+    if (this.playing && lead.seconds) this.gain.gain.setValueAtTime(1, this.anchorTime);
     if (this.playing && !this.loop) this.gain.gain.setValueAtTime(0, this.anchorTime + ((this.segmentEnd ?? this.duration) - this.anchorPosition) / this.rate);
   }
   playPause() {
@@ -111,19 +123,20 @@ export class AudioEngine {
       this.anchorPosition = this.position; this.playing = false; await this.schedule();
     });
   }
-  playSegment(a: number, b: number, rate: number, semitones = 0, playing = true) {
+  playSegment(a: number, b: number, rate: number, semitones = 0, playing = true, countIn?: CountIn, countBpm = 1) {
     return this.serialize(async () => {
       validateAudioSettings(rate, semitones, a, b, this.duration);
       if (playing) await this.context.resume();
       this.segmentStart = a; this.segmentEnd = b;
       this.a = a; this.b = b; this.rate = rate; this.semitones = semitones; this.loop = false;
-      this.anchorPosition = a; this.playing = playing; await this.schedule();
+      this.anchorPosition = a; this.playing = playing; await this.schedule(countIn, countBpm);
     });
   }
   dispose() {
     if (this.disposed) return;
     this.disposed = true;
     this.playing = false;
+    this.cancelCountIn();
     this.node?.disconnect();
     void this.context.close();
   }

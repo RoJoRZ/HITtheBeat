@@ -42,7 +42,7 @@ export async function openLibrary(root) {
   const db = new DatabaseSync(path.join(root, 'library.sqlite'));
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;');
   const version = /** @type {{user_version:number}} */ (db.prepare('PRAGMA user_version').get()).user_version;
-  if (version > 7) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
+  if (version > 8) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
   if (version === 0) db.exec(`BEGIN IMMEDIATE;
     CREATE TABLE exercises (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL,
       bpm REAL NOT NULL CHECK(bpm>0), detected_bpm REAL, analysis_status TEXT NOT NULL, duration REAL NOT NULL,
@@ -82,6 +82,9 @@ export async function openLibrary(root) {
       WHERE kind='metronome' AND (SELECT COUNT(DISTINCT s.bars) FROM routine_steps s JOIN routine_blocks b ON s.block_id=b.id WHERE b.exercise_id=exercises.id AND s.bars IS NOT NULL)=1;
     UPDATE routine_steps SET bars=NULL WHERE bars=(SELECT e.bars FROM routine_blocks b JOIN exercises e ON e.id=b.exercise_id WHERE b.id=routine_steps.block_id AND e.kind='metronome');
     PRAGMA user_version=7; COMMIT;`);
+  if (version < 8) db.exec(`BEGIN IMMEDIATE;
+    ALTER TABLE routines ADD COLUMN count_in TEXT;
+    PRAGMA user_version=8; COMMIT;`);
   // An unclosed run is preserved, never promoted to a completed session.
   db.prepare("UPDATE sessions SET status='interrupted', ended_at=updated_at WHERE status='running'").run();
   /** @param {string} id */
@@ -93,7 +96,7 @@ export async function openLibrary(root) {
   /** @param {Record<string, any>} row */
   const sessionFrom = row => ({ id: String(row.id), startedAt: String(row.started_at), updatedAt: String(row.updated_at), endedAt: row.ended_at, status: String(row.status), ...JSON.parse(String(row.snapshot)), progress: JSON.parse(String(row.progress)), evaluations: JSON.parse(String(row.evaluations)) });
   /** @param {Record<string, any>} row */
-  const routineFrom = row => ({ id: String(row.id), title: String(row.title), updatedAt: String(row.updated_at),
+  const routineFrom = row => ({ ...(row.count_in ? { countIn: JSON.parse(String(row.count_in)) } : {}), id: String(row.id), title: String(row.title), updatedAt: String(row.updated_at),
     blocks: db.prepare('SELECT * FROM routine_blocks WHERE routine_id=? ORDER BY position').all(String(row.id)).map(block => ({
       id: String(block.id), exerciseId: String(block.exercise_id),
       steps: db.prepare('SELECT * FROM routine_steps WHERE block_id=? ORDER BY position').all(String(block.id)).map(step => ({
@@ -229,7 +232,7 @@ export async function openLibrary(root) {
       if (clean.id && !db.prepare('SELECT id FROM routines WHERE id=?').get(id)) throw new Error('Deze sessie bestaat niet meer.');
       db.exec('BEGIN IMMEDIATE;');
       try {
-        db.prepare('INSERT INTO routines VALUES (?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, updated_at=excluded.updated_at').run(id, clean.title, new Date(Math.max(Date.now(), Date.parse(String(db.prepare('SELECT updated_at FROM routines WHERE id=?').get(id)?.updated_at ?? '1970-01-01')) + 1)).toISOString());
+        db.prepare('INSERT INTO routines (id,title,updated_at,count_in) VALUES (?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, updated_at=excluded.updated_at, count_in=excluded.count_in').run(id, clean.title, new Date(Math.max(Date.now(), Date.parse(String(db.prepare('SELECT updated_at FROM routines WHERE id=?').get(id)?.updated_at ?? '1970-01-01')) + 1)).toISOString(), clean.countIn ? JSON.stringify(clean.countIn) : null);
         db.prepare('DELETE FROM routine_blocks WHERE routine_id=?').run(id);
         clean.blocks.forEach((block, index) => {
           db.prepare('INSERT INTO routine_blocks VALUES (?,?,?,?)').run(block.id, id, block.exerciseId, index);
@@ -261,7 +264,7 @@ export async function openLibrary(root) {
       if (row.status !== 'running') return sessionFrom(row);
       const progress = validateProgress(input, JSON.parse(String(row.snapshot)));
       if (progress.seq <= old.seq) return sessionFrom(row);
-      if (progress.passes < old.passes || ['planned','fragment','pause'].some(key => progress.times[/** @type {keyof typeof progress.times} */ (key)] < old.times[key] - 1e-6)) throw new Error('Sessieresultaten mogen niet teruglopen.');
+      if (progress.passes < old.passes || ['planned','fragment','pause','preparation'].some(key => (progress.times[/** @type {keyof typeof progress.times} */ (key)] ?? 0) < (old.times[key] ?? 0) - 1e-6)) throw new Error('Sessieresultaten mogen niet teruglopen.');
       if ((status === 'completed' || status === 'partial') && (progress.phase !== 'complete' || progress.statuses.includes('pending') || (status === 'completed' && progress.statuses.includes('skipped')) || (status === 'partial' && !progress.statuses.includes('skipped')))) throw new Error('Deze sessie is nog niet volledig doorlopen.');
       const now = new Date().toISOString();
       db.prepare('UPDATE sessions SET progress=?, status=?, updated_at=?, ended_at=? WHERE id=?').run(JSON.stringify(progress), status, now, status === 'running' ? null : now, id);

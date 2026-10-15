@@ -217,3 +217,9 @@ De sessietabel gebruikt dezelfde kolommen en rijen: in Fragment / maten staat bi
 ### Gebruiksfeedback v0.0.18: maten bij de oefening
 
 Maten per herhaling staat bij de maatsoort in het metronoomformulier, zowel bij aanmaken als bewerken. Het detail toont het opgeslagen aantal. De sessietabel toont alleen het aantal maten; de invoer hoort bij Oefeningen → Bewerken. De losse speler verwijst voor het aantal naar Bewerken. De formulieruitleg benoemt dat opslaan ook toekomstige sessie-opbouwen bijwerkt; gespeelde resultaten blijven behouden. Oude afwijkende stapinstellingen krijgen een herkenbare toelichting tot de oefening wordt opgeslagen. Dit vervangt de maten-invoer in de sessietabel uit v0.0.17.
+
+## Aftelmaat per sessie — issue #2, v0.0.19
+
+De editor toont een eigen paneel Aftelmaat boven de stappentabel. Een checkbox schakelt aftellen in; de keuze Maatsoort aftelmaat is anders uitgeschakeld en toont standaard 4/4. Oefentijd, aftellen en totaal staan bij elkaar als aftellen aan staat. Sessies in het startoverzicht vermelden de voorbereidingstijd apart onder de totale geplande duur.
+
+Tijdens aftellen staat boven de gebruikelijke transportbediening een Mandarijn kader met Aftellen, maatsoort, tel en BPM. Het scherm behoudt tablatuur, opdracht en de komende stap/herhaling. De telindicatie spreekt niet iedere schermverversing via een live-regio uit. Play/pause, herstart, overslaan en de bestaande toetsen blijven bereikbaar. De afteltijd heeft een eigen teller naast sessie-afspelen, fragmenttraining en pauze. Historie toont aftellen alleen voor sessies met deze instelling; bestaande schermen zonder aftellen blijven herkenbaar hetzelfde.

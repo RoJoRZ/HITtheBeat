@@ -1,7 +1,8 @@
+import { validateCountIn } from './count-in-model.mjs';
 import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
 /** @typedef {{id:string, repetitions:number, bpm:number, start:number|null, end:number|null,fragmentId?:string,fragmentName?:string,bars?:number}} RoutineStep */
 /** @typedef {{id:string, exerciseId:string, steps:RoutineStep[]}} RoutineBlock */
-/** @typedef {{id?:string, title:string, blocks:RoutineBlock[]}} RoutineInput */
+/** @typedef {{id?:string, title:string, blocks:RoutineBlock[], countIn?:import('./count-in-model.mjs').CountIn}} RoutineInput */
 /** @typedef {{id:string, bpm:number, duration:number,kind?:string,meter?:string,bars?:number}} SourceExercise */
 
 /** @param {RoutineStep} step @param {SourceExercise} exercise */
@@ -42,5 +43,5 @@ export function validateRoutine(input, exercises) {
     return { id, exerciseId: exercise.id, steps };
   });
   if (input.id !== undefined && !uuid.test(input.id)) throw new Error('Ongeldig sessie.');
-  return { id: input.id, title: input.title.trim(), blocks };
+  return { id: input.id, title: input.title.trim(), blocks, ...(input.countIn === undefined ? {} : { countIn: validateCountIn(input.countIn) }) };
 }

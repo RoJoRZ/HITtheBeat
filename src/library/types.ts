@@ -15,7 +15,7 @@ export interface SaveInput {
 
 export interface RoutineStep { bars?: number; fragmentId?: string; fragmentName?: string; id: string; repetitions: number; bpm: number; start: number | null; end: number | null }
 export interface RoutineBlock { id: string; exerciseId: string; steps: RoutineStep[] }
-export interface RoutineInput { id?: string; title: string; blocks: RoutineBlock[] }
+export interface RoutineInput { countIn?: { enabled: boolean; meter: string };  id?: string; title: string; blocks: RoutineBlock[] }
 export interface Routine extends RoutineInput { id: string; updatedAt: string }
 
 export type SessionProgress = import('../../electron/session-model.mjs').Progress;
