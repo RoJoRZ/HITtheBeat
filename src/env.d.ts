@@ -1,7 +1,15 @@
 /// <reference types="vite/client" />
 
 interface Window {
+  notationViewer?: {
+    getState(): Promise<import('../electron/notation-window.mjs').NotationState>;
+    onChange(listener: (state: import('../electron/notation-window.mjs').NotationState) => void): () => void;
+    toggleFullscreen(): Promise<void>;
+    close(): Promise<void>;
+  };
   hitthebeat?: {
+    setNotation(context: { id: string; title: string } | null): Promise<void>;
+    openNotation(): Promise<void>;
     startSession(id: string): Promise<import('./library/types').SessionRecord>;
     listSessions(): Promise<import('./library/types').SessionRecord[]>;
     saveSession(id: string, progress: import('./library/types').SessionProgress, status: 'running'|'stopped'|'completed'|'partial'): Promise<import('./library/types').SessionRecord>;

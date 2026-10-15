@@ -436,3 +436,16 @@ De aftelinstelling staat in de kopregel van elk oefenblok in de sessietabel, naa
 Bij een volgende oefening gebruikt de speler de instellingen van die volgende oefening. Opbouwen en resterende duur tellen de aftelmaten per oefenblok op. Werkelijk verbruikte afteltijd blijft apart zichtbaar, ook wanneer de volgende oefening aftellen uit heeft staan. De bestaande transport-, tempo- en evaluatieregels blijven gelden voor de blokken met aftellen ingeschakeld.
 
 Bij upgraden wordt een eerder opgeslagen algemene aftelinstelling overgenomen voor alle bestaande blokken van die sessie, zodat hun gedrag behouden blijft. Nieuw toegevoegde oefenblokken beginnen met aftellen uit. Historische momentopnamen blijven ongewijzigd leesbaar met hun oorspronkelijke instelling. Dit verandert de maatsoort of het aantal maten van de bibliotheekmetronoom niet.
+
+
+Gebruiksgoedkeuring v0.0.20: de gebruiker bevestigt dat aftellen per oefenblok met bediening naast de oefennaam de gewenste werking is en geeft opdracht verder te gaan met issue #3.
+
+## 29. Los tablatuurvenster — issue #3, v0.0.21
+
+Het vergrootglas bij de tablatuur opent één los venster, zowel bij een bibliotheekoefening als in de sessiespeler. Het venster is onafhankelijk te verplaatsen en in grootte aan te passen, bijvoorbeeld op een tweede scherm. Opnieuw klikken brengt hetzelfde venster naar voren; er ontstaan geen extra exemplaren.
+
+Het venster volgt de actieve oefening, ook tijdens aftellen, evalueren en vrije fragmenttraining. Bij een volgende oefening verschijnt haar afbeelding en naam. Zonder tablatuur toont het venster een duidelijke melding en verdwijnt de vorige afbeelding. Bij het verlaten van de oefening of sessiespeler toont het dat er geen oefening actief is. Afbeeldingen worden lokaal geladen. Een fout toont een melding, geen oude afbeelding.
+
+De muzikant kan in- en uitzoomen op de afbeelding, terug naar Passend en naar volledig scherm. Inzoomen maakt scrollen over de afbeelding mogelijk. Sneltoetsen in dit venster: +/− zoomen, 0 passend, F volledig scherm aan/uit, Escape verlaat volledig scherm. Het zoompercentage is ten opzichte van de passende weergave. Een andere oefening begint passend; vergroten/verkleinen of volledig scherm behoudt de gekozen zoomfactor. Het venster onthoudt geen positie/zoom na sluiten.
+
+Sluiten van het tablatuurvenster stopt of pauzeert de sessie niet. Afspelen, evaluaties en hun bestaande sneltoetsen blijven in het hoofdvenster; het losse venster heeft beeldbediening. Sluiten van het hoofdvenster ruimt ook het tablatuurvenster op. Er is geen wijziging aan oefeningen, sessie-opbouwen, afbeeldingen of historische resultaten door het venster te gebruiken.

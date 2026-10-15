@@ -403,3 +403,16 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .block-count-in select { min-width: 76px; }
 
 .block-count-in label { min-width: 0; }
+
+.notation-window { height: 100vh; display: flex; flex-direction: column; background: #141719; }
+.notation-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.notation-toolbar h1 { font-size: 25px; overflow-wrap: anywhere; }
+.notation-toolbar .eyebrow { margin-bottom: 6px; }
+.notation-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.notation-actions output { min-width: 46px; text-align: center; color: var(--accent); }
+.notation-viewport { flex: 1; min-height: 0; overflow: auto; }
+.notation-canvas { min-width: 100%; min-height: 100%; width: max-content; padding: 24px; display: flex; align-items: center; justify-content: center; }
+.notation-canvas img { max-width: none; flex-shrink: 0; object-fit: contain; background: white; }
+.notation-empty { padding: 48px 24px; text-align: center; color: var(--muted); }
+.notation-footer { padding: 10px 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+.notation-window > .error { margin: 12px 20px; }

@@ -200,3 +200,8 @@ Na gebruiksgoedkeuring van v0.0.18 is issue #2 afzonderlijk gebouwd: optionele a
 
 
 Gebruiksfeedback op issue #2 wordt verwerkt in v0.0.20: aftellen en maatsoort per oefenblok, direct op de kopregel naast de oefennaam. Verschillende oefeningen in dezelfde sessie kiezen onafhankelijk hun aftelmaat. Migratie behoudt eerder ingestelde aftelmaten en historie. Dit is een correctie binnen #2, geen start van #3; zie docs/AFTELMAAT.md voor de controles.
+
+
+### Issue #3 — Los tablatuurvenster (v0.0.21)
+
+Na gebruiksgoedkeuring van v0.0.20 volgt het zelfstandige tablatuurvenster: verplaatsen/resize, actieve-oefeningsynchronisatie, beeldzoom/passend/fullscreen en sluiten zonder sessieonderbreking. Basis is de geaccepteerde issue-2-commit; niet zelfstandig mergen. Zie docs/TABLATUURVENSTER.md voor impact en controles. Geef ruimte voor gebruiksfeedback vóór issue #4 (waveformselectie).

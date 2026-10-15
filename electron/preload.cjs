@@ -17,5 +17,7 @@ contextBridge.exposeInMainWorld('hitthebeat', Object.freeze({
   readAudio: (/** @type {string} */ id) => ipcRenderer.invoke('library:audio', id),
   readImage: (/** @type {string} */ id) => ipcRenderer.invoke('library:image', id),
   openLibraryFolder: () => ipcRenderer.invoke('library:folder'),
+  setNotation: (/** @type {{id:string,title:string}|null} */ context) => ipcRenderer.invoke('notation:context', context),
+  openNotation: () => ipcRenderer.invoke('notation:open'),
   getAppInfo: () => ipcRenderer.invoke('app:info'),
 }));

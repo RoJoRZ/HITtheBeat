@@ -1,3 +1,4 @@
+import { useNotationContext } from './notation';
 import { countInSeconds, countInForBlock, hasCountIn } from '../../electron/count-in-model.mjs';
 import { isMetronome, exerciseBars, validTempo, meterBeats } from '../../electron/exercise-model.mjs';
 import { MetronomeEngine } from '../audio/metronome';
@@ -7,7 +8,7 @@ import { SessionReview } from './SessionReview';
 import { SaveCurrentFragment } from './FragmentControls';
 import { VolumeControl } from './VolumeControl';
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
-import { Play, Pause, RotateCcw, Expand, X } from 'lucide-react';
+import { Play, Pause, RotateCcw, Expand } from 'lucide-react';
 import { AudioEngine, validateAudioSettings } from '../audio/engine';
 import { advance, createRun, current, remainingSeconds, remainingPreparation, series, type Run } from '../session/runner';
 import type { Exercise, SessionRecord, Played, SessionProgress, Evaluation } from '../library/types';
@@ -19,7 +20,7 @@ type Totals = { planned: number; fragment: number; pause: number; preparation: n
 
 function Notation({ item }: { item: Exercise }) {
   const [url, setUrl] = useState(''), [error, setError] = useState('');
-  const dialog = useRef<HTMLDialogElement>(null);
+  const notation = useNotationContext(item);
   useEffect(() => {
     let alive = true, value = ''; setUrl(''); setError('');
     if (item.imageName) window.hitthebeat!.readImage(item.id).then(asset => {
@@ -28,7 +29,8 @@ function Notation({ item }: { item: Exercise }) {
     return () => { alive = false; if (value) URL.revokeObjectURL(value); };
   }, [item.id, item.updatedAt]);
   return <div className={`practice-top${item.imageName ? '' : ' without-tab'}`}>
-    {item.imageName && <section className="panel tab-panel"><div className="panel-heading"><h2>Tablatuur</h2><button className="icon-button" aria-label="Tablatuur vergroten" disabled={!url} onClick={() => dialog.current?.showModal()}><Expand size={19} /></button></div>{url && <img src={url} alt={`Tablatuur bij ${item.title}`} />}{error && <p role="alert" className="error">{error}</p>}<dialog ref={dialog} className="tab-dialog"><div className="panel-heading"><h2>{item.title}</h2><button className="icon-button" aria-label="Vergrote tablatuur sluiten" onClick={() => dialog.current?.close()}><X /></button></div>{url && <img src={url} alt="Vergrote tablatuur" />}</dialog></section>}
+    {item.imageName && <section className="panel tab-panel"><div className="panel-heading"><h2>Tablatuur</h2><button className="icon-button" aria-label="Tablatuur vergroten" disabled={!url} onClick={notation.open}><Expand size={19} /></button></div>{url && <img src={url} alt={`Tablatuur bij ${item.title}`} />}{error && <p role="alert" className="error">{error}</p>}</section>}
+    {notation.error && <p role="alert" className="error">{notation.error}</p>}
     <section className="panel assignment-panel"><h2>Opdracht</h2><div className="assignment-scroll"><p>{item.description || 'Geen geschreven opdracht toegevoegd.'}</p></div>{!item.imageName && <p className="caption">Geen tablatuur bij deze oefening.</p>}</section>
   </div>;
 }

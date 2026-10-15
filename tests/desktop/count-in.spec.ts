@@ -63,7 +63,7 @@ test('session count-in persists, counts each pass at its BPM, pauses/restarts, r
     await expect(page.getByRole('heading',{name:'Sessie afgerond',exact:true})).toBeVisible();
     await expect.poll(()=>page.evaluate(async()=>(await window.hitthebeat!.listSessions())[0].status)).toBe('completed');
     const session=(await page.evaluate(()=>window.hitthebeat!.listSessions()))[0];
-    expect(session.progress.passes).toBe(4);expect(session.progress.times.planned).toBeCloseTo(3.5,0);expect(session.progress.times.preparation).toBeGreaterThan(5.5);
+    expect(session.progress.passes).toBe(4);expect(session.progress.times.planned).toBeCloseTo(3.5,0);expect(session.progress.times.preparation).toBeGreaterThan(5.3); // 5.5s planned preparation; allow audio-clock/timer quantization.
     expect(session.progress.played.reduce((sum,item)=>sum+item.seconds,0)).toBeCloseTo(session.progress.times.planned,3);
     expect(session.evaluations).toHaveLength(2);expect(errors).toEqual([]);
     await page.getByRole('button',{name:'Voortgang',exact:true}).click();

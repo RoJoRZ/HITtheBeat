@@ -1,3 +1,4 @@
+import { setupNotationWindow } from './notation-window.mjs';
 import { openLibrary } from './library.mjs';
 import { app, BrowserWindow, ipcMain, Menu, net, protocol, session, shell } from 'electron';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -12,6 +13,7 @@ const entryUrl = development ? 'http://127.0.0.1:5173/' : productionUrl;
 /** @type {BrowserWindow | null} */
 let window = null;
 let interruptSessions = () => {};
+let closeNotation = () => {};
 
 protocol.registerSchemesAsPrivileged([
   { scheme: 'hitthebeat', privileges: { standard: true, secure: true, supportFetchAPI: true } },
@@ -39,6 +41,8 @@ async function createWindow() {
       nodeIntegration: false,
       sandbox: true,
       webSecurity: true,
+      // Keep session transitions responsive while the detached notation covers the player.
+      backgroundThrottling: false,
     },
   });
   window = current;
@@ -46,7 +50,7 @@ async function createWindow() {
   current.webContents.on('will-navigate', (event, destination) => {
     if (destination !== entryUrl) event.preventDefault();
   });
-  current.on('closed', () => { if (window === current) { window = null; interruptSessions(); } });
+  current.on('closed', () => { if (window === current) { window = null; closeNotation(); interruptSessions(); } });
   await current.loadURL(entryUrl);
   current.show();
 }
@@ -73,6 +77,7 @@ app.whenReady().then(async () => {
       throw new Error('Unknown application frame');
     }
   }
+  closeNotation = setupNotationWindow({ entryUrl, authorize, readImage: id => library.read(id, 'image') });
   ipcMain.handle('app:info', event => { authorize(event); return { version: app.getVersion(), platform: process.platform }; });
   ipcMain.handle('sessions:start', (event, id) => { authorize(event); return library.startSession(id); });
   ipcMain.handle('sessions:list', event => { authorize(event); return library.listSessions(); });
