@@ -1,4 +1,4 @@
-import { isMetronome, meterBeats, validTempo } from './exercise-model.mjs';
+import { isMetronome, meterBeats, validTempo, metronomeSeconds } from './exercise-model.mjs';
 import { audioFormat } from './audio-format.mjs';
 import { validateFragment } from './fragment-model.mjs';
 import { sessionId, validateProgress, validateEvaluation } from './session-model.mjs';
@@ -8,9 +8,9 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 
-/** @typedef {{ kind?:string,meter?:string,id:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audioName:string, imageName:string|null, imageMime:string|null, updatedAt:string, normalizationDb:number|null, normalizeAudio:boolean, fragments:import('./fragment-model.mjs').Fragment[] }} Exercise */
+/** @typedef {{ kind?:string,meter?:string,bars?:number,id:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audioName:string, imageName:string|null, imageMime:string|null, updatedAt:string, normalizationDb:number|null, normalizeAudio:boolean, fragments:import('./fragment-model.mjs').Fragment[] }} Exercise */
 /** @typedef {{ name:string, bytes:Uint8Array }} Asset */
-/** @typedef {{ kind?:string,meter?:string,id?:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audio?:Asset, image?:Asset|null, normalizationDb?:number|null, normalizeAudio?:boolean }} SaveInput */
+/** @typedef {{ kind?:string,meter?:string,bars?:number,id?:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audio?:Asset, image?:Asset|null, normalizationDb?:number|null, normalizeAudio?:boolean }} SaveInput */
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /** @param {unknown} id */
 function validId(id) { if (typeof id !== 'string' || !idPattern.test(id)) throw new Error('Ongeldige oefening.'); return id; }
@@ -42,7 +42,7 @@ export async function openLibrary(root) {
   const db = new DatabaseSync(path.join(root, 'library.sqlite'));
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;');
   const version = /** @type {{user_version:number}} */ (db.prepare('PRAGMA user_version').get()).user_version;
-  if (version > 6) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
+  if (version > 7) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
   if (version === 0) db.exec(`BEGIN IMMEDIATE;
     CREATE TABLE exercises (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL,
       bpm REAL NOT NULL CHECK(bpm>0), detected_bpm REAL, analysis_status TEXT NOT NULL, duration REAL NOT NULL,
@@ -76,6 +76,12 @@ export async function openLibrary(root) {
     ALTER TABLE exercises ADD COLUMN meter TEXT NOT NULL DEFAULT '4/4';
     ALTER TABLE routine_steps ADD COLUMN bars INTEGER;
     PRAGMA user_version=6; COMMIT;`);
+  if (version < 7) db.exec(`BEGIN IMMEDIATE;
+    ALTER TABLE exercises ADD COLUMN bars INTEGER NOT NULL DEFAULT 8 CHECK(bars BETWEEN 1 AND 128);
+    UPDATE exercises SET bars=(SELECT MIN(s.bars) FROM routine_steps s JOIN routine_blocks b ON s.block_id=b.id WHERE b.exercise_id=exercises.id AND s.bars IS NOT NULL)
+      WHERE kind='metronome' AND (SELECT COUNT(DISTINCT s.bars) FROM routine_steps s JOIN routine_blocks b ON s.block_id=b.id WHERE b.exercise_id=exercises.id AND s.bars IS NOT NULL)=1;
+    UPDATE routine_steps SET bars=NULL WHERE bars=(SELECT e.bars FROM routine_blocks b JOIN exercises e ON e.id=b.exercise_id WHERE b.id=routine_steps.block_id AND e.kind='metronome');
+    PRAGMA user_version=7; COMMIT;`);
   // An unclosed run is preserved, never promoted to a completed session.
   db.prepare("UPDATE sessions SET status='interrupted', ended_at=updated_at WHERE status='running'").run();
   /** @param {string} id */
@@ -98,7 +104,7 @@ export async function openLibrary(root) {
     })),
   });
   /** @param {Record<string, any>} row @returns {Exercise} */
-  const present = row => ({ kind: row.kind, meter: row.meter, id: row.id, title: row.title, description: row.description, bpm: row.bpm, detectedBpm: row.detected_bpm, analysisStatus: row.analysis_status, duration: row.duration, audioName: row.audio_name, imageName: row.image_name, imageMime: row.image_mime, updatedAt: row.updated_at, normalizationDb: row.normalization_db, normalizeAudio: Boolean(row.normalize_audio), fragments: JSON.parse(String(row.fragments)) });
+  const present = row => ({ kind: row.kind, meter: row.meter, bars: Number(row.bars), id: row.id, title: row.title, description: row.description, bpm: row.bpm, detectedBpm: row.detected_bpm, analysisStatus: row.analysis_status, duration: row.duration, audioName: row.audio_name, imageName: row.image_name, imageMime: row.image_mime, updatedAt: row.updated_at, normalizationDb: row.normalization_db, normalizeAudio: Boolean(row.normalize_audio), fragments: JSON.parse(String(row.fragments)) });
   /** @param {unknown} id */
   const rowFor = id => {
     const row = db.prepare('SELECT * FROM exercises WHERE id=?').get(validId(id));
@@ -120,7 +126,8 @@ export async function openLibrary(root) {
       const old = input.id ? rowFor(input.id) : null;
       const kind = input.kind ?? String(old?.kind ?? 'audio'), meter = input.meter ?? String(old?.meter ?? '4/4');
       if (!['audio','metronome'].includes(kind) || (old && old.kind !== kind)) throw new Error('Het oefentype kan na opslaan niet worden gewijzigd.');
-      if (kind === 'metronome') meterBeats(meter);
+      const bars = input.bars ?? Number(old?.bars ?? 8);
+      if (kind === 'metronome') { meterBeats(meter); metronomeSeconds({ kind, meter, bpm: 120, duration: 0 }, bars); }
       const bpm = number(input.bpm), duration = kind === 'metronome' ? 0 : number(input.duration);
       const detected = input.detectedBpm === null ? null : number(input.detectedBpm);
       if (!title || bpm <= 0 || bpm > 1000 || (kind === 'audio' && (duration < .1 || duration > 86400)) || (kind === 'metronome' && (!validTempo(bpm, {kind,bpm,duration}) || input.audio)) || (detected !== null && (detected < 40 || detected > 240)) || !['estimated', 'unavailable', 'failed'].includes(input.analysisStatus)) throw new Error('Controleer de naam, het BPM en de audiogegevens.');
@@ -146,17 +153,24 @@ export async function openLibrary(root) {
       try {
         if (input.audio) { created.push(audioFile); await writeFile(mediaPath(audioFile), input.audio.bytes, { flag: 'wx', mode: 0o600 }); }
         if (input.image && typeof imageFile === 'string') { created.push(imageFile); await writeFile(mediaPath(imageFile), input.image.bytes, { flag: 'wx', mode: 0o600 }); }
-        db.prepare(`INSERT INTO exercises (id,title,description,bpm,detected_bpm,analysis_status,duration,audio_name,audio_file,image_name,image_file,image_mime,updated_at,normalization_db,normalize_audio,kind,meter) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        db.exec('BEGIN IMMEDIATE;');
+        db.prepare(`INSERT INTO exercises (id,title,description,bpm,detected_bpm,analysis_status,duration,audio_name,audio_file,image_name,image_file,image_mime,updated_at,normalization_db,normalize_audio,kind,meter,bars) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
           ON CONFLICT(id) DO UPDATE SET title=excluded.title, description=excluded.description, bpm=excluded.bpm,
           detected_bpm=excluded.detected_bpm, analysis_status=excluded.analysis_status, duration=excluded.duration,
           audio_name=excluded.audio_name, audio_file=excluded.audio_file, image_name=excluded.image_name,
           image_file=excluded.image_file, image_mime=excluded.image_mime, updated_at=excluded.updated_at,
-          normalization_db=excluded.normalization_db, normalize_audio=excluded.normalize_audio, kind=excluded.kind, meter=excluded.meter`).run(
+          normalization_db=excluded.normalization_db, normalize_audio=excluded.normalize_audio, kind=excluded.kind, meter=excluded.meter, bars=excluded.bars`).run(
           id, title, description, bpm, detected, input.analysisStatus, duration,
           kind === 'metronome' ? '' : audioInfo?.name ?? String(old?.audio_name), audioFile,
           imageInfo?.name ?? (input.image === null ? null : old?.image_name ?? null), imageFile,
-          imageInfo?.mime ?? (input.image === null ? null : old?.image_mime ?? null), updated, normalizationDb, normalizeAudio ? 1 : 0, kind, meter);
+          imageInfo?.mime ?? (input.image === null ? null : old?.image_mime ?? null), updated, normalizationDb, normalizeAudio ? 1 : 0, kind, meter, kind === 'metronome' ? bars : 8);
+        if (kind === 'metronome' && old && input.bars !== undefined) {
+          db.prepare("UPDATE routines SET updated_at=? WHERE id IN (SELECT routine_id FROM routine_blocks WHERE exercise_id=?)").run(new Date(Math.max(Date.now(), ...this.listRoutines().map(item => Date.parse(item.updatedAt) + 1))).toISOString(), id);
+          db.prepare('UPDATE routine_steps SET bars=NULL WHERE block_id IN (SELECT id FROM routine_blocks WHERE exercise_id=?)').run(id);
+        }
+        db.exec('COMMIT;');
       } catch (error) {
+        if (db.isTransaction) db.exec('ROLLBACK;');
         await Promise.all(created.map(file => rm(mediaPath(file), { force: true })));
         throw error;
       }
@@ -203,7 +217,14 @@ export async function openLibrary(root) {
     listRoutines() { return db.prepare('SELECT * FROM routines ORDER BY title COLLATE NOCASE, id').all().map(routineFrom); },
     /** @param {import('./routine-model.mjs').RoutineInput} input */
     saveRoutine(input) {
-      const clean = validateRoutine(input, this.list());
+      const current = input.id ? this.listRoutines().find(item => item.id === input.id) : undefined;
+      const sources = this.list();
+      const candidate = { ...input, blocks: input.blocks?.map(block => ({ ...block, steps: block.steps?.map(step => {
+        if (!isMetronome(sources.find(source => source.id === block.exerciseId) ?? { bpm: 0, duration: 0 })) return step;
+        const previous = current?.blocks.find(item => item.id === block.id)?.steps.find(item => item.id === step.id);
+        return { ...step, bars: previous?.bars === step.bars ? previous?.bars : undefined };
+      }) })) };
+      const clean = validateRoutine(candidate, sources);
       const id = clean.id ?? randomUUID();
       if (clean.id && !db.prepare('SELECT id FROM routines WHERE id=?').get(id)) throw new Error('Deze sessie bestaat niet meer.');
       db.exec('BEGIN IMMEDIATE;');

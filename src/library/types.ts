@@ -1,6 +1,6 @@
 export type Fragment = import('../../electron/fragment-model.mjs').Fragment;
 export interface Exercise {
-  kind?: string; meter?: string;
+  kind?: string; meter?: string; bars?: number;
   fragments?: Fragment[];
   id: string; title: string; description: string; bpm: number; detectedBpm: number | null;
   analysisStatus: 'estimated' | 'unavailable' | 'failed'; duration: number;
@@ -8,7 +8,7 @@ export interface Exercise {
 }
 export interface Asset { name: string; bytes: Uint8Array }
 export interface SaveInput {
-  kind?: string; meter?: string;
+  kind?: string; meter?: string; bars?: number;
   id?: string; title: string; description: string; bpm: number; detectedBpm: number | null;
   analysisStatus: Exercise['analysisStatus']; duration: number; audio?: Asset; image?: Asset | null; normalizationDb?: number | null; normalizeAudio?: boolean;
 }

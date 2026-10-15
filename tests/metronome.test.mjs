@@ -62,13 +62,13 @@ test('metronome progress validates reference coordinates and dashboard separates
 test('audio-free storage reopens, rejects type change and fragments, preserves snapshots and deletion protection', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-metronome-')); let library = await openLibrary(root);
   try {
-    const saved = await library.save({ ...source, id: undefined }); assert.equal(saved.duration, 0); assert.equal(saved.audioName, ''); assert.deepEqual(await readdir(path.join(root, 'media')), []);
+    const saved = await library.save({ ...source, id: undefined, bars: 2 }); assert.equal(saved.duration, 0); assert.equal(saved.audioName, ''); assert.deepEqual(await readdir(path.join(root, 'media')), []);
     assert.equal(await library.read(saved.id, 'audio'), null); assert.throws(() => library.saveFragment(saved.id, { name: 'Nee', start: 0, end: 1 }), /audiofragment/);
     await assert.rejects(library.save({ ...saved, kind: 'audio' }), /oefentype/);
     await assert.rejects(library.save({ ...source, id: undefined, meter: '7/9' }), /maatsoort/);
     const plan = library.saveRoutine({ ...routine(saved, [step(2, 60)]), id: undefined }); const session = library.startSession(plan.id);
     await assert.rejects(library.deleteExercise(saved.id), /sessie/);
-    library.close(); library = await openLibrary(root); assert.equal(library.list()[0].meter, '6/8'); assert.equal(library.listRoutines()[0].blocks[0].steps[0].bars, 2);
+    library.close(); library = await openLibrary(root); assert.equal(library.list()[0].meter, '6/8'); assert.equal(library.list()[0].bars, 2);
     await library.save({ ...saved, meter: '4/4' }); assert.equal(library.listSessions()[0].exercises[0].meter, '6/8'); assert.equal(library.listSessions()[0].id, session.id);
     library.deleteRoutine(plan.id); await library.deleteExercise(saved.id); assert.equal(library.list().length, 0); assert.equal(library.listSessions().length, 1);
   } finally { library.close(); await rm(root, { recursive: true, force: true }); }
@@ -83,13 +83,52 @@ test('schema 5 upgrade retains original media, boundaries and old snapshots with
     const plan = library.saveRoutine({ ...routine(audio, [{ id: randomUUID(), start: 1, end: 3, bpm: 120, repetitions: 2 }]), id: undefined });
     const session = library.startSession(plan.id); library.interruptSessions(); library.close();
     const db = new DatabaseSync(path.join(root, 'library.sqlite'));
-    const snapshot = { routine: session.routine, exercises: session.exercises.map(({ kind, meter, ...rest }) => rest) };
+    const snapshot = { routine: session.routine, exercises: session.exercises.map(({ kind, meter, bars, ...rest }) => rest) };
     db.prepare('UPDATE sessions SET snapshot=?').run(JSON.stringify(snapshot));
-    db.exec('ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; PRAGMA user_version=5;'); db.close();
+    db.exec('ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; PRAGMA user_version=5;'); db.close();
     library = await openLibrary(root);
     assert.equal(library.list()[0].kind, 'audio'); assert.equal(library.list()[0].duration, 6);
     assert.deepEqual((await library.read(audio.id, 'audio')).bytes, bytes); assert.deepEqual(library.listRoutines()[0], plan);
     assert.deepEqual(library.listSessions()[0].exercises, snapshot.exercises); assert.equal(library.listSessions()[0].status, 'interrupted');
     const run = createRun(library.listSessions()[0].routine, library.listSessions()[0].exercises); assert.equal(remainingSeconds(run), 4);
+  } finally { library.close(); await rm(root, { recursive: true, force: true }); }
+});
+
+test('exercise bars drive every session; updating bars applies atomically without rewriting history', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-exercise-bars-')); const library = await openLibrary(root);
+  try {
+    const exercise = await library.save({ ...source, id: undefined, bars: 3 });
+    const plan = library.saveRoutine({ ...routine(exercise, [{ ...step(), bars: undefined }]), id: undefined });
+    assert.equal(plannedSeconds(plan.blocks[0].steps[0], exercise), 4.5);
+    const session = library.startSession(plan.id), version = plan.updatedAt;
+    for (const bars of [0, 129, 1.5, NaN]) await assert.rejects(library.save({ ...exercise, bars }), /maten/);
+    const changed = await library.save({ ...exercise, bars: 5 });
+    assert.equal(plannedSeconds(library.listRoutines()[0].blocks[0].steps[0], changed), 7.5);
+    assert.notEqual(library.listRoutines()[0].updatedAt, version);
+    assert.equal(library.listSessions()[0].exercises[0].bars, 3); assert.equal(library.listSessions()[0].id, session.id);
+  } finally { library.close(); await rm(root, { recursive: true, force: true }); }
+});
+
+test('schema 6 promotes a common count, preserves conflicting legacy steps until exercise edit, and rejects stale restoration', async () => {
+  const { DatabaseSync } = await import('node:sqlite');
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-bars-upgrade-')); let library = await openLibrary(root);
+  try {
+    const a = await library.save({ ...source, id: undefined }), b = await library.save({ ...source, id: undefined, title: 'Andere' });
+    const first = library.saveRoutine({ ...routine(a, [step(), step()]), id: undefined });
+    const second = library.saveRoutine({ ...routine(b, [step()]), id: undefined }); library.close();
+    const db = new DatabaseSync(path.join(root, 'library.sqlite'));
+    db.prepare('UPDATE routine_steps SET bars=2 WHERE id=?').run(first.blocks[0].steps[0].id);
+    db.prepare('UPDATE routine_steps SET bars=4 WHERE id=?').run(first.blocks[0].steps[1].id);
+    db.prepare('UPDATE routine_steps SET bars=6 WHERE id=?').run(second.blocks[0].steps[0].id);
+    db.exec('ALTER TABLE exercises DROP COLUMN bars; PRAGMA user_version=6;'); db.close();
+    library = await openLibrary(root);
+    assert.equal(library.list().find(item => item.id === b.id).bars, 6);
+    const stale = library.listRoutines().find(item => item.id === first.id);
+    assert.deepEqual(stale.blocks[0].steps.map(step => step.bars), [2, 4]);
+    const changed = await library.save({ ...library.list().find(item => item.id === a.id), bars: 5 });
+    assert.ok(library.listRoutines().find(item => item.id === first.id).blocks[0].steps.every(step => step.bars === undefined));
+    const resaved = library.saveRoutine(stale);
+    assert.ok(resaved.blocks[0].steps.every(step => step.bars === undefined));
+    assert.equal(plannedSeconds(resaved.blocks[0].steps[0], changed), 7.5);
   } finally { library.close(); await rm(root, { recursive: true, force: true }); }
 });

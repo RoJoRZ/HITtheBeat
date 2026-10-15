@@ -2,7 +2,7 @@ import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
 /** @typedef {{id:string, repetitions:number, bpm:number, start:number|null, end:number|null,fragmentId?:string,fragmentName?:string,bars?:number}} RoutineStep */
 /** @typedef {{id:string, exerciseId:string, steps:RoutineStep[]}} RoutineBlock */
 /** @typedef {{id?:string, title:string, blocks:RoutineBlock[]}} RoutineInput */
-/** @typedef {{id:string, bpm:number, duration:number,kind?:string,meter?:string}} SourceExercise */
+/** @typedef {{id:string, bpm:number, duration:number,kind?:string,meter?:string,bars?:number}} SourceExercise */
 
 /** @param {RoutineStep} step @param {SourceExercise} exercise */
 export function plannedSeconds(step, exercise) {
@@ -37,7 +37,7 @@ export function validateRoutine(input, exercises) {
         if (typeof step.start !== 'number' || typeof step.end !== 'number' || !Number.isFinite(step.start) || !Number.isFinite(step.end) || step.start < 0 || step.end > exercise.duration || step.end - step.start < .1 - 1e-9) throw new Error('Kies een fragment binnen de track, met A vóór B en minstens 0,1 seconde duur.');
       }
       if (step.fragmentId !== undefined && (typeof step.fragmentId !== 'string' || !uuid.test(step.fragmentId) || typeof step.fragmentName !== 'string' || !step.fragmentName.trim() || step.fragmentName.length > 160 || step.fragmentName.includes('\0') || step.start === null)) throw new Error('Controleer het benoemde fragment.');
-      return { ...(isMetronome(exercise) ? { bars: step.bars ?? 8 } : {}), ...(step.fragmentId ? { fragmentId: step.fragmentId, fragmentName: step.fragmentName } : {}), id: stepId, repetitions: step.repetitions, bpm: step.bpm, start: step.start, end: step.end };
+      return { ...(isMetronome(exercise) && step.bars !== undefined ? { bars: step.bars } : {}), ...(step.fragmentId ? { fragmentId: step.fragmentId, fragmentName: step.fragmentName } : {}), id: stepId, repetitions: step.repetitions, bpm: step.bpm, start: step.start, end: step.end };
     });
     return { id, exerciseId: exercise.id, steps };
   });

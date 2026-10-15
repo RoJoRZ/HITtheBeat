@@ -18,6 +18,8 @@ test('audio-free metronome creates offline, reopens, edits bars and plays mixed 
     await page.getByLabel('Naam', { exact: true }).fill('Tellen in zes');
     await page.getByLabel('Maatsoort', { exact: true }).selectOption('6/8');
     await page.getByLabel('BPM', { exact: true }).fill('120');
+    await expect(page.getByLabel('Maten per herhaling', { exact: true })).toHaveValue('8');
+    await page.getByLabel('Maten per herhaling', { exact: true }).fill('2');
     await page.getByLabel('Opdracht', { exact: true }).fill('Accent op één en vier.');
     await page.getByRole('button', { name: 'Oefening opslaan', exact: true }).click();
     await expect(page.getByRole('region', { name: 'Metronoomspeler' })).toBeVisible();
@@ -36,8 +38,8 @@ test('audio-free metronome creates offline, reopens, edits bars and plays mixed 
     await page.getByLabel('Naam van de sessie').fill('Gemengde sessie');
     const saved = await page.evaluate(() => window.hitthebeat!.listExercises());
     await page.getByLabel('Oefening blok 1').selectOption(saved.find(item => item.kind === 'metronome')!.id);
-    await expect(page.getByLabel('Maten oefening 1 stap 1')).toHaveValue('8');
-    await page.getByLabel('Maten oefening 1 stap 1').fill('2');
+    await expect(page.getByLabel('Maten oefening 1 stap 1')).toHaveCount(0);
+    await expect(page.getByRole('cell', { name: '2 maten', exact: true })).toBeVisible();
     await page.getByLabel('Herhalingen oefening 1 stap 1').fill('2');
     await expect(page.getByTestId('own-round-duration')).toContainText('0:06');
     await page.getByRole('button', { name: 'Oefening toevoegen aan sessie', exact: true }).click();
@@ -66,6 +68,17 @@ test('audio-free metronome creates offline, reopens, edits bars and plays mixed 
     expect(errors).toEqual([]);
     const history = await page.evaluate(() => window.hitthebeat!.listSessions());
     expect(history[0].progress.passes).toBe(3); expect(history[0].progress.times.fragment).toBe(0); expect(history[0].evaluations).toHaveLength(2);
+    await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
+    await page.getByRole('button', { name: /Tellen in zes.*Metronoom/ }).click();
+    await page.getByRole('button', { name: 'Bewerken', exact: true }).click();
+    await expect(page.getByLabel('Maten per herhaling', { exact: true })).toHaveValue('2');
+    await page.getByLabel('Maten per herhaling', { exact: true }).fill('4');
+    await page.getByRole('button', { name: 'Oefening opslaan', exact: true }).click();
+    await expect(page.getByRole('definition').filter({ hasText: /^4$/ })).toBeVisible();
+    await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
+    await expect(page.getByRole('article', { name: 'Gemengde sessie' })).toContainText('0:18 gepland');
+    expect((await page.evaluate(() => window.hitthebeat!.listSessions()))[0].exercises.find(item => item.kind === 'metronome')!.bars).toBe(2);
+
   } finally { await app.close(); await rm(root, { recursive: true, force: true }); }
 });
 

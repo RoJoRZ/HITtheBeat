@@ -404,3 +404,10 @@ De sessie kan metronoom- en audio-oefeningen combineren. Maten, tempo en herhali
 Bij de losse oefening staat een metronoomspeler voor standaard 8 maten, met lokaal instelbaar speeltempo en aantal maten. Deze bediening verandert opgeslagen sessies niet. De gedeelde volume- en dempeninstelling werkt in beide spelers. Los spelen telt, net als de losse audioplayer, niet mee in sessiehistorie.
 
 Bestaande audio, afbeeldingen, fragmenten, sessies en resultaten blijven behouden. Nieuwe resultaten bewaren ook maatsoort en maten in hun historische context, zodat andere metronoomopbouwen niet in één voortgangsreeks worden gemengd. Een opgeslagen metronoom heeft geen audiobestand in de mediamap. Aftellen vóór herhalingen is nog niet gebouwd; dat blijft issue #2.
+
+
+### Correctie na gebruikstest — maten per oefening (v0.0.18)
+
+De gebruiker verduidelijkt dat het aantal maten bij het instellen van de metronoom hoort, dus **per oefening**. Dit vervangt de eerdere keuze voor maten per sessiestap. Bij aanmaken én bewerken van een metronoom staat Maten per herhaling (standaard 8, 1–128). Het aantal wordt opgeslagen bij de oefening en gebruikt door de losse speler en alle sessies. De sessietabel toont het aantal alleen; herhalingen en BPM blijven daar per stap instelbaar. De losse speler wijzigt het aantal niet tijdelijk.
+
+Opslaan van de metronoom-oefening past bestaande sessie-opbouwen aan dat aantal aan. Geplande duur wordt opnieuw berekend. Een lopende of historische sessie houdt haar eigen momentopname. Om gegevens bij de upgrade te behouden wordt een gemeenschappelijk oud aantal maten overgenomen als oefeninstelling. Verschillende bestaande stapinstellingen blijven herkenbaar als oude stapinstelling staan totdat de oefening expliciet wordt opgeslagen; dan gebruiken ze allemaal het gekozen aantal van de oefening. Historische resultaten worden niet herschreven.

@@ -191,3 +191,5 @@ Op 15 oktober 2026 keurt de gebruiker dit plan en de eerste drie uitgangspunten 
 ### Issue #1 — Metronoom-oefeningen (v0.0.17)
 
 Eerste implementatie na akkoord: apart oefentype zonder audio, 3/4–4/4–6/8 met kwartnoot-BPM, 8 maten standaard en 1–128 per sessiestap, audioklokgestuurde klikjes en integratie in sessies/evaluaties/voortgang. Controlebewijs en handmatige stappen staan in docs/METRONOOM.md. Afzonderlijke issuebranch en PR; acceptatie en merge blijven bij de gebruiker. Issue #2 en verdere milestone-issues worden hierdoor niet automatisch afgerond.
+
+Gebruiksfeedback op issue #1 verwerkt in v0.0.18: maten instellen en bewaren per metronoom-oefening, doorwerking naar sessies, upgrade met behoud van oude afwijkingen en historie. Dit corrigeert v0.0.17 binnen dezelfde issue-PR; issue #2 volgt pas na beoordeling van de metronoom.

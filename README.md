@@ -80,4 +80,4 @@ Benoemde fragmenten maak je bij **Oefeningen → Opgeslagen fragmenten → Fragm
 
 Audio-import ondersteunt MP3 en onbeveiligde M4A met AAC tot 50 MB. Apple Lossless (ALAC) wordt nog niet ondersteund; exporteer zulke tracks eerst als MP3 of M4A met AAC.
 
-Metronoom-oefeningen zonder audio: kies bij Oefening toevoegen het type Metronoom, BPM en maatsoort. In een oefensessie stel je per stap maten (standaard 8), herhalingen en BPM in. BPM betekent kwartnoten per minuut, ook bij 6/8. Zie [metronoom en controles](docs/METRONOOM.md). Aftellen volgt afzonderlijk in issue #2.
+Metronoom-oefeningen zonder audio: kies bij Oefening toevoegen het type Metronoom, BPM en maatsoort. Maten per herhaling stel je bij de oefening in (standaard 8); sessies nemen dit over. In de sessie kies je per stap herhalingen en BPM. BPM betekent kwartnoten per minuut, ook bij 6/8. Zie [metronoom en controles](docs/METRONOOM.md). Aftellen volgt afzonderlijk in issue #2.
