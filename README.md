@@ -26,9 +26,15 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 - [Voortgangsdashboard](docs/FASE-7.md)
 - [M4A-import en Instellingen](docs/IMPORT-INSTELLINGEN.md)
 
-## Eerste proefversie
+## Downloadbare testrelease
 
-Versie 0.0.23 biedt een **eigen bibliotheek**: MP3 of M4A met AAC importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. De app opent op Mijn oefensessies met maximaal tien recente sessie-opbouwen. Kies Starten of Bewerken; bij meer dan tien opent Alle oefensessies het volledige overzicht met zoeken. Kies ‘Oefeningen’ om MP3 of M4A met AAC toe te voegen; een lege bibliotheek wijst je hierheen. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
+[HITtheBeat 1.0.0-rc.1 downloaden](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.0.0-rc.1): Mac Apple Silicon (DMG of ZIP) en Windows x64 (ZIP). Windows is nog niet in gebruik getest. Op Windows de volledige ZIP uitpakken voordat je HITtheBeat.exe opent. De Mac-app is niet genotariseerd en Windows is niet ondertekend; het besturingssysteem kan een waarschuwing tonen. Geen Rosetta nodig voor de Mac-app.
+
+Zie [installatie, bouwstappen en beperkingen](docs/RELEASE.md) en [Windows-testoverdracht](docs/WINDOWS-TEST.md). Automatische updates en een Windows-installer zijn nog niet geleverd. De projectlicentie is nog niet gekozen (`UNLICENSED`).
+
+## Functionaliteit
+
+Versie 1.0.0-rc.1 biedt een **eigen bibliotheek**: MP3 of M4A met AAC importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. De app opent op Mijn oefensessies met maximaal tien recente sessie-opbouwen. Kies Starten of Bewerken; bij meer dan tien opent Alle oefensessies het volledige overzicht met zoeken. Kies ‘Oefeningen’ om MP3 of M4A met AAC toe te voegen; een lege bibliotheek wijst je hierheen. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
 
 Onder **Mijn oefensessies** kun je eigen rondjes opslaan met geordende oefenblokken en per stap fragment, herhalingen en BPM. Kies per stap de volledige track, een benoemd fragment van de oefening of eigen A–B-grenzen. De geplande totale duur rekent direct mee. Met **Rondje starten** speelt de speler alle stappen en herhalingen, met evaluatie bij fragmentwissels en tussen oefeningen. Je kunt een passage vrij loopen en daarna dezelfde geplande herhaling opnieuw starten.
 

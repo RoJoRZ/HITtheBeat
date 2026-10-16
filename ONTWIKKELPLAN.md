@@ -227,3 +227,8 @@ Na acceptatie van v0.0.24 volgt volledige lokalisatie met systeemtaalfallback, e
 ### Tussenstap — Info over HITtheBeat (#17, v0.0.26)
 
 Na goedkeuring van de taalkeuze vraagt de gebruiker een Info-knop met concept en puntsgewijs functieoverzicht. Afzonderlijke, testbare verbetering op de geaccepteerde issue-6-commit: NL/EN-infovenster, appversie, toetsenbediening en behoud van sessie/invoer. Dit rondt distributie (#8) niet af. Zie docs/INFO.md voor impact en controles; niet zelfstandig mergen.
+
+
+### Eerste testrelease — #8 gedeeltelijk, 1.0.0-rc.1
+
+De gebruiker accepteert v0.0.26 en vraagt expliciet de eerste release. Lever handmatig een GitHub-pre-release met Mac arm64 DMG/ZIP en Windows x64 ZIP, checksums en Windows-testoverdracht. Geen autonome merge. De nieuwe tag verwijst naar de releasebranch met alle geaccepteerde wijzigingen. #8 blijft open: PR-/tag-automatisering, Windows-installer en daadwerkelijke Windows-gebruikstest volgen. Zie docs/RELEASE.md voor bewijs/beperkingen en docs/WINDOWS-TEST.md voor de volgende platformstap.

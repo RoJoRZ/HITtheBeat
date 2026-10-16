@@ -1,3 +1,5 @@
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, mkdtemp, rm, readdir } from 'node:fs/promises';
@@ -21,7 +23,7 @@ test('M4A refuses ALAC, protection, video, wrong extension, corrupt box sizes an
   for (const size of [2, 7, 0xffffffff, 1]) { const bytes = Buffer.from(aac); bytes.writeUInt32BE(size, 0); assert.throws(() => audioFormat('test.m4a', bytes), /beschadigd/); }
 });
 test('M4A managed copy, extension, MIME, levels, fragments and session snapshot survive reopen beside MP3', async () => {
-  const root = await mkdtemp('/tmp/hitthebeat-m4a-store-'); let library = await openLibrary(root);
+  const root = await mkdtemp(path.join(tmpdir(),'hitthebeat-m4a-store-')); let library = await openLibrary(root);
   try {
     const input = { title: 'AAC', description: 'Ontspannen.', bpm: 120, detectedBpm: 120, analysisStatus: 'estimated', duration: 6, normalizationDb: 3, normalizeAudio: true };
     const source = await library.save({ ...input, audio: { name: '../Origineel.M4A', bytes: aac } });

@@ -325,3 +325,10 @@ LocalizedError bewaart een sleutel/parameters naast het normale Error-bericht. D
 ## Infovenster — issue #17, v0.0.26
 
 AboutDialog gebruikt een native HTML-dialog in de bestaande renderer en krijgt de reeds opgehaalde appversie als prop. Geen nieuwe IPC, BrowserWindow, afhankelijkheid, opslag of navigatieroute. De inhoud bestaat uit expliciete sleutels in de bestaande NL/EN-catalogus. showModal houdt de achtergrond niet-bedienbaar; het wijzigt de active-prop of componentidentiteit van de speler niet. Toetsevents uit het venster propageren niet naar de speler; standaard Escape blijft werken. Sluiten herstelt de openerfocus. CSS begrenst hoogte/breedte en maakt de inhoud scrollbaar.
+
+
+## Eerste release — 1.0.0-rc.1 (#8 gedeeltelijk)
+
+electron-builder maakt macOS arm64 DMG/ZIP en Windows x64 ZIP. De configuratie bevat tevens een per-user NSIS-installer met bewaarde appdata bij deïnstallatie; die is nog niet succesvol gebouwd of getest. Op deze arm64-Mac faalt het Intel-NSIS-hulpprogramma zonder Rosetta. Bouw Windows ZIP afzonderlijk met `pnpm exec electron-builder --win zip --x64 --publish never`; bouw de installer later op Windows. `--publish never` voorkomt publiceren als bouwneveneffect. Publicatie is voor deze uitgave handmatig en expliciet door de gebruiker gevraagd.
+
+De bestaande appId/productName en userData blijven gelijk. Alleen dist/electron/package.json/appicoon en de expliciete runtimeafhankelijkheden gaan in app.asar; public/licenses gaat als extraResources mee. Geen persoonlijke bibliotheek. THIRD-PARTY-NOTICES bevat de meldingen voor gebundelde rendererafhankelijkheden; Electron/Chromium leveren hun eigen runtimevermeldingen. SHA-256 wordt na het bouwen over de definitieve downloadbestanden berekend met scripts/release-checksums.mjs. Geen updater of nieuw opslagformaat. Zie docs/RELEASE.md.
