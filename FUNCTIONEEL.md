@@ -449,3 +449,16 @@ Het venster volgt de actieve oefening, ook tijdens aftellen, evalueren en vrije 
 De muzikant kan in- en uitzoomen op de afbeelding, terug naar Passend en naar volledig scherm. Inzoomen maakt scrollen over de afbeelding mogelijk. Sneltoetsen in dit venster: +/− zoomen, 0 passend, F volledig scherm aan/uit, Escape verlaat volledig scherm. Het zoompercentage is ten opzichte van de passende weergave. Een andere oefening begint passend; vergroten/verkleinen of volledig scherm behoudt de gekozen zoomfactor. Het venster onthoudt geen positie/zoom na sluiten.
 
 Sluiten van het tablatuurvenster stopt of pauzeert de sessie niet. Afspelen, evaluaties en hun bestaande sneltoetsen blijven in het hoofdvenster; het losse venster heeft beeldbediening. Sluiten van het hoofdvenster ruimt ook het tablatuurvenster op. Er is geen wijziging aan oefeningen, sessie-opbouwen, afbeeldingen of historische resultaten door het venster te gebruiken.
+
+
+Gebruiksgoedkeuring v0.0.21: de gebruiker bevestigt dat het losse tablatuurvenster werkt en geeft opdracht verder te gaan met issue #4.
+
+## 30. Fragmenten kiezen in de waveform — issue #4, v0.0.22
+
+De audio-waveform in de sessiespeler en losse oefeningspeler is interactief. Sleep over het beeld om een fragment te selecteren, ook van rechts naar links. De markeringen A en B zijn afzonderlijk versleepbaar, met grenzen binnen de track en minimaal 0,1 seconde speelduur. Een klik zonder slepen wijzigt de selectie niet. De numerieke begin-/eindinvoer blijft beschikbaar en is gekoppeld aan dezelfde selectie. A/B-markeringen zijn ook met de pijltjestoetsen te verplaatsen (0,01 seconde, Shift 0,1); Home/End verplaatsen naar de toegestane rand.
+
+Met +/− zoom je horizontaal; Hele track herstelt het overzicht en Toon selectie brengt het gekozen fragment in beeld. De schuif en pijlen verschuiven het zichtbare tijdvenster. Met Verschuiven aan sleep je het beeld in plaats van een nieuwe selectie te tekenen; A/B-markeringen blijven bedienbaar. Selectiegrenzen zijn bronseconden en blijven gelijk bij zoomen, pannen of wijzigen van de afspeelsnelheid. Het scherm toont de zichtbare tijdgrenzen en de gekozen A/B-grenzen.
+
+Een selectie in de geplande sessie onderbreekt die sessie via de bestaande vrije fragmenttraining en pauzeert het geluid. De onderbroken herhaling en haar tempo blijven bewaard. Een nieuwe selectie of versleepte markering wordt pas bij loslaten toegepast, niet bij iedere muisbeweging. Fragment beluisteren start de selectie vanaf A als loop; pauze stopt die preview. Dit gebruikt het gekozen oefentempo en de bestaande volume/toonhoogtebediening. Vrije loops blijven apart geregistreerd en tellen niet als geplande herhalingen.
+
+Vanuit deze training kun je het fragment met een naam opslaan voor later gebruik. Selecteren of beluisteren wijzigt de opgeslagen sessie-opbouw niet. Terug naar sessie gebruikt de bestaande hervatregel: de onderbroken geplande herhaling start opnieuw, met aftellen als dat voor deze oefening aan staat; een eerder gepauzeerde sessie wacht op Afspelen. De losse speler gebruikt dezelfde selectie-/previewbediening zonder sessiehistorie te schrijven. Metronoom-oefeningen hebben geen waveform of audioloops.

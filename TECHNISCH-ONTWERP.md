@@ -281,3 +281,12 @@ De gedeelde context-hook in bibliotheekdetail en sessietablatuur publiceert de a
 Viewer sluiten wijzigt geen audio of sessiestatus. Hoofdvenster sluiten sluit de viewer en behoudt bestaande interrupt-afhandeling. Geen opslagmigratie, nieuwe dependency of externe dienst. Test native lifecycle, beperkte IPC, snelle wissels en verpakte offline routes; een Mac-test is geen Windows-gebruikstest.
 
 Het hoofdvenster gebruikt backgroundThrottling=false: de bestaande sessie-/aftelovergangen blijven op tijd lopen als de viewer het hoofdvenster bedekt of fullscreen staat, ook bij gedempt geluid. Dit verandert de audioklok of scheduler niet; de venstertest controleert de voorkeur expliciet.
+
+
+## Waveformselectie — issue #4, v0.0.22
+
+`src/audio/waveform.mjs` bouwt een compacte piekenpiramide uit alle audiokanalen: maximaal 65.536 basisbins, gevolgd door maxima per twee bins. Transiënten blijven ook in hogere niveaus behouden; de weergave kiest een niveau voor ongeveer 440 schermkolommen. De volledige PCM wordt eenmaal per bronlading gelezen; de 50ms-afspeelpositie-update bouwt de pieken niet opnieuw. Pan/zoom herberekent alleen de zichtbare pieken. De audiomotor blijft ongewijzigd.
+
+De gedeelde `WaveformEditor` bewaart alleen viewport en tijdelijke sleepselectie lokaal. A/B blijven canonieke bronseconden bij de speler. Pointer capture, geklemde broncoördinaten en aparte modi voor selecteren/A/B/pan voorkomen verlies bij buiten het beeld slepen. Pointercancel bewaart de oorspronkelijke selectie. De interactieve minimumselectie is 0,101 seconde om afronding onder de bestaande 0,1s-audiovalidatie te voorkomen. Alleen pointerup geeft de selectie door; geen audioconfiguratie per pointermove. Toets-/handmatige wijzigingen gebruiken dezelfde spelerwaarden.
+
+In SessionPlayer gebruikt selecteren de bestaande fragmentfase en bewaart resumePlaying. De speler pauzeert en meet verstreken tijd vóór het wijzigen van de fragmentcontext, configureert het nieuwe fragment en zoekt A. Preview start deze loop expliciet; terugkeer gebruikt de bestaande runner/counter/aftelregels. AudioLab gebruikt dezelfde waveform en configureert de lokale loop. Snapshot, routine en media worden door beeldbediening niet gewijzigd; alleen expliciet Fragment bewaren schrijft bibliotheekfragmenten. Geen IPC-/schemaverandering of nieuwe dependency.

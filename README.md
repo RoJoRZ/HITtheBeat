@@ -28,7 +28,7 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 
 ## Eerste proefversie
 
-Versie 0.0.21 biedt een **eigen bibliotheek**: MP3 of M4A met AAC importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. De app opent op Mijn oefensessies met maximaal tien recente sessie-opbouwen. Kies Starten of Bewerken; bij meer dan tien opent Alle oefensessies het volledige overzicht met zoeken. Kies ‘Oefeningen’ om MP3 of M4A met AAC toe te voegen; een lege bibliotheek wijst je hierheen. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
+Versie 0.0.22 biedt een **eigen bibliotheek**: MP3 of M4A met AAC importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. De app opent op Mijn oefensessies met maximaal tien recente sessie-opbouwen. Kies Starten of Bewerken; bij meer dan tien opent Alle oefensessies het volledige overzicht met zoeken. Kies ‘Oefeningen’ om MP3 of M4A met AAC toe te voegen; een lege bibliotheek wijst je hierheen. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
 
 Onder **Mijn oefensessies** kun je eigen rondjes opslaan met geordende oefenblokken en per stap fragment, herhalingen en BPM. Kies per stap de volledige track, een benoemd fragment van de oefening of eigen A–B-grenzen. De geplande totale duur rekent direct mee. Met **Rondje starten** speelt de speler alle stappen en herhalingen, met evaluatie bij fragmentwissels en tussen oefeningen. Je kunt een passage vrij loopen en daarna dezelfde geplande herhaling opnieuw starten.
 
@@ -84,3 +84,6 @@ Metronoom-oefeningen zonder audio: kies bij Oefening toevoegen het type Metronoo
 
 
 Tablatuur vergroten opent een los verplaatsbaar venster dat de actieve oefening volgt. Gebruik +/− voor beeldzoom, 0 voor Passend en F voor volledig scherm; Escape verlaat volledig scherm. Sluiten laat de sessie doorspelen. Zie [tablatuurvenster en controles](docs/TABLATUURVENSTER.md).
+
+
+Sleep in de waveform om een audiopassage te kiezen of versleep A/B. Gebruik zoom, Toon selectie en de horizontale schuif om nauwkeurig te werken. Fragment beluisteren speelt de selectie als loop. In een sessie onderbreekt dit de geplande herhaling; Terug naar sessie hervat de bestaande opbouw. Zie [waveform en controles](docs/WAVEFORM.md).
