@@ -56,9 +56,18 @@ test('detached notation follows exercises, zooms/resizes/fullscreens, reuses and
     await viewer.getByRole('button', { name: 'Inzoomen', exact: true }).click();
     await viewer.getByRole('button', { name: 'Volledig scherm', exact: true }).click();
     await expect(viewer.getByRole('button', { name: 'Volledig scherm verlaten' })).toBeVisible();
+    const nativeFullscreen = () => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().find(w => w.webContents.getURL().includes('?view=notation'))!.isFullScreen());
+    await expect.poll(nativeFullscreen).toBe(true);
     await expect(viewer.getByLabel('Afbeeldingszoom')).toHaveText('125%');
     await viewer.keyboard.press('Escape');
     await expect(viewer.getByRole('button', { name: 'Volledig scherm', exact: true })).toBeVisible();
+    await expect.poll(nativeFullscreen).toBe(false);
+    await viewer.keyboard.press('f');
+    await expect(viewer.getByRole('button', { name: 'Volledig scherm verlaten', exact: true })).toBeVisible();
+    await expect.poll(nativeFullscreen).toBe(true);
+    await viewer.getByRole('button', { name: 'Volledig scherm verlaten', exact: true }).click();
+    await expect(viewer.getByRole('button', { name: 'Volledig scherm', exact: true })).toBeVisible();
+    await expect.poll(nativeFullscreen).toBe(false);
     await viewer.getByRole('button', { name: 'Passend', exact: true }).click();
     await main.getByRole('button', { name: 'Tablatuur vergroten', exact: true }).click();
     expect(app.windows()).toHaveLength(2);
