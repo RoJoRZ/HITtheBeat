@@ -8,6 +8,7 @@ const names = [
   `HITtheBeat-${version}-mac-arm64.dmg`,
   `HITtheBeat-${version}-mac-arm64.zip`,
   `HITtheBeat-${version}-win-x64.zip`,
+  `HITtheBeat-${version}-win-x64.exe`,
 ];
 const lines = [];
 for (const name of names) {

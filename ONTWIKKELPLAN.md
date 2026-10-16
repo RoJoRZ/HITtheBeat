@@ -241,3 +241,8 @@ Na de Windows-test van de exacte RC1-tag heeft de gebruiker herstel van de tabla
 ### Interfacevereenvoudiging — issue #21
 
 Op basis van Windows-RC2: taalkeuze uitsluitend in Instellingen en verwijderen naast importeren in de bibliotheektoolbar. Afzonderlijke PR naar de RC2-branch; geen automatische merge of release. Typecheck/productiebouw en zes gerichte Electron-tests (taal, bibliotheek/verwijderen en delen/importeren) slagen op Mac met geïsoleerde testgegevens. Geen volledige testreeks of herhaalde Windows-test voor deze plaatsingswijziging. Zie FUNCTIONEEL hoofdstuk 36.
+
+
+### Definitieve release — 1.0.0 (#8 gedeeltelijk)
+
+Na acceptatie van #21 vraagt de gebruiker definitieve Mac- en Windows-installers. Basis is #21 inclusief Windows-RC2, versie 1.0.0. Mac arm64 DMG/ZIP lokaal bouwen en controleren; Windows x64 NSIS/ZIP native op Actions bouwen met gerichte pakket-/installatiecontrole. Publicatie van definitieve release expliciet geautoriseerd, zonder autonome PR-merge of vervanging van RC1. Windows-PR/tag-builds worden toegevoegd; volledige Mac-/tag-publicatieautomatisering blijft open onder #8. Zie docs/RELEASE.md en docs/RELEASE-1.0.0-NOTES.md; release-PR/Actions-run bevat de laatste uitslagen.
