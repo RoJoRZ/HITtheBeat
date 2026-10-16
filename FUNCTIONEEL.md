@@ -462,3 +462,18 @@ Met +/− zoom je horizontaal; Hele track herstelt het overzicht en Toon selecti
 Een selectie in de geplande sessie onderbreekt die sessie via de bestaande vrije fragmenttraining en pauzeert het geluid. De onderbroken herhaling en haar tempo blijven bewaard. Een nieuwe selectie of versleepte markering wordt pas bij loslaten toegepast, niet bij iedere muisbeweging. Fragment beluisteren start de selectie vanaf A als loop; pauze stopt die preview. Dit gebruikt het gekozen oefentempo en de bestaande volume/toonhoogtebediening. Vrije loops blijven apart geregistreerd en tellen niet als geplande herhalingen.
 
 Vanuit deze training kun je het fragment met een naam opslaan voor later gebruik. Selecteren of beluisteren wijzigt de opgeslagen sessie-opbouw niet. Terug naar sessie gebruikt de bestaande hervatregel: de onderbroken geplande herhaling start opnieuw, met aftellen als dat voor deze oefening aan staat; een eerder gepauzeerde sessie wacht op Afspelen. De losse speler gebruikt dezelfde selectie-/previewbediening zonder sessiehistorie te schrijven. Metronoom-oefeningen hebben geen waveform of audioloops.
+
+
+Gebruiksgoedkeuring v0.0.22: de gebruiker bevestigt de waveformselectie en geeft opdracht verder te gaan met issue #5.
+
+## 31. BPM-herkenning en gehele BPM-weergave — issue #5, v0.0.23
+
+De detector is aangepast om een deel van de dubbele-tempo-missers bij geaccentueerde onderverdelingen te beperken. Een langere periode wordt alleen gekozen wanneer die duidelijk sterker wordt herhaald; snelle gelijkmatige pulsen worden niet standaard gehalveerd. Herkenning blijft een schatting binnen het bestaande analysebereik 40–240 BPM, met handmatige correctie beschikbaar. Nieuwe imports en expliciet BPM opnieuw analyseren gebruiken de aangepaste detector; bestaande oefeningen worden niet automatisch opnieuw geanalyseerd of aangepast.
+
+Bij audio-oefeningen staan Halveer BPM en Verdubbel BPM in het aanmaak-/bewerkformulier. Ze passen het huidige veld aan, zodat de muzikant de bedoelde halve of dubbele tel kan kiezen. Opslaan blijft expliciet. Een handmatig gekozen tempo wordt niet overschreven door een nog lopende analyse. Een ontbrekende of onduidelijke schatting blijft handmatig invulbaar.
+
+BPM-waarden worden overal afgerond als hele getallen getoond: bibliotheek, formulieren, sessietabel, spelers, aftellen, evaluatievoorbeelden, fouten, historie en dashboard inclusief grafieklabels/toegankelijke teksten. Nieuwe handmatige BPM-invoer en BPM-aanpassingen worden bij bevestigen op hele getallen gezet. Tijdgrenzen, toonhoogte en dB behouden hun eigen precisie.
+
+Dit is weergaveafronding. Bestaande bron-BPM, staptempo's, detectieprecisie en historische momentopnamen blijven intern ongewijzigd wanneer je alleen kijkt, een veld zonder wijziging verlaat, of bijvoorbeeld een naam/opdracht wijzigt. Ook berekeningen, bereikvalidatie en voortgangscontext blijven de precieze waarden gebruiken. Alleen een expliciete tempo-aanpassing wijzigt het betreffende tempo. Historische resultaten worden niet herschreven.
+
+Gecontroleerde gegenereerde ritmepatronen tonen verbetering; dit is geen algemene nauwkeurigheidsclaim op echte muziekopnamen. Eenzelfde hoorbare puls kan bijvoorbeeld 90 BPM of een schaars gespeelde 180 BPM betekenen. Ook sterke afwisselende accenten kunnen zowel kwartnoten als achtsten voorstellen; de voorkeur voor de langere periode kan bij een andere bedoelde tel een halve-tempo-uitkomst geven. Die bedoelde tel kan de detector niet altijd vaststellen; luisteren en zo nodig halve/dubbele of handmatige correctie blijven nodig. Zie docs/BPM.md voor de meetreeks en beperkingen.

@@ -1,3 +1,4 @@
+import { bpmText } from './tempo-display.mjs';
 import { validateCountIn } from './count-in-model.mjs';
 import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
 /** @typedef {{id:string, repetitions:number, bpm:number, start:number|null, end:number|null,fragmentId?:string,fragmentName?:string,bars?:number}} RoutineStep */
@@ -29,7 +30,7 @@ export function validateRoutine(input, exercises) {
     const steps = block.steps.map(step => {
       const stepId = identity(step.id);
       if (!Number.isInteger(step.repetitions) || step.repetitions < 1 || step.repetitions > 99) throw new Error('Kies 1 tot 99 herhalingen per stap.');
-      if (!validTempo(step.bpm, exercise)) throw new Error(isMetronome(exercise) ? 'Kies een tempo van 20–300 BPM.' : `Kies een tempo van 25–300% van het originele BPM (${exercise.bpm}).`);
+      if (!validTempo(step.bpm, exercise)) throw new Error(isMetronome(exercise) ? 'Kies een tempo van 20–300 BPM.' : `Kies een tempo van 25–300% van het originele BPM (${bpmText(exercise.bpm)}).`);
       if (isMetronome(exercise)) {
         sourceSeconds(step, exercise);
         if (step.start !== null || step.end !== null || step.fragmentId !== undefined) throw new Error('Een metronoomstap gebruikt maten, geen audiofragment.');

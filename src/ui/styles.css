@@ -426,3 +426,6 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .interactive-waveform [data-handle]:focus-visible { filter: drop-shadow(0 0 4px white); }
 .waveform-pan { display: flex; align-items: center; gap: 8px; }
 .waveform-pan input { flex: 1; min-width: 0; accent-color: var(--accent); }
+
+.bpm-correction { flex-wrap: wrap; gap: 8px; align-items: center; }
+.bpm-correction .caption { flex-basis: 100%; }

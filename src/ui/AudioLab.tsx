@@ -1,3 +1,4 @@
+import { bpmText } from '../../electron/tempo-display.mjs';
 import { WaveformEditor } from './WaveformEditor';
 import { buildWaveform, type Waveform } from '../audio/waveform.mjs';
 import { outputVolume, useOutput } from '../audio/output-volume';
@@ -12,10 +13,12 @@ const time = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.flo
 
 export function NumberField({ label, value, change, disabled, step }: { label: string; value: number; change: (value: number) => void; disabled: boolean; step: number }) {
   const id = useId();
-  const formatted = String(Number(value.toFixed(3)));
+  const tempo = label.includes('BPM');
+  const formatted = tempo ? bpmText(value) : String(Number(value.toFixed(3)));
+  const edited = useRef(false);
   const [draft, setDraft] = useState(formatted);
-  useEffect(() => setDraft(formatted), [formatted]);
-  return <div className="audio-number-field"><label htmlFor={id}>{label}</label><div className="audio-stepper"><button type="button" className="adjust" aria-label={`${label} verlagen`} disabled={disabled} onClick={() => change(value - step)}><Minus size={16} /></button><input id={id} type="number" step={step} value={draft} disabled={disabled} onChange={event => setDraft(event.target.value)} onBlur={() => { change(draft.trim() ? Number(draft) : NaN); setDraft(formatted); }} onKeyDown={event => { if (event.key === 'Enter') event.currentTarget.blur(); }} /><button type="button" className="adjust" aria-label={`${label} verhogen`} disabled={disabled} onClick={() => change(value + step)}><Plus size={16} /></button></div></div>;
+  useEffect(() => { setDraft(formatted); edited.current = false; }, [formatted]);
+  return <div className="audio-number-field"><label htmlFor={id}>{label}</label><div className="audio-stepper"><button type="button" className="adjust" aria-label={`${label} verlagen`} disabled={disabled} onClick={() => change((tempo ? Math.round(value) : value) - step)}><Minus size={16} /></button><input id={id} type="number" step={step} value={draft} disabled={disabled} onChange={event => { edited.current = true; setDraft(event.target.value); }} onBlur={() => { if (edited.current) change(draft.trim() ? tempo ? Math.round(Number(draft)) : Number(draft) : NaN); edited.current = false; setDraft(formatted); }} onKeyDown={event => { if (event.key === 'Enter') event.currentTarget.blur(); }} /><button type="button" className="adjust" aria-label={`${label} verhogen`} disabled={disabled} onClick={() => change((tempo ? Math.round(value) : value) + step)}><Plus size={16} /></button></div></div>;
 }
 
 export function AudioLab({ saved, onFragmentSaved }: { saved: Exercise; onFragmentSaved?: (item: Exercise) => void }) {
@@ -115,6 +118,6 @@ export function AudioLab({ saved, onFragmentSaved }: { saved: Exercise; onFragme
       <div className="loop-settings">{field('Begin A (seconden)', a, value => settings({ a: value }), .1)}<button className="secondary" disabled={!duration || busy} onClick={() => settings({ a: position })}>A hier</button>{field('Einde B (seconden)', b, value => settings({ b: value }), .1)}<button className="secondary" disabled={!duration || busy} onClick={() => settings({ b: position })}>B hier</button></div>
       <SaveCurrentFragment exerciseId={saved.id} start={a} end={Math.min(b, saved.duration)} disabled={!duration || busy} saved={onFragmentSaved} />
     </div>
-    <aside className="audio-note"><strong>Oefen in je eigen tempo</strong><p>Spatie: afspelen / pauzeren · 1: terug naar start (bij een loop naar A). Klik eerst buiten een invoerveld of knop om deze toetsen te gebruiken.</p><p>Origineel tempo: {saved.bpm} BPM. Pas dit aan via Bewerken. Bevestig getallen met Enter of verlaat het veld. Tempo: 25–300% · toonhoogte: −12 tot +12 halve tonen. Deze oefening is opgeslagen in je lokale bibliotheek.</p></aside>
+    <aside className="audio-note"><strong>Oefen in je eigen tempo</strong><p>Spatie: afspelen / pauzeren · 1: terug naar start (bij een loop naar A). Klik eerst buiten een invoerveld of knop om deze toetsen te gebruiken.</p><p>Origineel tempo: {bpmText(saved.bpm)} BPM. Pas dit aan via Bewerken. Bevestig getallen met Enter of verlaat het veld. Tempo: 25–300% · toonhoogte: −12 tot +12 halve tonen. Deze oefening is opgeslagen in je lokale bibliotheek.</p></aside>
   </section>;
 }

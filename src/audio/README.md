@@ -7,3 +7,5 @@ De spelers sturen commando's via knoppen en toetsen; `src/session/runner.ts` bep
 `count-in.ts` plant een herkenbaar andere aftelmaat in dezelfde AudioContext als de muziek; `click.ts` deelt alleen de oscillator/envelope-aanmaak. De runner stuurt de countin-fase; oefentijd en voorbereiding blijven gescheiden. Zie docs/AFTELMAAT.md.
 
 `waveform.mjs` bouwt een piekenpiramide uit alle bronkanalen en vertaalt zichtbare bronseconden naar pieken. `WaveformEditor` deelt selectie/markers/zoom/pan tussen beide audioplayers; de audiomotor krijgt alleen bevestigde selectiegrenzen. Zie docs/WAVEFORM.md.
+
+BPM-detectie vergelijkt waar nodig een kandidaat met de dubbele periode; de benchmark en grenzen staan in docs/BPM.md. De weergaveformatter is gescheiden van de interne tempo-/ratio-/historiewaarden.
