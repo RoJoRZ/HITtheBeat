@@ -236,3 +236,8 @@ De gebruiker accepteert v0.0.26 en vraagt expliciet de eerste release. Lever han
 ### Windows-herstelkandidaat — 1.0.0-rc.2
 
 Na de Windows-test van de exacte RC1-tag heeft de gebruiker herstel van de tablatuur/fullscreen-fout en drie testharnasproblemen goedgekeurd. Werk vanaf RC1 op `codex/issue-8-windows-rc2` en lever een afzonderlijke PR naar de releasebranch, zonder zelfstandige merge of vervanging van RC1. Windows-regressie, pakketten en installer/upgradecontrole staan in docs/RC2-WINDOWS.md; historische bevindingen in docs/WINDOWS-RC1-RESULTATEN.md. Mac-regressie, muzikale beoordeling en CI/tag-automatisering blijven afzonderlijk open; dit rondt #8 niet af.
+
+
+### Interfacevereenvoudiging — issue #21
+
+Op basis van Windows-RC2: taalkeuze uitsluitend in Instellingen en verwijderen naast importeren in de bibliotheektoolbar. Afzonderlijke PR naar de RC2-branch; geen automatische merge of release. Typecheck/productiebouw en zes gerichte Electron-tests (taal, bibliotheek/verwijderen en delen/importeren) slagen op Mac met geïsoleerde testgegevens. Geen volledige testreeks of herhaalde Windows-test voor deze plaatsingswijziging. Zie FUNCTIONEEL hoofdstuk 36.

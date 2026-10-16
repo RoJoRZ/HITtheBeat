@@ -500,7 +500,7 @@ De volledige appinterface is beschikbaar in Nederlands en Engels, inclusief spel
 
 Zonder opgeslagen voorkeur volgt de app de systeemtaal: Nederlands bij nl/nl-NL/nl-BE, anders Engels. In een browservoorvertoning geldt de browsertaal. In Instellingen kiest de gebruiker Nederlands of English; de handmatige keuze blijft lokaal bewaard en wint bij een volgende start van de systeemtaal. Een onleesbare of ongeldige voorkeur valt terug op de systeemkeuze. Bij een mislukte opslag verschijnt een melding en blijft de vorige taal actief.
 
-Wisselen werkt direct, zonder herstart. Een compacte taalkeuze bovenaan is ook tijdens het spelen bereikbaar, zodat wisselen geen navigatie of sessieonderbreking vraagt. Afspelen, huidige herhaling, tempo, fragmentgrenzen, ingevulde evaluatie en nog niet opgeslagen formulierinvoer blijven behouden. Een open tablatuurvenster wisselt mee en behoudt afbeelding/zoom.
+Wisselen werkt direct, zonder herstart. De taalkeuze staat uitsluitend in Instellingen. De eerdere compacte taalkeuze in de paginakop vervalt op gebruikersverzoek van 16 oktober 2026. Wisselen gebeurt via Instellingen; navigeren vanuit een actieve sessie volgt de bestaande stopbevestiging. De taalwijziging zelf herlaadt de app niet en herschrijft geen tempo, fragmentgrenzen, evaluaties of eigen inhoud. Een open tablatuurvenster wisselt mee en behoudt afbeelding/zoom.
 
 Alleen appteksten en datumweergave veranderen. Eigen oefen-/sessienamen, opdrachten, fragmentnamen, evaluatienotities en makernaam/boodschap blijven letterlijk behouden. Opgeslagen audio, sessie-opbouwen en historische momentopnamen worden niet vertaald of herschreven. De taalvoorkeur hoort bij de lokale app, niet bij een gedeeld oefenbestand. De bediening met cijfertoetsen, Spatie en Enter blijft gelijk. Engelse datumweergave gebruikt en-GB; Nederlandse nl-NL. Dagindeling en geregistreerde tijden blijven ongewijzigd.
 
@@ -524,3 +524,10 @@ De eerste uitgave is daarom `1.0.0-rc.1`, gemarkeerd als pre-release: macOS Appl
 Dit is een handmatig gepubliceerde testrelease, geen afgeronde Windows-acceptatie of voltooiing van releaseautomatisering (#8). Windows-installer, native Windows-controles, muzikale luisterbeoordeling en CI/tag-automatisering blijven expliciet open. De Mac-app is ad-hoc ondertekend en niet genotariseerd; Windows is niet ondertekend. De projectlicentie blijft onbeslist (`UNLICENSED`); meegeleverde dependencyvermeldingen kiezen geen projectlicentie. Zie docs/RELEASE.md en docs/WINDOWS-TEST.md.
 
 Vervolg op 16 oktober 2026: de gebruiker geeft na de Windows-controle opdracht de gevonden tablatuur- en testproblemen vanaf RC1 te herstellen op een aparte branch, met afzonderlijke commits, Windows-regressie en een reviewbare PR. De volgende kandidaat heet `1.0.0-rc.2`; de gepubliceerde RC1 blijft ongewijzigd. Volledig scherm in het tablatuurvenster moet op Windows de juiste knopstatus tonen en met Escape verlaten kunnen worden. Dit herstelt de bestaande afspraak, zonder opslag- of designwijziging. Mac-regressie en muzikale luisterbeoordeling blijven afzonderlijke acceptatiecontroles. Zie docs/RC2-WINDOWS.md.
+
+
+## 36. Rustigere interface — issue #21
+
+Vastgesteld op 16 oktober 2026: taalkeuze is alleen zichtbaar in Instellingen, zonder extra keuze in de algemene interface. De bewaarde voorkeur en directe vertaling blijven werken. Deze plaatsingsafspraak vervangt de eerdere compacte taalkeuze bovenaan.
+
+In Oefeningen staat Oefening verwijderen direct naast Oefening importeren in de bovenste actiebalk. De actie verwijdert de geselecteerde oefening na de bestaande bevestiging en verwijzingscontrole. Zonder selectie, tijdens een bewerk-/toevoegformulier of tijdens verwijderen is de knop uitgeschakeld. De actiebalk mag omslaan bij een smal venster. Geen wijziging aan opslag, audio of Windows-fullscreenherstel.

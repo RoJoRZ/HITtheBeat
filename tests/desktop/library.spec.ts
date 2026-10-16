@@ -29,6 +29,7 @@ test('own library imports, estimates, corrects, edits and reopens copied media o
     await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
     await page.reload();
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Oefening verwijderen', exact: true })).toBeDisabled();
     await page.getByRole('button', { name: 'Oefening toevoegen', exact: true }).click();
     await page.getByLabel('Audiobestand (MP3 of M4A)', { exact: true }).setInputFiles(source);
     await expect(page.getByRole('status')).toContainText('Geschat tempo:', { timeout: 15000 });
@@ -93,6 +94,7 @@ test('own library imports, estimates, corrects, edits and reopens copied media o
     await page.getByRole('button', { name: 'Oefening opslaan', exact: true }).click();
     await expect(page.getByRole('definition').filter({ hasText: /^replacement.mp3$/ })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
+    await expect(page.locator('.library-toolbar > .row-actions > button')).toHaveText(['Oefening importeren', 'Oefening verwijderen', 'Oefening toevoegen']);
     await page.getByRole('button', { name: 'Oefening verwijderen', exact: true }).click();
     await page.getByRole('button', { name: 'Annuleren', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Zonder tablatuur', exact: true })).toBeVisible();
