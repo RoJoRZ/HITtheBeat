@@ -232,3 +232,7 @@ Na goedkeuring van de taalkeuze vraagt de gebruiker een Info-knop met concept en
 ### Eerste testrelease — #8 gedeeltelijk, 1.0.0-rc.1
 
 De gebruiker accepteert v0.0.26 en vraagt expliciet de eerste release. Lever handmatig een GitHub-pre-release met Mac arm64 DMG/ZIP en Windows x64 ZIP, checksums en Windows-testoverdracht. Geen autonome merge. De nieuwe tag verwijst naar de releasebranch met alle geaccepteerde wijzigingen. #8 blijft open: PR-/tag-automatisering, Windows-installer en daadwerkelijke Windows-gebruikstest volgen. Zie docs/RELEASE.md voor bewijs/beperkingen en docs/WINDOWS-TEST.md voor de volgende platformstap.
+
+### Windows-herstelkandidaat — 1.0.0-rc.2
+
+Na de Windows-test van de exacte RC1-tag heeft de gebruiker herstel van de tablatuur/fullscreen-fout en drie testharnasproblemen goedgekeurd. Werk vanaf RC1 op `codex/issue-8-windows-rc2` en lever een afzonderlijke PR naar de releasebranch, zonder zelfstandige merge of vervanging van RC1. Windows-regressie, pakketten en installer/upgradecontrole staan in docs/RC2-WINDOWS.md; historische bevindingen in docs/WINDOWS-RC1-RESULTATEN.md. Mac-regressie, muzikale beoordeling en CI/tag-automatisering blijven afzonderlijk open; dit rondt #8 niet af.
