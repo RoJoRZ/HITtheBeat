@@ -1,5 +1,8 @@
 export type Fragment = import('../../electron/fragment-model.mjs').Fragment;
+export interface Credit { name: string; message: string }
+export interface ImportPreview { token: string; title: string; description: string; kind: string; bpm: number; fragmentCount: number; credit: Credit | null }
 export interface Exercise {
+  credit?: Credit | null;
   kind?: string; meter?: string; bars?: number;
   fragments?: Fragment[];
   id: string; title: string; description: string; bpm: number; detectedBpm: number | null;

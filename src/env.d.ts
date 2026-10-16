@@ -10,6 +10,10 @@ interface Window {
   hitthebeat?: {
     setNotation(context: { id: string; title: string } | null): Promise<void>;
     openNotation(): Promise<void>;
+    exportExercise(id: string, credit: import('./library/types').Credit | null): Promise<boolean>;
+    previewImport(): Promise<import('./library/types').ImportPreview | null>;
+    confirmImport(token: string, title: string): Promise<import('./library/types').Exercise>;
+    cancelImport(token: string): Promise<void>;
     startSession(id: string): Promise<import('./library/types').SessionRecord>;
     listSessions(): Promise<import('./library/types').SessionRecord[]>;
     saveSession(id: string, progress: import('./library/types').SessionProgress, status: 'running'|'stopped'|'completed'|'partial'): Promise<import('./library/types').SessionRecord>;

@@ -244,3 +244,9 @@ De selectie wordt tijdens slepen getoond en bij loslaten toegepast. Zoomen/panne
 Alle tempo's en BPM-aanpassingen tonen hele getallen, ook in grafiektooltip/aria, historie, schattingsknop en validatieteksten. De displayformatter verandert geen rekenwaarden of opgeslagen historie. Getalvelden tonen de afgeronde waarde; alleen bevestigde gebruikersinvoer wijzigt het tempo. Tijd, toonhoogte, dB en gebruikersinhoud behouden hun eigen notatie.
 
 Het audio-oefenformulier biedt naast de bestaande schatting/handmatige invoer twee herkenbare acties Halveer BPM en Verdubbel BPM. De uitleg noemt een mogelijke halve/dubbele tel en laat de muzikant kiezen wat bij de oefening hoort. Dit wijzigt het veld; opslaan blijft expliciet. De bestaande donker/Mandarijn-stijl en schattingswaarschuwing blijven leidend.
+
+## Oefeningen delen — issue #7, v0.0.24
+
+Oefening importeren staat naast Oefening toevoegen; Exporteren naast Bewerken bij de actieve oefening. Compacte modale formulieren (maximaal 620px) behouden Studio donker, Source Sans 3 en Mandarijn. Export toont optionele makernaam en boodschap met expliciete Bestand opslaan; de native bestandsdialoog kiest de bestemming. Import toont een bewerkbare naam en een goed zichtbare waarschuwing bij een bestaande naam, plus opdracht en maker ter controle. Enter bevestigt het formulier; Escape/Annuleren sluiten zonder opslag. Tijdens bestandsacties zijn formulieren geblokkeerd tegen dubbele acties.
+
+Gemaakt door … staat als bescheiden apart vak met Mandarijn-rand boven tablatuur/opdracht in de bibliotheekdetails, met de boodschap als gewone tekst. Gebruikersinhoud wordt niet als HTML weergegeven. Makervermelding blijft optioneel; geen profiel- of accountscherm toegevoegd.

@@ -65,7 +65,7 @@ test('count-in persists per block, keeps snapshots and migrates schema 7 without
     const prep={...session.progress,seq:1,phase:'countin',times:{planned:0,fragment:0,pause:0,preparation:1}};
     library.saveSession(session.id,prep); assert.throws(()=>library.saveSession(session.id,{...prep,seq:2,times:{...prep.times,preparation:0}}),/teruglopen/);
     library.close();library=await openLibrary(root);assert.deepEqual(library.listRoutines()[0].blocks[0].countIn,{enabled:false,meter:'6/8'});assert.equal(library.listSessions()[0].progress.times.preparation,1);
-    library.close(); const db=new DatabaseSync(path.join(root,'library.sqlite'));db.exec('ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; PRAGMA user_version=7;');db.close();library=await openLibrary(root);
+    library.close(); const db=new DatabaseSync(path.join(root,'library.sqlite'));db.exec('ALTER TABLE exercises DROP COLUMN credit; ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; PRAGMA user_version=7;');db.close();library=await openLibrary(root);
     assert.equal(library.listRoutines()[0].countIn,undefined);assert.equal(library.listSessions()[0].routine.blocks[0].countIn.enabled,true);
   } finally {library.close();await rm(root,{recursive:true,force:true});}
 });
@@ -97,7 +97,7 @@ test('schema 8 copies the session setting to existing blocks; legacy snapshots k
     input.blocks.push({id:randomUUID(),exerciseId:exercise.id,steps:[makeStep()]});
     const routine=library.saveRoutine(input);const session=library.startSession(routine.id);library.close();
     const db=new DatabaseSync(path.join(root,'library.sqlite'));
-    db.exec('ALTER TABLE routine_blocks DROP COLUMN count_in; PRAGMA user_version=8;');
+    db.exec('ALTER TABLE exercises DROP COLUMN credit; ALTER TABLE routine_blocks DROP COLUMN count_in; PRAGMA user_version=8;');
     const legacy={...routine,countIn:{enabled:true,meter:'3/4'},blocks:routine.blocks.map(({countIn,...block})=>block)};
     db.prepare('UPDATE routines SET count_in=?').run(JSON.stringify(legacy.countIn));
     db.prepare('UPDATE sessions SET snapshot=? WHERE id=?').run(JSON.stringify({routine:legacy,exercises:session.exercises}),session.id);db.close();

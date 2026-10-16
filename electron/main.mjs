@@ -1,6 +1,7 @@
+import { sharingDialogs } from './sharing-dialogs.mjs';
 import { setupNotationWindow } from './notation-window.mjs';
 import { openLibrary } from './library.mjs';
-import { app, BrowserWindow, ipcMain, Menu, net, protocol, session, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, net, protocol, session, shell } from 'electron';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { resolveAsset } from './local-assets.mjs';
@@ -78,6 +79,11 @@ app.whenReady().then(async () => {
     }
   }
   closeNotation = setupNotationWindow({ entryUrl, authorize, readImage: id => library.read(id, 'image') });
+  const sharing = sharingDialogs({library,dialog,owner:()=> { if (!window) throw new Error('Geen hoofdvenster.'); return window; }});
+  ipcMain.handle('sharing:export', (event,id,credit)=>{ authorize(event); return sharing.export(id,credit); });
+  ipcMain.handle('sharing:preview', event=>{ authorize(event); return sharing.preview(); });
+  ipcMain.handle('sharing:confirm', (event,token,title)=>{ authorize(event); return sharing.confirm(token,title); });
+  ipcMain.handle('sharing:cancel', (event,token)=>{ authorize(event); return sharing.cancel(token); });
   ipcMain.handle('app:info', event => { authorize(event); return { version: app.getVersion(), platform: process.platform }; });
   ipcMain.handle('sessions:start', (event, id) => { authorize(event); return library.startSession(id); });
   ipcMain.handle('sessions:list', event => { authorize(event); return library.listSessions(); });

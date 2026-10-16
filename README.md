@@ -90,3 +90,5 @@ Sleep in de waveform om een audiopassage te kiezen of versleep A/B. Gebruik zoom
 
 
 BPM wordt overal als geheel getal getoond; opgeslagen precisie blijft behouden. De detector beperkt bepaalde dubbele-tempo-missers bij geaccentueerde onderverdelingen. In Oefeningen → Bewerken helpen Halveer BPM en Verdubbel BPM bij een andere bedoelde tel; handmatig corrigeren en Gebruik schatting blijven beschikbaar. Zie [BPM-onderzoek en controles](docs/BPM.md).
+
+Oefeningen delen: kies **Oefeningen → Exporteren** voor één `.htbexercise`-bestand met audio, tablatuur, opdracht, instellingen en fragmenten. Voeg eventueel je makernaam en een persoonlijke boodschap toe. **Oefening importeren** toont eerst een preview waarin je de naam kunt aanpassen; bij een bestaande naam verschijnt een waarschuwing. Import maakt altijd een nieuwe oefening aan. De maker blijft zichtbaar en wordt bij opnieuw exporteren ingevuld. Alles werkt offline. Zie [oefeningen delen en controles](docs/OEFENING-DELEN.md).

@@ -215,3 +215,7 @@ Na gebruiksgoedkeuring van het tablatuurvenster volgt de interactieve audio-wave
 ### Issue #5 — BPM-herkenning en gehele weergave (v0.0.23)
 
 Na gebruiksgoedkeuring van de waveformselectie: onderzoek/benchmark van halve/dubbele missers, beperkte detectorcorrectie, snelle handmatige halve/dubbele keuze en interfacebrede gehele BPM-weergave met behoud van interne precisie. Zie docs/BPM.md voor meetresultaten en controles. Basis is de geaccepteerde issue-4-commit; niet zelfstandig mergen. Geef ruimte voor feedback vóór #7 (offline oefening export/import), daarna #6 en #8.
+
+### Issue #7 — Oefeningen delen met makervermelding (v0.0.24)
+
+Na gebruiksgoedkeuring van v0.0.23 volgt één offline deelbestand per oefening, importpreview met hernoemen/waarschuwing en toevoeging zonder overschrijven. Aanvullend gebruikersverzoek: optionele informele makernaam/boodschap die na import zichtbaar blijft en bij herexport wordt voorgesteld. Zie docs/OEFENING-DELEN.md voor impact, exportspecificatie en controles. Basis is de geaccepteerde issue-5-commit; niet zelfstandig mergen. Geef ruimte voor feedback vóór #6 (taalkeuze), daarna #8 (distributie).
