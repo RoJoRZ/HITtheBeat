@@ -7,7 +7,7 @@ import path from 'node:path';
 
 test('audio controls load MP3 offline, validate loops, and respect keyboard focus', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-audio-controls-'));
-  const desktop = await electron.launch({ executablePath: process.env.HITTHEBEAT_TEST_EXECUTABLE, args: [...(process.env.HITTHEBEAT_TEST_EXECUTABLE ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const desktop = await electron.launch({ executablePath: process.env.HITTHEBEAT_TEST_EXECUTABLE, args: ['--lang=nl-NL', ...(process.env.HITTHEBEAT_TEST_EXECUTABLE ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   try {
     const page = await desktop.firstWindow();
     const errors: string[] = [];
@@ -78,7 +78,7 @@ test('DSP preserves pitch at different speeds and shifts pitch at fixed speed', 
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-dsp-'));
   const server = await createServer();
   await server.listen();
-  const desktop = await electron.launch({ args: ['.', `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '1' } });
+  const desktop = await electron.launch({ args: ['--lang=nl-NL', '.', `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '1' } });
   try {
     const page = await desktop.firstWindow();
     await expect(page.locator('h1')).toBeVisible();

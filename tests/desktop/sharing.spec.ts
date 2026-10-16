@@ -5,7 +5,7 @@ import path from 'node:path';
 
 test('offline export with maker credit, duplicate-name import preview, cancel, rename and re-export',async()=>{
  const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-sharing-ui-')),executablePath=process.env.HITTHEBEAT_TEST_EXECUTABLE,file=path.join(root,'deel.htbexercise');
- const app=await electron.launch({executablePath,args:[...(executablePath?[]:['.']),`--user-data-dir=${path.join(root,'data')}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
+ const app=await electron.launch({executablePath,args:['--lang=nl-NL',...(executablePath?[]:['.']),`--user-data-dir=${path.join(root,'data')}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
  try{
   const page=await app.firstWindow();const errors:string[]=[];page.on('pageerror',e=>{errors.push(e.message);console.log('Renderer error:',e.message);});await expect(page.locator('h1')).toBeVisible();await page.context().setOffline(true);
   await app.evaluate(({dialog},file)=>{dialog.showSaveDialog=(async()=>({canceled:false,filePath:file})) as typeof dialog.showSaveDialog;dialog.showOpenDialog=(async()=>({canceled:false,filePaths:[file]})) as typeof dialog.showOpenDialog;},file);

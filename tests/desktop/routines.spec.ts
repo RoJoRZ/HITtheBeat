@@ -6,7 +6,7 @@ import path from 'node:path';
 test('own routine editor saves independent builds, validates and preserves order', async () => {
   const data = await mkdtemp(path.join(tmpdir(), 'hitthebeat-editor-'));
   const executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const launch = () => electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${data}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const launch = () => electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${data}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   let app = await launch();
   try {
     let page = await app.firstWindow();

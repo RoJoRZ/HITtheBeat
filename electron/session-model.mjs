@@ -1,3 +1,4 @@
+import { LocalizedError } from './i18n.mjs';
 import { countInForBlock, hasCountIn } from './count-in-model.mjs';
 import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
 /** @typedef {{mode:'planned'|'fragment', block:number, step:number, a:number, b:number, bpm:number, pitch:number, seconds:number, completed:number}} Played */
@@ -6,14 +7,14 @@ import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
 /** @typedef {{routine:import('./routine-model.mjs').RoutineInput,exercises:import('./library.mjs').Exercise[]}} Snapshot */
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /** @param {unknown} id */
-export function sessionId(id) { if (typeof id !== 'string' || !uuid.test(id)) throw new Error('Ongeldige sessie.'); return id; }
+export function sessionId(id) { if (typeof id !== 'string' || !uuid.test(id)) throw new LocalizedError("Ongeldige sessie."); return id; }
 /** @param {unknown} value @param {number} max */
 function integer(value, max) { return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= max; }
 /** @param {unknown} value */
 function seconds(value) { return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 31536000; }
 /** @param {Progress} input @param {Snapshot} snapshot @returns {Progress} */
 export function validateProgress(input, snapshot) {
-  const fail = () => { throw new Error('Ongeldige sessieresultaten.'); };
+  const fail = () => { throw new LocalizedError("Ongeldige sessieresultaten."); };
   if (!input || !integer(input.seq, Number.MAX_SAFE_INTEGER) || !integer(input.block, snapshot.routine.blocks.length - 1)) return fail();
   const block = snapshot.routine.blocks[input.block];
   if (!integer(input.step, block.steps.length - 1) || !integer(input.repetition, block.steps[input.step].repetitions - 1) || !['ready','playing','countin','paused','fragment','review','complete'].includes(input.phase) || !integer(input.passes, 1000000)) return fail();
@@ -37,12 +38,12 @@ export function validateProgress(input, snapshot) {
 }
 /** @param {Evaluation} input @param {Snapshot} snapshot @param {Progress} progress */
 export function validateEvaluation(input, snapshot, progress) {
-  if (!input || progress.phase !== 'review' || input.block !== progress.block || input.toStep !== progress.step || !integer(input.fromStep, input.toStep) || !['repeat','same','faster','slower'].includes(input.action) || !Number.isFinite(input.delta) || Math.abs(input.delta) > 1000 || (input.action === 'faster' ? input.delta <= 0 : input.action === 'slower' ? input.delta >= 0 : input.delta !== 0) || typeof input.note !== 'string' || input.note.length > 2000 || input.note.includes('\0')) throw new Error('Controleer de evaluatie en BPM-aanpassing.');
-  if (input.rating !== undefined && (!integer(input.rating, 5) || input.rating < 1)) throw new Error('Kies een beoordeling van 1 tot en met 5.');
+  if (!input || progress.phase !== 'review' || input.block !== progress.block || input.toStep !== progress.step || !integer(input.fromStep, input.toStep) || !['repeat','same','faster','slower'].includes(input.action) || !Number.isFinite(input.delta) || Math.abs(input.delta) > 1000 || (input.action === 'faster' ? input.delta <= 0 : input.action === 'slower' ? input.delta >= 0 : input.delta !== 0) || typeof input.note !== 'string' || input.note.length > 2000 || input.note.includes('\0')) throw new LocalizedError("Controleer de evaluatie en BPM-aanpassing.");
+  if (input.rating !== undefined && (!integer(input.rating, 5) || input.rating < 1)) throw new LocalizedError("Kies een beoordeling van 1 tot en met 5.");
   sessionId(input.id);
   const steps = snapshot.routine.blocks[input.block].steps, last = steps[input.toStep];
   const duration = snapshot.exercises.find(item => item.id === snapshot.routine.blocks[input.block].exerciseId)?.duration;
   const same = (/** @type {import('./routine-model.mjs').RoutineStep} */ step) => (step.start ?? 0) === (last.start ?? 0) && (step.end ?? duration) === (last.end ?? duration);
-  if ((input.toStep + 1 < steps.length && same(steps[input.toStep + 1])) || (input.fromStep > 0 && same(steps[input.fromStep - 1])) || steps.slice(input.fromStep, input.toStep + 1).some(step => !same(step))) throw new Error('De evaluatie hoort bij de volledige fragmentserie.');
+  if ((input.toStep + 1 < steps.length && same(steps[input.toStep + 1])) || (input.fromStep > 0 && same(steps[input.fromStep - 1])) || steps.slice(input.fromStep, input.toStep + 1).some(step => !same(step))) throw new LocalizedError("De evaluatie hoort bij de volledige fragmentserie.");
   return { id: input.id, block: input.block, fromStep: input.fromStep, toStep: input.toStep, action: input.action, delta: input.delta, note: input.note.trim(), rating: input.rating ?? 3 };
 }

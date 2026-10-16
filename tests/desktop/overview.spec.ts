@@ -7,7 +7,7 @@ import path from 'node:path';
 test('recent sessions limit, browse/search, direct start and return, editor and persistence', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-overview-'));
   const executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const launch = () => electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const launch = () => electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   let app = await launch();
   try {
     let page = await app.firstWindow();

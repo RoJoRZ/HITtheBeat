@@ -1,18 +1,19 @@
+import { LocalizedError } from './i18n.mjs';
 /** Recognize supported audio before copying it into managed storage.
  * M4A is a container; this version accepts unencrypted AAC tracks.
  * @param {string} name @param {Uint8Array} bytes
  */
 export function audioFormat(name, bytes) {
-  if (!(bytes instanceof Uint8Array) || bytes.length < 12 || bytes.length > 50 * 1024 * 1024) throw new Error('Kies een MP3 of M4A van maximaal 50 MB.');
+  if (!(bytes instanceof Uint8Array) || bytes.length < 12 || bytes.length > 50 * 1024 * 1024) throw new LocalizedError("Kies een MP3 of M4A van maximaal 50 MB.");
   const extension = name.toLowerCase().match(/\.(mp3|m4a)$/)?.[1];
   const text = (/** @type {number} */ offset, length = 4) => String.fromCharCode(...bytes.subarray(offset, offset + length));
   if (extension === 'mp3') {
-    if (!(text(0, 3) === 'ID3' || (bytes[0] === 255 && (bytes[1] & 224) === 224))) throw new Error('Dit bestand is geen herkenbare MP3.');
+    if (!(text(0, 3) === 'ID3' || (bytes[0] === 255 && (bytes[1] & 224) === 224))) throw new LocalizedError("Dit bestand is geen herkenbare MP3.");
     return { extension: 'mp3', mime: 'audio/mpeg' };
   }
-  if (extension !== 'm4a') throw new Error('Kies een MP3 of M4A van maximaal 50 MB.');
+  if (extension !== 'm4a') throw new LocalizedError("Kies een MP3 of M4A van maximaal 50 MB.");
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  const invalid = () => { throw new Error('Deze M4A is beschadigd of geen herkenbaar audiobestand.'); };
+  const invalid = () => { throw new LocalizedError("Deze M4A is beschadigd of geen herkenbaar audiobestand."); };
   let count = 0, audio = false, video = false, aac = false, lossless = false, protectedAudio = false, mediaData = false;
   /** @param {number} start @param {number} end @param {number} depth */
   function scan(start, end, depth) {
@@ -52,8 +53,8 @@ export function audioFormat(name, bytes) {
     }
   }
   scan(0, bytes.length, 0);
-  if (protectedAudio) throw new Error('Deze M4A is beveiligd en kan niet worden geïmporteerd. Kies een onbeveiligde MP3 of M4A met AAC.');
-  if (lossless) throw new Error('Deze M4A bevat Apple Lossless (ALAC). Kies een MP3 of exporteer de track als M4A met AAC.');
-  if (!audio || video || !aac || !mediaData) throw new Error('Kies een M4A-audiobestand met AAC. Deze variant wordt niet ondersteund.');
+  if (protectedAudio) throw new LocalizedError("Deze M4A is beveiligd en kan niet worden geïmporteerd. Kies een onbeveiligde MP3 of M4A met AAC.");
+  if (lossless) throw new LocalizedError("Deze M4A bevat Apple Lossless (ALAC). Kies een MP3 of exporteer de track als M4A met AAC.");
+  if (!audio || video || !aac || !mediaData) throw new LocalizedError("Kies een M4A-audiobestand met AAC. Deze variant wordt niet ondersteund.");
   return { extension: 'm4a', mime: 'audio/mp4' };
 }

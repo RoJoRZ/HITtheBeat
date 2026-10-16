@@ -250,3 +250,9 @@ Het audio-oefenformulier biedt naast de bestaande schatting/handmatige invoer tw
 Oefening importeren staat naast Oefening toevoegen; Exporteren naast Bewerken bij de actieve oefening. Compacte modale formulieren (maximaal 620px) behouden Studio donker, Source Sans 3 en Mandarijn. Export toont optionele makernaam en boodschap met expliciete Bestand opslaan; de native bestandsdialoog kiest de bestemming. Import toont een bewerkbare naam en een goed zichtbare waarschuwing bij een bestaande naam, plus opdracht en maker ter controle. Enter bevestigt het formulier; Escape/Annuleren sluiten zonder opslag. Tijdens bestandsacties zijn formulieren geblokkeerd tegen dubbele acties.
 
 Gemaakt door … staat als bescheiden apart vak met Mandarijn-rand boven tablatuur/opdracht in de bibliotheekdetails, met de boodschap als gewone tekst. Gebruikersinhoud wordt niet als HTML weergegeven. Makervermelding blijft optioneel; geen profiel- of accountscherm toegevoegd.
+
+## Taalkeuze — issue #6, v0.0.25
+
+Instellingen krijgt een blok Taal met de eigen taalnamen Nederlands en English. Dezelfde keuze staat compact in de paginakop, ook bij een actieve sessie. Daardoor is geen navigatie nodig om tijdens het spelen te wisselen. Beide keuzes sturen dezelfde lokaal opgeslagen voorkeur. Geen vlaggen: de opties benoemen talen, geen landen.
+
+Scherm, meldingen, toegankelijke namen, menu en tablatuurvenster wisselen direct. De componentboom en bestaande bediening blijven staan: geen taal als React-key, geen herladen en geen verlies van invoer, afspeelpositie of beeldzoom. Eigen inhoud wordt niet vertaald. Lange Engelse teksten mogen omslaan binnen bestaande panelen en knoppen; Studio donker, Mandarijn en Source Sans 3 blijven leidend.

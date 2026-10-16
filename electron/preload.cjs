@@ -2,6 +2,12 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // Only this narrow API crosses the isolated renderer boundary.
 contextBridge.exposeInMainWorld('hitthebeat', Object.freeze({
+  getLanguage: () => ipcRenderer.invoke('language:get'),
+  setLanguage: (/** @type {'nl'|'en'} */ language) => ipcRenderer.invoke('language:set', language),
+  onLanguageChange: (/** @type {(language:'nl'|'en')=>void} */ listener) => {
+    const receive = (/** @type {Electron.IpcRendererEvent} */ _event, /** @type {'nl'|'en'} */ language) => listener(language);
+    ipcRenderer.on('language:changed',receive); return () => ipcRenderer.removeListener('language:changed',receive);
+  },
   exportExercise: (/** @type {string} */ id, /** @type {unknown} */ credit) => ipcRenderer.invoke('sharing:export', id, credit),
   previewImport: () => ipcRenderer.invoke('sharing:preview'),
   confirmImport: (/** @type {string} */ token, /** @type {string} */ title) => ipcRenderer.invoke('sharing:confirm',token,title),

@@ -11,7 +11,7 @@ function track() {
 test('real routine restores interrupted pass, plays repeats in order and advances to next exercise', async () => {
   test.setTimeout(45000);
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-session-')), executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const app = await electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const app = await electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   try {
     const page = await app.firstWindow(), errors: string[] = [];
     page.on('pageerror', reason => errors.push(reason.message));
@@ -101,7 +101,7 @@ test('real routine restores interrupted pass, plays repeats in order and advance
 
 test('missing audio does not advance or count a pass and stopping keeps the saved routine', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-missing-session-')), executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const app = await electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const app = await electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   try {
     const page = await app.firstWindow();
     await page.evaluate(async () => {

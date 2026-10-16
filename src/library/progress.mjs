@@ -1,3 +1,4 @@
+import { barsLabel, t } from '../../electron/i18n.mjs';
 import { isMetronome, exerciseBars, sourceSeconds } from '../../electron/exercise-model.mjs';
 /** @typedef {import('./types').SessionRecord} Session */
 /** @typedef {'week'|'month'|'all'} Period */
@@ -40,7 +41,7 @@ export function buildDashboard(sessions, { period = 'week', now = new Date(), ti
       const b = played.mode === 'planned' ? step.end ?? sourceSeconds(step, source) : played.b;
       const full = a === 0 && b === sourceSeconds(step, source);
       const key = JSON.stringify([session.routine.id, block.id, source.id, source.bpm, source.duration, isMetronome(source) ? [source.kind, source.meter, exerciseBars(step, source)] : full ? 'full' : [a, b], played.mode, played.pitch]);
-      const part = isMetronome(source) ? `Metronoom ${source.meter} · ${exerciseBars(step, source)} maten` : full ? 'Volledige track' : `${played.mode === 'planned' && step.fragmentName ? `${step.fragmentName} · ` : 'Fragment '}${a}–${b} s`;
+      const part = isMetronome(source) ? t("Metronoom {0} · {1}", source.meter, barsLabel(exerciseBars(step, source))) : full ? t("Volledige track") : t("{0}{1}–{2} s", played.mode === 'planned' && step.fragmentName ? `${step.fragmentName} · ` : t("Fragment "), a, b);
       const group = groups.get(key) ?? { key, routine: session.routine.title, exercise: source.title, part, kind: source.kind ?? 'audio', mode: played.mode, pitch: played.pitch, originalBpm: source.bpm, sourceDuration: source.duration, block: played.block + 1, points: [] };
       group.routine = session.routine.title; group.exercise = source.title; group.part = part;
       groups.set(key, group);

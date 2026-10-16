@@ -1,10 +1,11 @@
+import { LocalizedError } from './i18n.mjs';
 import { createHash } from 'node:crypto';
 import { audioFormat } from './audio-format.mjs';
 import { validateFragment } from './fragment-model.mjs';
 import { meterBeats, validTempo } from './exercise-model.mjs';
 
 export const MAX_PACKAGE_BYTES = 84 * 1024 * 1024;
-const invalid = () => new Error('Dit is geen geldig HITtheBeat-oefenbestand.');
+const invalid = () => new LocalizedError("Dit is geen geldig HITtheBeat-oefenbestand.");
 /** @param {unknown} value @param {number} max */
 function text(value, max) {
   if (typeof value !== 'string' || value.length > max || value.includes('\0')) throw invalid();
@@ -15,7 +16,7 @@ export function validateCredit(value) {
   if (value == null) return null;
   if (typeof value !== 'object' || !('name' in value) || !('message' in value)) throw invalid();
   const name = text(value.name, 120), message = text(value.message, 1000);
-  if (!name && message) throw new Error('Vul een makernaam in bij je boodschap.');
+  if (!name && message) throw new LocalizedError("Vul een makernaam in bij je boodschap.");
   return name ? { name, message } : null;
 }
 /** @param {import('./library.mjs').Asset|null|undefined} asset */
@@ -46,7 +47,7 @@ export function decodeExercise(bytes) {
   if (!(bytes instanceof Uint8Array) || bytes.length > MAX_PACKAGE_BYTES) throw invalid();
   let value;
   try { value = JSON.parse(Buffer.from(bytes).toString('utf8')); } catch { throw invalid(); }
-  if (!value || value.format !== 'hitthebeat-exercise' || value.version !== 1 || !value.exercise) throw new Error('Onbekend of niet ondersteund HITtheBeat-oefenbestand.');
+  if (!value || value.format !== 'hitthebeat-exercise' || value.version !== 1 || !value.exercise) throw new LocalizedError("Onbekend of niet ondersteund HITtheBeat-oefenbestand.");
   const e = value.exercise;
   const title = text(e.title,160), description = text(e.description,20000), kind = e.kind;
   if (!title || !['audio','metronome'].includes(kind) || typeof e.bpm !== 'number' || !Number.isFinite(e.bpm) || e.bpm <= 0 || e.bpm > 1000 || !['estimated','unavailable','failed'].includes(e.analysisStatus) || !(e.detectedBpm === null || (typeof e.detectedBpm === 'number' && Number.isFinite(e.detectedBpm) && e.detectedBpm >= 40 && e.detectedBpm <= 240))) throw invalid();

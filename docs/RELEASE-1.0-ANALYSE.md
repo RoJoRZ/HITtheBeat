@@ -212,3 +212,7 @@ SSH-toegang naar origin faalt op deze machine met Permission denied (publickey),
 ### Voortgang na acceptatie van #5
 
 De gebruiker accepteert v0.0.23 en vraagt bij #7 optionele informele makerherkenning. V0.0.24 implementeert één offline .htbexercise-bestand, importpreview/naamconflictwaarschuwing, nieuwe identiteiten en makernaam/boodschap. De archiefsuggestie gebruikt versieerbaar JSON met base64-assets en inhoudscontrole zonder extra dependency; zie docs/OEFENING-DELEN.md voor impact en bewijs. Gebruikstest/PR-acceptatie volgen vóór #6; #8 blijft apart. Geen zelfstandige merges of issue-sluiting.
+
+### Voortgang na acceptatie van #7
+
+De gebruiker accepteert v0.0.24 en geeft opdracht voor #6. V0.0.25 levert Nederlands/Engels met systeemtaalfallback, bewaarde handmatige voorkeur en directe wisseling zonder speler-/invoerverlies, ook in het losse tablatuurvenster. Instellingen en de paginakop sturen dezelfde keuze; eigen inhoud en historie blijven behouden. Zie docs/TAALKEUZE.md voor impact en testbewijs. Gebruiksfeedback volgt vóór #8; Windows-runtimegebruik en distributiekeuzes blijven open. Geen zelfstandige merges.

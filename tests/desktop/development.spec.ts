@@ -12,7 +12,7 @@ test('development server loads desktop bridge, local font and injected styles', 
   const server = await createServer();
   try {
     await server.listen();
-    const desktop = await electron.launch({ args: ['.'], env: { ...process.env, HITTHEBEAT_DEV: '1', HITTHEBEAT_TEST_DATA: data } });
+    const desktop = await electron.launch({ args: ['--lang=nl-NL', '.'], env: { ...process.env, HITTHEBEAT_DEV: '1', HITTHEBEAT_TEST_DATA: data } });
     try {
       const page = await desktop.firstWindow();
       await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();

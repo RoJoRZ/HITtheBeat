@@ -1,3 +1,6 @@
+import { languageSettings } from './language-settings.mjs';
+import { getLanguage, setLanguage, subscribeLanguage, localizedHandle } from './i18n.mjs';
+import { t, LocalizedError } from './i18n.mjs';
 import { sharingDialogs } from './sharing-dialogs.mjs';
 import { setupNotationWindow } from './notation-window.mjs';
 import { openLibrary } from './library.mjs';
@@ -69,6 +72,9 @@ app.whenReady().then(async () => {
     }
   });
   if (process.platform === 'darwin') app.dock?.setIcon(path.join(here, '..', 'build', 'icon.png'));
+  const preferences = await languageSettings(app.getPath('userData'), app.commandLine.getSwitchValue('lang') || app.getPreferredSystemLanguages()[0] || app.getLocale());
+  setLanguage(preferences.get());
+  subscribeLanguage(() => { updateMenu(); for (const current of BrowserWindow.getAllWindows()) current.webContents.send('language:changed', getLanguage()); });
   const library = await openLibrary(path.join(app.getPath('userData'), 'library'));
   interruptSessions = () => library.interruptSessions();
   app.on('will-quit', () => { interruptSessions(); library.close(); });
@@ -79,36 +85,39 @@ app.whenReady().then(async () => {
     }
   }
   closeNotation = setupNotationWindow({ entryUrl, authorize, readImage: id => library.read(id, 'image') });
-  const sharing = sharingDialogs({library,dialog,owner:()=> { if (!window) throw new Error('Geen hoofdvenster.'); return window; }});
-  ipcMain.handle('sharing:export', (event,id,credit)=>{ authorize(event); return sharing.export(id,credit); });
-  ipcMain.handle('sharing:preview', event=>{ authorize(event); return sharing.preview(); });
-  ipcMain.handle('sharing:confirm', (event,token,title)=>{ authorize(event); return sharing.confirm(token,title); });
-  ipcMain.handle('sharing:cancel', (event,token)=>{ authorize(event); return sharing.cancel(token); });
-  ipcMain.handle('app:info', event => { authorize(event); return { version: app.getVersion(), platform: process.platform }; });
-  ipcMain.handle('sessions:start', (event, id) => { authorize(event); return library.startSession(id); });
-  ipcMain.handle('sessions:list', event => { authorize(event); return library.listSessions(); });
-  ipcMain.handle('sessions:save', (event, id, progress, status) => { authorize(event); return library.saveSession(id, progress, status); });
-  ipcMain.handle('sessions:review', (event, id, evaluation) => { authorize(event); return library.reviewSession(id, evaluation); });
-  ipcMain.handle('routines:list', event => { authorize(event); return library.listRoutines(); });
-  ipcMain.handle('routines:save', (event, input) => { authorize(event); return library.saveRoutine(input); });
-  ipcMain.handle('routines:delete', (event, id) => { authorize(event); return library.deleteRoutine(id); });
-  ipcMain.handle('library:list', event => { authorize(event); return library.list(); });
-  ipcMain.handle('library:delete', (event, id) => { authorize(event); return library.deleteExercise(id); });
-  ipcMain.handle('library:save', (event, input) => { authorize(event); return library.save(input); });
-  ipcMain.handle('library:fragment-save', (event, id, input) => { authorize(event); return library.saveFragment(id, input); });
-  ipcMain.handle('library:fragment-delete', (event, id, fragmentId) => { authorize(event); return library.deleteFragment(id, fragmentId); });
-  ipcMain.handle('library:audio', (event, id) => { authorize(event); return library.read(id, 'audio'); });
-  ipcMain.handle('library:image', (event, id) => { authorize(event); return library.read(id, 'image'); });
-  ipcMain.handle('library:folder', async event => { authorize(event); const error = await shell.openPath(library.root); if (error) throw new Error('De bibliotheekmap kan niet worden geopend.'); });
-  Menu.setApplicationMenu(Menu.buildFromTemplate([
-    ...(process.platform === 'darwin' ? [{ label: 'HITtheBeat', submenu: [{ role: /** @type {const} */ ('about') }, { type: /** @type {const} */ ('separator') }, { role: /** @type {const} */ ('quit') }] }] : []),
-    { label: 'Bewerken', submenu: [{ role: 'undo' }, { role: 'redo' }, { type: 'separator' }, { role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' }] },
-    { label: 'Venster', submenu: [{ role: 'minimize' }, { role: 'zoom' }, { role: 'close' }] },
-  ]));
+  localizedHandle(ipcMain, 'language:get', event => { authorize(event); return getLanguage(); });
+  localizedHandle(ipcMain, 'language:set', async (event, value) => { authorize(event); const language=await preferences.set(value); setLanguage(language); return language; });
+  const sharing = sharingDialogs({library,dialog,owner:()=> { if (!window) throw new LocalizedError("Geen hoofdvenster."); return window; }});
+  localizedHandle(ipcMain, 'sharing:export', (event,id,credit)=>{ authorize(event); return sharing.export(id,credit); });
+  localizedHandle(ipcMain, 'sharing:preview', event=>{ authorize(event); return sharing.preview(); });
+  localizedHandle(ipcMain, 'sharing:confirm', (event,token,title)=>{ authorize(event); return sharing.confirm(token,title); });
+  localizedHandle(ipcMain, 'sharing:cancel', (event,token)=>{ authorize(event); return sharing.cancel(token); });
+  localizedHandle(ipcMain, 'app:info', event => { authorize(event); return { version: app.getVersion(), platform: process.platform }; });
+  localizedHandle(ipcMain, 'sessions:start', (event, id) => { authorize(event); return library.startSession(id); });
+  localizedHandle(ipcMain, 'sessions:list', event => { authorize(event); return library.listSessions(); });
+  localizedHandle(ipcMain, 'sessions:save', (event, id, progress, status) => { authorize(event); return library.saveSession(id, progress, status); });
+  localizedHandle(ipcMain, 'sessions:review', (event, id, evaluation) => { authorize(event); return library.reviewSession(id, evaluation); });
+  localizedHandle(ipcMain, 'routines:list', event => { authorize(event); return library.listRoutines(); });
+  localizedHandle(ipcMain, 'routines:save', (event, input) => { authorize(event); return library.saveRoutine(input); });
+  localizedHandle(ipcMain, 'routines:delete', (event, id) => { authorize(event); return library.deleteRoutine(id); });
+  localizedHandle(ipcMain, 'library:list', event => { authorize(event); return library.list(); });
+  localizedHandle(ipcMain, 'library:delete', (event, id) => { authorize(event); return library.deleteExercise(id); });
+  localizedHandle(ipcMain, 'library:save', (event, input) => { authorize(event); return library.save(input); });
+  localizedHandle(ipcMain, 'library:fragment-save', (event, id, input) => { authorize(event); return library.saveFragment(id, input); });
+  localizedHandle(ipcMain, 'library:fragment-delete', (event, id, fragmentId) => { authorize(event); return library.deleteFragment(id, fragmentId); });
+  localizedHandle(ipcMain, 'library:audio', (event, id) => { authorize(event); return library.read(id, 'audio'); });
+  localizedHandle(ipcMain, 'library:image', (event, id) => { authorize(event); return library.read(id, 'image'); });
+  localizedHandle(ipcMain, 'library:folder', async event => { authorize(event); const error = await shell.openPath(library.root); if (error) throw new LocalizedError("De bibliotheekmap kan niet worden geopend."); });
+  function updateMenu() { Menu.setApplicationMenu(Menu.buildFromTemplate([
+    ...(process.platform === 'darwin' ? [{ label: 'HITtheBeat', submenu: [{ label: t('Over HITtheBeat'), role: /** @type {const} */ ('about') }, { type: /** @type {const} */ ('separator') }, { label: t('Afsluiten'), role: /** @type {const} */ ('quit') }] }] : []),
+    { label: t("Bewerken"), submenu: [{ label: t('Ongedaan maken'), role: 'undo' }, { label: t('Opnieuw'), role: 'redo' }, { type: 'separator' }, { label: t('Knippen'), role: 'cut' }, { label: t('Kopiëren'), role: 'copy' }, { label: t('Plakken'), role: 'paste' }, { label: t('Alles selecteren'), role: 'selectAll' }] },
+    { label: t("Venster"), submenu: [{ label: t('Minimaliseren'), role: 'minimize' }, { label: t('Zoomen'), role: 'zoom' }, { label: t('Sluiten'), role: 'close' }] },
+  ])); }
+  updateMenu();
   await createWindow();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) void createWindow(); });
 }).catch((error) => {
-  console.error('HITtheBeat kon niet starten:', error);
+  console.error(t("HITtheBeat kon niet starten:"), error);
   app.exit(1);
 });
 

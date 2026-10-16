@@ -1,3 +1,4 @@
+import { LocalizedError } from '../../electron/i18n.mjs';
 import { scheduleClick } from './click.ts';
 export { scheduleClick } from './click.ts';
 import { scheduleCountIn, type CountIn } from './count-in.ts';
@@ -33,7 +34,7 @@ export class MetronomeEngine {
   get clock() { return this.context.currentTime; }
   get position() { return Math.min(this.end, this.anchorPosition + (this.playing ? Math.max(0, this.clock - this.anchorTime) * this.rate : 0)); }
   get ended() { return this.playing && this.position >= this.end; }
-  setVolume(value: number) { if (!Number.isFinite(value) || value < 0 || value > 1) throw new Error('Kies een volume van 0–100%.'); if (!this.disposed) { this.output.gain.cancelAndHoldAtTime(this.clock); if (!this.playing || this.ended || this.context.state !== 'running') this.output.gain.setValueAtTime(value, this.clock); else this.output.gain.setTargetAtTime(value, this.clock, .005); } }
+  setVolume(value: number) { if (!Number.isFinite(value) || value < 0 || value > 1) throw new LocalizedError("Kies een volume van 0–100%."); if (!this.disposed) { this.output.gain.cancelAndHoldAtTime(this.clock); if (!this.playing || this.ended || this.context.state !== 'running') this.output.gain.setValueAtTime(value, this.clock); else this.output.gain.setTargetAtTime(value, this.clock, .005); } }
   private serialize(action: () => Promise<void>) { const result = this.queue.then(async () => { if (!this.disposed) await action(); }); this.queue = result.catch(() => {}); return result; }
   private cancel() { for (const tone of this.tones) { try { tone.stop(); } catch { /* Already ended. */ } } this.tones = []; }
   private schedule(countIn?: CountIn) {
@@ -53,11 +54,11 @@ export class MetronomeEngine {
   seek(value: number) { return this.serialize(async () => { this.anchorPosition = Math.max(0, Math.min(this.end, value)); this.schedule(); }); }
   playSegment(a: number, b: number, rate: number, pitch = 0, playing = true, countIn?: CountIn, _countBpm?: number) {
     return this.serialize(async () => {
-      if (a !== 0 || b !== this.duration || pitch !== 0 || !Number.isFinite(rate) || rate <= 0) throw new Error('Ongeldige metronoomstap.');
+      if (a !== 0 || b !== this.duration || pitch !== 0 || !Number.isFinite(rate) || rate <= 0) throw new LocalizedError("Ongeldige metronoomstap.");
       if (playing) await this.context.resume();
       this.end = b; this.rate = rate; this.anchorPosition = 0; this.playing = playing; this.schedule(countIn);
     });
   }
-  async configure() { throw new Error('Een metronoom heeft geen audiofragment of toonhoogte.'); }
+  async configure() { throw new LocalizedError("Een metronoom heeft geen audiofragment of toonhoogte."); }
   dispose() { if (this.disposed) return; this.disposed = true; this.playing = false; this.cancel(); void this.context.close(); }
 }

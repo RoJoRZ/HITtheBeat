@@ -491,3 +491,15 @@ Na import blijft de vermelding zichtbaar bij de oefening als Gemaakt door … me
 Oefening importeren opent een bestandskeuze en daarna een voorvertoning met naam, oefentype, BPM, aantal opgeslagen fragmenten, opdracht en makervermelding. Vóór bevestiging kun je de oefennaam veranderen. Bestaat die naam al (hoofdletterongevoelig), dan verschijnt een waarschuwing: kies eventueel een andere naam, of importeer bewust als nog een nieuwe oefening. Een import krijgt altijd nieuwe oefening-/fragmentidentiteiten en eigen mediakopieën; bestaande oefeningen, sessies en historie worden niet overschreven. Annuleren voegt niets toe.
 
 Beschadigde, te grote of onbekende exportformaten krijgen een melding. Het bestand wordt vóór import volledig gecontroleerd; een mislukte opslag laat geen gedeeltelijke oefening of mediakopie achter. De bestaande grenzen blijven gelden: audio tot 50 MB, afbeelding tot 12 MB, maximaal 100 benoemde fragmenten. Het deelbestand zelf mag maximaal 84 MB zijn. Het is bedoeld om één oefening te delen, niet als volledige bibliotheekback-up. Zie docs/OEFENING-DELEN.md voor formaat en controles.
+
+Gebruiksgoedkeuring v0.0.24: de gebruiker accepteert de deelstap met makerherkenning en geeft opdracht door te gaan met taalkeuze.
+
+## 33. Nederlands en Engels — issue #6, v0.0.25
+
+De volledige appinterface is beschikbaar in Nederlands en Engels, inclusief spelers, sessietabel, evaluatie, voortgang/historie, fragmenten, import/export, makervermeldingslabels, meldingen, toegankelijke bediening en het losse tablatuurvenster. Appmenu en eigen teksten in bestandsdialogen volgen de appkeuze. De standaard OS-bediening in native dialogen volgt het besturingssysteem.
+
+Zonder opgeslagen voorkeur volgt de app de systeemtaal: Nederlands bij nl/nl-NL/nl-BE, anders Engels. In een browservoorvertoning geldt de browsertaal. In Instellingen kiest de gebruiker Nederlands of English; de handmatige keuze blijft lokaal bewaard en wint bij een volgende start van de systeemtaal. Een onleesbare of ongeldige voorkeur valt terug op de systeemkeuze. Bij een mislukte opslag verschijnt een melding en blijft de vorige taal actief.
+
+Wisselen werkt direct, zonder herstart. Een compacte taalkeuze bovenaan is ook tijdens het spelen bereikbaar, zodat wisselen geen navigatie of sessieonderbreking vraagt. Afspelen, huidige herhaling, tempo, fragmentgrenzen, ingevulde evaluatie en nog niet opgeslagen formulierinvoer blijven behouden. Een open tablatuurvenster wisselt mee en behoudt afbeelding/zoom.
+
+Alleen appteksten en datumweergave veranderen. Eigen oefen-/sessienamen, opdrachten, fragmentnamen, evaluatienotities en makernaam/boodschap blijven letterlijk behouden. Opgeslagen audio, sessie-opbouwen en historische momentopnamen worden niet vertaald of herschreven. De taalvoorkeur hoort bij de lokale app, niet bij een gedeeld oefenbestand. De bediening met cijfertoetsen, Spatie en Enter blijft gelijk. Engelse datumweergave gebruikt en-GB; Nederlandse nl-NL. Dagindeling en geregistreerde tijden blijven ongewijzigd.
