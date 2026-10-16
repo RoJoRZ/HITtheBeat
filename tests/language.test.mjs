@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtemp,rm,readFile,writeFile,readdir} from 'node:fs/promises';
 import path from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {tmpdir} from 'node:os';
 import {createRequire} from 'node:module';
 import {english} from '../electron/translations.mjs';
@@ -28,7 +29,7 @@ test('messages translate live while substitution preserves user text and braces 
 });
 
 test('English catalog covers every source key and preserves every placeholder',async()=>{
- const require=createRequire(import.meta.url);const {parseSync}=await import(createRequire(require.resolve('vite')).resolve('rolldown/experimental'));
+ const require=createRequire(import.meta.url);const {parseSync}=await import(pathToFileURL(createRequire(require.resolve('vite')).resolve('rolldown/experimental')).href);
  const roots=['src','electron'];
  async function scan(directory){for(const entry of await readdir(directory,{withFileTypes:true})){const file=path.join(directory,entry.name);if(entry.isDirectory())await scan(file);else if(/\.(mjs|tsx?|cjs)$/.test(file)&&entry.name!=='translations.mjs'){
  const code=await readFile(file,'utf8');const tree=parseSync(file,code).program;
