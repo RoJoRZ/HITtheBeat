@@ -321,3 +321,7 @@ Main leest `preferences.json` (versie 1, taal nl/en) in userData, met fallback o
 Beperkte language:get/set-IPC blijft onder de bestaande hoofdframe-autorisatie. Het tablatuurvenster heeft alleen een eigen geautoriseerde taal-getter en change-listener. Main publiceert taalwijzigingen naar de twee eigen vensters; de viewer krijgt geen instel-/bestandsrechten. App-specifieke menu- en dialoogteksten gebruiken dezelfde catalogus.
 
 LocalizedError bewaart een sleutel/parameters naast het normale Error-bericht. De IPC-wrapper codeert die uitsluitend bij fouten; rendererformattering kiest de actuele taal. Lokale status-/foutmeldingen worden eveneens als sleutel/parameters bewaard. Daardoor wisselt ook een al zichtbare melding mee. De wrapper verandert de bestaande autorisatie en datavalidatie niet. Engine-/workerberichten veranderen alleen in presentatie, niet in audioplanning. Externe OS-fouten behouden hun oorspronkelijke tekst.
+
+## Infovenster — issue #17, v0.0.26
+
+AboutDialog gebruikt een native HTML-dialog in de bestaande renderer en krijgt de reeds opgehaalde appversie als prop. Geen nieuwe IPC, BrowserWindow, afhankelijkheid, opslag of navigatieroute. De inhoud bestaat uit expliciete sleutels in de bestaande NL/EN-catalogus. showModal houdt de achtergrond niet-bedienbaar; het wijzigt de active-prop of componentidentiteit van de speler niet. Toetsevents uit het venster propageren niet naar de speler; standaard Escape blijft werken. Sluiten herstelt de openerfocus. CSS begrenst hoogte/breedte en maakt de inhoud scrollbaar.

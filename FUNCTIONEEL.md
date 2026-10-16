@@ -503,3 +503,13 @@ Zonder opgeslagen voorkeur volgt de app de systeemtaal: Nederlands bij nl/nl-NL/
 Wisselen werkt direct, zonder herstart. Een compacte taalkeuze bovenaan is ook tijdens het spelen bereikbaar, zodat wisselen geen navigatie of sessieonderbreking vraagt. Afspelen, huidige herhaling, tempo, fragmentgrenzen, ingevulde evaluatie en nog niet opgeslagen formulierinvoer blijven behouden. Een open tablatuurvenster wisselt mee en behoudt afbeelding/zoom.
 
 Alleen appteksten en datumweergave veranderen. Eigen oefen-/sessienamen, opdrachten, fragmentnamen, evaluatienotities en makernaam/boodschap blijven letterlijk behouden. Opgeslagen audio, sessie-opbouwen en historische momentopnamen worden niet vertaald of herschreven. De taalvoorkeur hoort bij de lokale app, niet bij een gedeeld oefenbestand. De bediening met cijfertoetsen, Spatie en Enter blijft gelijk. Engelse datumweergave gebruikt en-GB; Nederlandse nl-NL. Dagindeling en geregistreerde tijden blijven ongewijzigd.
+
+Gebruiksgoedkeuring v0.0.25: de gebruiker accepteert de taalkeuze en vraagt aanvullend een About/Info-knop met het concept en een overzichtelijke puntsgewijze functiesamenvatting.
+
+## 34. Info over HITtheBeat — issue #17, v0.0.26
+
+Onderaan de zijbalk staat Info over HITtheBeat. De knop opent een leesbaar informatievenster boven het huidige scherm, ook tijdens een oefensessie. Het toont het concept van het programma als persoonlijk oefenmaatje: losse oefeningen samenbrengen in een gericht muziekmoment, spelen op eigen tempo, lastige passages uitlichten en met korte evaluaties en zichtbare voortgang regelmatig oefenen.
+
+Een puntsgewijze samenvatting beschrijft de gerealiseerde functies: eigen audio met opdracht/tablatuur en volumenormalisatie; BPM-schatting en onafhankelijke tempo-/toonhoogtebediening; opgeslagen oefensessies met fragmenten/herhalingen/BPM en totale duur; metronoom en aftellen; A–B-looptraining met bewaren en hervatten; evaluaties en volgende-tempo-keuze; voortgang/historie; offline delen met makererkenning; lokale opslag, taalkeuze en toetsen-/muisbediening. De tekst presenteert geen open voorstellen als beschikbare functies en noemt geen onbewezen detectienauwkeurigheid. De actuele appversie staat erbij.
+
+De informatie volgt Nederlands/Engels. Het venster is te scrollen op kleinere schermen en sluit met Sluiten, de onderste terugknop of Escape. De focus keert terug naar de Info-knop. Openen/sluiten navigeert niet weg, wijzigt geen opgeslagen gegevens en onderbreekt geen spelende sessie; bestaande formulierinvoer blijft staan. Sneltoetsen in het informatievenster bedienen de onderliggende speler niet.
