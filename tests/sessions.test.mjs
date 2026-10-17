@@ -65,7 +65,7 @@ test('checkpoints ignore old sequences, reject invalid context and never label s
 }));
 test('migration from schema 2 preserves routines and exercises', async () => fixture(async ({ library, root, routine, reopen }) => {
   library.close();
-  const db = new DatabaseSync(path.join(root, 'library.sqlite')); db.exec('DROP TABLE sessions; ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN fragments; ALTER TABLE routine_steps DROP COLUMN fragment_id; ALTER TABLE routine_steps DROP COLUMN fragment_name; ALTER TABLE exercises DROP COLUMN normalization_db; ALTER TABLE exercises DROP COLUMN normalize_audio; PRAGMA user_version=2;'); db.close();
+  const db = new DatabaseSync(path.join(root, 'library.sqlite')); db.exec('DROP TABLE sessions; ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN fragments; ALTER TABLE routine_steps DROP COLUMN fragment_id; ALTER TABLE routine_steps DROP COLUMN fragment_name; ALTER TABLE exercises DROP COLUMN normalization_db; ALTER TABLE exercises DROP COLUMN normalize_audio; PRAGMA user_version=2;'); db.close();
   // fixture reopen closes the already closed handle safely.
   library = await reopen();
   assert.equal(library.list().length, 1); assert.deepEqual(library.listRoutines().find(item => item.id === routine.id), routine);

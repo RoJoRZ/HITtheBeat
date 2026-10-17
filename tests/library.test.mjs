@@ -64,7 +64,7 @@ test('schema 3 upgrade preserves library, routines and session history without c
     const session = library.startSession(routine.id); library.interruptSessions();
     const history = library.listSessions(); library.close();
     const { DatabaseSync } = await import('node:sqlite'); const db = new DatabaseSync(path.join(root, 'library.sqlite'));
-    db.exec('ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN fragments; ALTER TABLE routine_steps DROP COLUMN fragment_id; ALTER TABLE routine_steps DROP COLUMN fragment_name; ALTER TABLE exercises DROP COLUMN normalization_db; ALTER TABLE exercises DROP COLUMN normalize_audio; PRAGMA user_version=3;'); db.close();
+    db.exec('ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN fragments; ALTER TABLE routine_steps DROP COLUMN fragment_id; ALTER TABLE routine_steps DROP COLUMN fragment_name; ALTER TABLE exercises DROP COLUMN normalization_db; ALTER TABLE exercises DROP COLUMN normalize_audio; PRAGMA user_version=3;'); db.close();
     library = await openLibrary(root);
     assert.equal(library.list()[0].normalizationDb, null); assert.equal(library.list()[0].normalizeAudio, true);
     assert.deepEqual(library.listRoutines()[0], routine); assert.deepEqual(library.listSessions(), history);

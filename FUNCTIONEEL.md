@@ -411,3 +411,28 @@ Bestaande audio, afbeeldingen, fragmenten, sessies en resultaten blijven behoude
 De gebruiker verduidelijkt dat het aantal maten bij het instellen van de metronoom hoort, dus **per oefening**. Dit vervangt de eerdere keuze voor maten per sessiestap. Bij aanmaken én bewerken van een metronoom staat Maten per herhaling (standaard 8, 1–128). Het aantal wordt opgeslagen bij de oefening en gebruikt door de losse speler en alle sessies. De sessietabel toont het aantal alleen; herhalingen en BPM blijven daar per stap instelbaar. De losse speler wijzigt het aantal niet tijdelijk.
 
 Opslaan van de metronoom-oefening past bestaande sessie-opbouwen aan dat aantal aan. Geplande duur wordt opnieuw berekend. Een lopende of historische sessie houdt haar eigen momentopname. Om gegevens bij de upgrade te behouden wordt een gemeenschappelijk oud aantal maten overgenomen als oefeninstelling. Verschillende bestaande stapinstellingen blijven herkenbaar als oude stapinstelling staan totdat de oefening expliciet wordt opgeslagen; dan gebruiken ze allemaal het gekozen aantal van de oefening. Historische resultaten worden niet herschreven.
+
+Gebruiksfeedback op v0.0.18: de gebruiker heeft maten per metronoom-oefening getest en goedgekeurd en geeft opdracht verder te gaan met issue #2 (aftelmaat).
+
+## 28. Optionele aftelmaat per oefensessie — issue #2, v0.0.19
+
+De sessie-editor heeft Aftellen vóór iedere herhaling. Dit staat standaard uit, ook voor bestaande sessies. De aftelmaat bestaat uit één maat, met keuze 3/4, 4/4 of 6/8 en standaard 4/4. Dit is een instelling van de opgeslagen oefensessie, onafhankelijk van de maatsoort en het aantal maten van de oefening. De instelling blijft bewaard na herstart en wordt onderdeel van de momentopname wanneer een sessie start.
+
+Vóór iedere geplande speelbeurt klinkt de aftelmaat op het BPM van die komende herhaling: eerste start, volgende herhalingen, tempowissels, volgende oefeningen en herhalen vanuit de evaluatie. BPM blijft kwartnoten per minuut, dus in 6/8 klinken zes achtstetellen. Aftellen heeft een ander, korter en hoger klikgeluid dan de metronoom; de gedeelde volumeregeling en dempen gelden ook hiervoor. Het scherm toont Aftellen, maatsoort, tel en BPM, met behoud van tablatuur en opdracht.
+
+Spatie of de pauzeknop onderbreekt ook het aftellen. Bij hervatten tijdens een onderbroken aftelmaat begint die maat opnieuw; bij gewoon pauzeren midden in de muziek wordt de muziek op haar plek hervat zonder nieuwe aftelmaat. Terug naar begin van de herhaling (ook toets 1) begint de hele speelbeurt opnieuw met aftellen. Stoppen of overslaan annuleert de nog geplande geluiden. Een onderbroken aftelmaat is geen afgeronde herhaling.
+
+Vrije fragmenttraining krijgt niet bij iedere loop een aftelmaat. Na terugkeer begint de onderbroken geplande herhaling opnieuw met aftellen; als de sessie voordien gepauzeerd stond, wacht dat tot Afspelen. De losse audio- en metronoomspelers gebruiken deze sessie-instelling niet.
+
+De editor en het startoverzicht nemen aftellen mee in de geplande totale duur en tonen de afteltijd afzonderlijk. De editor toont tevens de geplande oefentijd. Tijdens spelen bevat Resterend sessie zowel de nog te spelen muziek als de resterende geplande aftelmaten. Extra aftellen na handmatig opnieuw starten kan de werkelijk bestede tijd verlengen.
+
+Werkelijk verbruikte afteltijd wordt apart opgeslagen en getoond bij de sessietijden en historie. Ze telt niet mee in gespeelde oefentijd, herhalingen, oefendagen of tempo-meetpunten van het dashboard. Een sessie die alleen aftelt en wordt gestopt blijft zichtbaar in de historie, zonder als geoefende sessie te tellen. Pauzes en evaluaties blijven eveneens buiten de oefentijd. Oude resultaten zonder afteltijd behouden hun betekenis.
+
+
+### Correctie na gebruikstest — aftellen per oefening in de sessie (v0.0.20)
+
+De aftelinstelling staat in de kopregel van elk oefenblok in de sessietabel, naast de oefennaam: een vinkje Aftellen en een maatsoortkeuze (standaard 4/4, ook 3/4 of 6/8). Dit vervangt het algemene aftelpaneel uit v0.0.19. Iedere oefening binnen dezelfde sessie kan onafhankelijk wel/niet aftellen en een andere aftelmaat gebruiken. De keuze geldt voor alle stappen en herhalingen van dat oefenblok. Ze hoort bij de sessie-opbouw; dezelfde bibliotheekoefening kan in een ander blok of een andere sessie een andere keuze hebben.
+
+Bij een volgende oefening gebruikt de speler de instellingen van die volgende oefening. Opbouwen en resterende duur tellen de aftelmaten per oefenblok op. Werkelijk verbruikte afteltijd blijft apart zichtbaar, ook wanneer de volgende oefening aftellen uit heeft staan. De bestaande transport-, tempo- en evaluatieregels blijven gelden voor de blokken met aftellen ingeschakeld.
+
+Bij upgraden wordt een eerder opgeslagen algemene aftelinstelling overgenomen voor alle bestaande blokken van die sessie, zodat hun gedrag behouden blijft. Nieuw toegevoegde oefenblokken beginnen met aftellen uit. Historische momentopnamen blijven ongewijzigd leesbaar met hun oorspronkelijke instelling. Dit verandert de maatsoort of het aantal maten van de bibliotheekmetronoom niet.

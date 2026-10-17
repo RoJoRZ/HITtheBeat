@@ -1,3 +1,4 @@
+import { plannedPreparation, hasCountIn } from '../../electron/count-in-model.mjs';
 import { useState } from 'react';
 import type { Exercise, Routine, SessionRecord } from '../library/types';
 import { plannedSeconds, validateRoutine } from '../../electron/routine-model.mjs';
@@ -26,7 +27,7 @@ export function RoutineOverview({ items, exercises, sessions, edit, start, creat
       catch (reason) { invalid = reason instanceof Error ? reason.message : 'Controleer deze sessie.'; }
       const played = lastPlayed.get(item.id);
       return <article className="panel session-card" key={item.id} aria-label={item.title}>
-        <h3>{item.title}</h3><p>{item.blocks.length} {item.blocks.length === 1 ? 'oefening' : 'oefeningen'} · {invalid ? 'Duur niet beschikbaar' : `${durationLabel(seconds)} gepland`}</p>
+        <h3>{item.title}</h3><p>{item.blocks.length} {item.blocks.length === 1 ? 'oefening' : 'oefeningen'} · {invalid ? 'Duur niet beschikbaar' : `${durationLabel(seconds + plannedPreparation(item))} gepland`}</p>{hasCountIn(item) && !invalid && <p className="caption">Waarvan {durationLabel(plannedPreparation(item))} aftellen · per oefening ingesteld</p>}
         <p className="caption">{played ? <>Laatst geoefend: <time dateTime={played}>{new Date(played).toLocaleString('nl-NL', { dateStyle: 'medium', timeStyle: 'short' })}</time></> : 'Nog niet geoefend'}</p>
         {invalid && <p className="error">{invalid}</p>}
         <div className="row-actions"><button className="primary" disabled={loading || Boolean(invalid)} onClick={() => start(item, exercises)}>Starten</button><button className="secondary" disabled={loading} onClick={() => edit(item)}>Bewerken</button></div>
