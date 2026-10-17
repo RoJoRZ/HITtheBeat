@@ -1,3 +1,5 @@
+import { WaveformEditor } from './WaveformEditor';
+import { buildWaveform, type Waveform } from '../audio/waveform.mjs';
 import { useNotationContext } from './notation';
 import { countInSeconds, countInForBlock, hasCountIn } from '../../electron/count-in-model.mjs';
 import { isMetronome, exerciseBars, validTempo, meterBeats } from '../../electron/exercise-model.mjs';
@@ -44,7 +46,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   const generation = useRef(0), locked = useRef(true), alive = useRef(true);
   const [busy, setBusy] = useState(true), [error, setError] = useState(''), [loaded, setLoaded] = useState(false);
   const [countRemaining, setCountRemaining] = useState(0);
-  const [position, setPosition] = useState(0), [wave, setWave] = useState<number[]>([]);
+  const [position, setPosition] = useState(0), [wave, setWave] = useState<Waveform | null>(null);
   const [free, setFree] = useState<Free>({ a: 0, b: 1, bpm: 90, pitch: 0, loop: true });
   const freeRef = useRef(free), [freePlaying, setFreePlaying] = useState(false);
   const totals = useRef<Totals>({ planned: 0, fragment: 0, pause: 0, preparation: 0 }), [times, setTimes] = useState(totals.current);
@@ -125,16 +127,14 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
       let audio = audioRef.current;
       if (!audio || assetId.current !== `${selected.block.id}:${isMetronome(selected.exercise) ? selected.exercise.duration : ''}` || !loaded) {
         if (isMetronome(selected.exercise)) {
-          audio?.dispose(); audio = new MetronomeEngine(selected.exercise.duration, selected.exercise.meter ?? '4/4', selected.exercise.bpm); audio.setVolume(outputVolume()); audioRef.current = audio; setWave([]);
+          audio?.dispose(); audio = new MetronomeEngine(selected.exercise.duration, selected.exercise.meter ?? '4/4', selected.exercise.bpm); audio.setVolume(outputVolume()); audioRef.current = audio; setWave(null);
         } else {
-          audio?.dispose(); audio = new AudioEngine(); audio.setVolume(outputVolume()); audioRef.current = audio; assetId.current = ''; setLoaded(false); setWave([]);
+          audio?.dispose(); audio = new AudioEngine(); audio.setVolume(outputVolume()); audioRef.current = audio; assetId.current = ''; setLoaded(false); setWave(null);
           const bytes = await window.hitthebeat!.readAudio(selected.exercise.id);
           if (!alive.current || token !== generation.current) return;
           const buffer = await audio.load(new Uint8Array(bytes.bytes).buffer, selected.exercise.normalizeAudio !== false ? selected.exercise.normalizationDb ?? null : null);
           if (!alive.current || token !== generation.current) return;
-          const data = buffer.getChannelData(0);
-          const peaks = Array.from({ length: 220 }, (_, index) => { let peak = 0; for (let i = Math.floor(index * data.length / 220); i < Math.floor((index + 1) * data.length / 220); i++) peak = Math.max(peak, Math.abs(data[i])); return peak; });
-          const maximum = Math.max(.001, ...peaks); setWave(peaks.map(value => value / maximum));
+          setWave(buildWaveform(Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i)), buffer.sampleRate));
         }
         assetId.current = `${selected.block.id}:${isMetronome(selected.exercise) ? selected.exercise.duration : ''}`; setLoaded(true);
       }
@@ -170,12 +170,15 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
     if (state.current.phase !== 'fragment' && countIn?.enabled) { await audio.pause(); commit(advance(state.current, 'restart')); }
     else await audio.seek(state.current.phase === 'fragment' ? freeRef.current.loop ? freeRef.current.a : 0 : current(state.current).step.start ?? 0);
   });
-  async function enterFragment() {
+  async function enterFragment(range?: { a: number; b: number }, preview = false) {
     await operate(async audio => {
-      const settings = { a: step.start ?? 0, b: step.end ?? audio.duration, bpm: step.bpm, pitch: 0, loop: true };
-      await audio.pause(); commit(advance(state.current, 'fragment'));
-      freeRef.current = settings; setFree(settings);
-      await audio.configure(settings.bpm / exercise.bpm, 0, settings.a, settings.b, true); await audio.seek(settings.a);
+      const selection = current(state.current), existing = state.current.phase === 'fragment' ? freeRef.current : { a: selection.step.start ?? 0, b: selection.step.end ?? audio.duration, bpm: selection.step.bpm, pitch: 0, loop: true };
+      const next = { ...existing, ...range, loop: true };
+      await audio.pause(); measure();
+      if (state.current.phase !== 'fragment') commit(advance(state.current, 'fragment'));
+      freeRef.current = next; setFree(next);
+      await audio.configure(next.bpm / selection.exercise.bpm, next.pitch, next.a, next.b, true); await audio.seek(next.a);
+      if (preview) await audio.playPause();
     });
   }
   async function returnToRound() {
@@ -243,7 +246,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
       <div className="session-pass"><strong>{isFree ? 'Vrij fragment oefenen' : `Stap ${run.step + 1} van ${block.steps.length} · Herhaling ${run.repetition + 1} van ${step.repetitions}`}</strong><span data-testid="session-bpm">{isFree ? free.bpm : step.bpm} BPM</span></div>
       {!isFree && <p className="caption" data-testid="planned-settings">{isMetronome(exercise) ? `Metronoom ${exercise.meter} · ${exerciseBars(step, exercise)} maten` : step.start === null ? 'Volledige track' : `${step.fragmentName ? `${step.fragmentName} · ` : 'Fragment '}${step.start}–${step.end} seconden`}{!isMetronome(exercise) && ' · Toonhoogte origineel'}</p>}
       <p className="caption">{busy ? 'Audio voorbereiden…' : isFree ? 'Je plek in de sessie blijft bewaard. Vrije loops tellen niet mee als herhalingen.' : 'De volgende herhaling en stap beginnen automatisch.'}</p>
-      {isMetronome(exercise) ? <p className="metronome-display" role="status">Metronoom · {exercise.meter} · {exerciseBars(step, exercise)} maten · BPM per kwartnoot · Tel {Math.min(meterBeats(exercise.meter ?? '4/4'), Math.floor(position / (60 / exercise.bpm * (exercise.meter === '6/8' ? .5 : 1))) % meterBeats(exercise.meter ?? '4/4') + 1)}</p> : <svg className="waveform" viewBox="0 0 880 140" role="img" aria-label="Golfvorm van de oefening" preserveAspectRatio="none"><rect x={a / exercise.duration * 880} y="0" width={(b - a) / exercise.duration * 880} height="140" fill="currentColor" opacity=".12" />{wave.map((peak, index) => <line key={index} x1={index * 4 + 2} x2={index * 4 + 2} y1={70 - Math.max(2, peak * 60)} y2={70 + Math.max(2, peak * 60)} stroke="currentColor" strokeWidth="2" opacity={index / 220 * exercise.duration <= position ? 1 : .38} />)}<line x1={position / exercise.duration * 880} x2={position / exercise.duration * 880} y1="0" y2="140" stroke="#f2f4f6" /></svg>}
+      {isMetronome(exercise) ? <p className="metronome-display" role="status">Metronoom · {exercise.meter} · {exerciseBars(step, exercise)} maten · BPM per kwartnoot · Tel {Math.min(meterBeats(exercise.meter ?? '4/4'), Math.floor(position / (60 / exercise.bpm * (exercise.meter === '6/8' ? .5 : 1))) % meterBeats(exercise.meter ?? '4/4') + 1)}</p> : <WaveformEditor wave={wave} duration={exercise.duration} position={position} a={a} b={b} disabled={busy || !loaded || !active} select={range => void enterFragment(range)} preview={() => void enterFragment({ a, b }, true)} label="Golfvorm van de oefening" />}
       <div className="time-row"><span>{durationLabel(position * (isMetronome(exercise) ? exercise.bpm / step.bpm : 1))} / {durationLabel(exercise.duration * (isMetronome(exercise) ? exercise.bpm / step.bpm : 1))}</span><span>Resterend sessie: <strong data-testid="session-remaining">{durationLabel(remainingSeconds(run, position) + remainingPreparation(run, countRemaining))}</strong></span></div>
       <div className="session-transport"><button className="secondary" aria-label="Terug naar begin van de herhaling" disabled={busy || !loaded || !active} onClick={() => void restart()}><RotateCcw size={20} /></button><button className="primary play-button" disabled={busy || !loaded || !active} onClick={() => void toggle()}>{(isFree ? freePlaying : ['playing','countin'].includes(run.phase)) ? <Pause size={22} /> : <Play size={22} />}{(isFree ? freePlaying : ['playing','countin'].includes(run.phase)) ? 'Pauzeren' : 'Afspelen'}</button>{isFree ? <button className="secondary" disabled={busy || !active} onClick={() => void returnToRound()}>Terug naar sessie</button> : <><button className="secondary" disabled={busy || !loaded || !active || isMetronome(exercise)} onClick={() => { if (!isMetronome(exercise)) void enterFragment(); }}>Fragment oefenen</button><button className="text-button" disabled={busy || !active} onClick={() => move('skip')}>Oefening overslaan</button></>}</div>
       <VolumeControl />

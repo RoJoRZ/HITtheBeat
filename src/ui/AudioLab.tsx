@@ -1,3 +1,5 @@
+import { WaveformEditor } from './WaveformEditor';
+import { buildWaveform, type Waveform } from '../audio/waveform.mjs';
 import { outputVolume, useOutput } from '../audio/output-volume';
 import { SaveCurrentFragment } from './FragmentControls';
 import { VolumeControl } from './VolumeControl';
@@ -24,7 +26,7 @@ export function AudioLab({ saved, onFragmentSaved }: { saved: Exercise; onFragme
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [name, setName] = useState('');
-  const [wave, setWave] = useState<number[]>([]);
+  const [wave, setWave] = useState<Waveform | null>(null);
   const [duration, setDuration] = useState(0);
   const [position, setPosition] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -64,19 +66,11 @@ export function AudioLab({ saved, onFragmentSaved }: { saved: Exercise; onFragme
     engine.current?.dispose();
     const audio = new AudioEngine();
     engine.current = audio; audio.setVolume(outputVolume());
-    setBusy(true); setError(''); setDuration(0); setName(''); setWave([]); setPlaying(false); setPosition(0);
+    setBusy(true); setError(''); setDuration(0); setName(''); setWave(null); setPlaying(false); setPosition(0);
     try {
       const buffer = await audio.load(new Uint8Array((await window.hitthebeat!.readAudio(saved.id)).bytes).buffer, saved.normalizeAudio !== false ? saved.normalizationDb ?? null : null);
       if (id !== generation.current) return;
-      const data = buffer.getChannelData(0);
-      const peaks = Array.from({ length: 220 }, (_, i) => {
-        const begin = Math.floor(i * data.length / 220), end = Math.floor((i + 1) * data.length / 220);
-        let peak = 0;
-        for (let j = begin; j < end; j++) peak = Math.max(peak, Math.abs(data[j]));
-        return peak;
-      });
-      const max = Math.max(.001, ...peaks);
-      setWave(peaks.map(value => value / max));
+      setWave(buildWaveform(Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i)), buffer.sampleRate));
       setName(saved.audioName); setDuration(buffer.duration);
       setA(0); setB(buffer.duration); setLoop(false); setSource(originalBpm); setTarget(originalBpm); setPitch(0);
       configuration.current = { source: originalBpm, target: originalBpm, pitch: 0, a: 0, b: buffer.duration, loop: false };
@@ -98,16 +92,21 @@ export function AudioLab({ saved, onFragmentSaved }: { saved: Exercise; onFragme
     setSource(values.source); setTarget(values.target); setPitch(values.pitch); setA(values.a); setB(values.b); setLoop(values.loop); setError('');
     command(audio.configure(values.target / values.source, values.pitch, values.a, values.b, values.loop));
   }
+  async function selectFragment(range: { a: number; b: number }, preview = false) {
+    const audio = engine.current; if (!audio || busy) return;
+    setBusy(true); setError('');
+    try {
+      await audio.pause(); settings({ ...range, loop: true }); await audio.seek(range.a);
+      if (preview) await audio.playPause();
+    } catch (reason) { setError(reason instanceof Error ? reason.message : 'Fragment afspelen is niet gelukt.'); }
+    finally { if (engine.current === audio) setBusy(false); }
+  }
   const field = (label: string, value: number, change: (value: number) => void, step = 1) => <NumberField label={label} value={value} change={change} disabled={!duration || busy} step={step} />;
   return <section className="audio-lab audio-embedded" aria-label="Oefeningspeler">
     {error && <p role="alert" className="error">{error}</p>}
     <div className="player-card" aria-busy={busy}>
       <p className="eyebrow">SPELER · EIGEN OEFENING</p><h2>{busy ? 'Audio laden…' : name || 'Kies een track om te beginnen'}</h2>
-      <svg className="waveform" viewBox="0 0 880 140" role="img" aria-label="Golfvorm van de track" preserveAspectRatio="none">
-        <rect x={duration ? a / duration * 880 : 0} y="0" width={duration ? (b - a) / duration * 880 : 880} height="140" fill="currentColor" opacity={loop ? .12 : .04} />
-        {wave.map((peak, i) => <line key={i} x1={i * 4 + 2} x2={i * 4 + 2} y1={70 - Math.max(2, peak * 60)} y2={70 + Math.max(2, peak * 60)} stroke="currentColor" strokeWidth="2" opacity={i / wave.length * duration <= position ? 1 : .38} />)}
-        <line x1={duration ? position / duration * 880 : 0} x2={duration ? position / duration * 880 : 0} y1="0" y2="140" stroke="#f2f4f6" />
-      </svg>
+      <WaveformEditor wave={wave} duration={duration} position={position} a={a} b={b} disabled={!duration || busy} select={range => void selectFragment(range)} preview={() => void selectFragment({ a, b }, true)} label="Golfvorm van de track" />
       <input className="seek" aria-label="Afspeelpositie" type="range" min="0" max={duration || 1} step="0.01" value={position} disabled={!duration || busy} onChange={event => command(engine.current?.seek(event.target.valueAsNumber))} />
       <div className="time-row"><span>{time(position)}</span><span>{time(duration)} · bij dit tempo {time(duration * source / target)}</span></div>
       <div className="playback-controls"><div className="transport"><button className="secondary" aria-label="Terug naar start" disabled={!duration || busy} onClick={restart}><RotateCcw size={21} /></button><button className="primary play-button" disabled={!duration || busy} onClick={toggle}>{playing ? <Pause size={23} /> : <Play size={23} />}{playing ? 'Pauzeren' : 'Afspelen'}</button><button className="secondary" aria-pressed={loop} disabled={!duration || busy} onClick={() => settings({ loop: !loop })}><Repeat2 size={21} /> Loop</button></div>

@@ -1,3 +1,4 @@
+import { waitAudio, captureAudio } from './audio-clock';
 import { clickPlan, scheduleClick, MetronomeEngine } from '../../src/audio/metronome';
 
 export async function metronomeProbe() {
@@ -20,14 +21,13 @@ export async function metronomeProbe() {
   const silence = internals.context.createConstantSource(); silence.offset.value = 0; silence.connect(internals.output); silence.start();
   const analyser = internals.context.createAnalyser(); analyser.fftSize = 4096; internals.output.connect(analyser);
   const samples = new Float32Array(analyser.fftSize);
-  const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const peak = () => { analyser.getFloatTimeDomainData(samples); return Math.max(...samples.map(Math.abs)); };
-  const capture = async (ms: number) => { let maximum = 0; const until = performance.now() + ms; do { await wait(5); maximum = Math.max(maximum, peak()); } while (performance.now() < until); return maximum; };
+  const capture = (ms: number) => captureAudio(internals.context, ms / 1000, peak);
   try {
     engine.setVolume(0); await engine.playSegment(0, 1.5, 1); const muted = await capture(300);
     engine.setVolume(1); await engine.seek(0); const full = await capture(300);
-    await engine.pause(); const stoppedAt = engine.position; await wait(50); const pausedPosition = engine.position;
-    await wait(100); const paused = peak();
+    await engine.pause(); const stoppedAt = engine.position; await waitAudio(internals.context,.05); const pausedPosition = engine.position;
+    await waitAudio(internals.context,.1); const paused = peak();
     return { results, muted, full, paused, stoppedAt, pausedPosition };
   } finally { silence.stop(); silence.disconnect(); engine.dispose(); }
 }

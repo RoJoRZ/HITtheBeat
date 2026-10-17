@@ -205,3 +205,8 @@ Gebruiksfeedback op issue #2 wordt verwerkt in v0.0.20: aftellen en maatsoort pe
 ### Issue #3 — Los tablatuurvenster (v0.0.21)
 
 Na gebruiksgoedkeuring van v0.0.20 volgt het zelfstandige tablatuurvenster: verplaatsen/resize, actieve-oefeningsynchronisatie, beeldzoom/passend/fullscreen en sluiten zonder sessieonderbreking. Basis is de geaccepteerde issue-2-commit; niet zelfstandig mergen. Zie docs/TABLATUURVENSTER.md voor impact en controles. Geef ruimte voor gebruiksfeedback vóór issue #4 (waveformselectie).
+
+
+### Issue #4 — Waveformselectie (v0.0.22)
+
+Na gebruiksgoedkeuring van het tablatuurvenster volgt de interactieve audio-waveform: muisselectie, sleepbare A/B, horizontaal zoom/pan en looppreview met bestaande fragmentopslag/hervatting. Basis is de geaccepteerde issue-3-commit; niet zelfstandig mergen. Zie docs/WAVEFORM.md voor impact en controles. Geef ruimte voor gebruiksfeedback vóór #5 (BPM-detectie en gehele weergave).
