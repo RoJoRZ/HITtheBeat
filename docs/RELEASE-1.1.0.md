@@ -27,3 +27,14 @@ Een volledige gecureerde regressie op vaste bron, daarna handmatige eindcontrole
 | Werkelijke installer, media, herstart/opslag | Bij packaging-/platformwijziging | Na handmatig akkoord: check-installer op beide native builds |
 
 De automatische selector neemt gewijzigde testbestanden direct mee en koppelt evaluatie-/dashboardcode aan de betrokken suites. Geen volledige opslag-/importgroep uitsluitend omdat een aangepaste UI-test het woord session bevat. Bestaande volledige suites blijven behouden. Verouderde dashboardselectors worden vervangen door controle op dezelfde opgeslagen gegevens en nieuwe zichtbare context. Geen tests verwijderd om fouten te verbergen; geen dekkings- of aantallendoel.
+
+
+## Kandidaat voor handmatige eindcontrole
+
+Voorgestelde versie: 1.1.0; schema 10, geen nieuwe afhankelijkheden of appdatapaden. Versievoorbereiding wijzigt uitsluitend packageversie en releasestatus/documentatie. Releaseworkflow wordt op de vaste main-commit gestart zonder tag of publicatie vooraf. De volledige regressie draait eenmaal native op Mac arm64 en Windows x64. Daarna wacht de beschermde omgeving release-approval op de menselijke eindcontrole. De exacte SHA en run worden in de milestone/PR geregistreerd.
+
+Testbare Mac-ontwikkelversie (geen DMG/ZIP-installer): `release/review-1.1.0/mac-arm64/HITtheBeat.app`, gebouwd met electron-builder --dir op dezelfde bron. Dit is uitsluitend de ontwikkelbuild voor de eindcontrole. De vier distributiebestanden worden pas na goedkeuring in de workflow gebouwd en gericht gecontroleerd.
+
+Handmatig te bekijken: evaluatie zonder notitie, cijfer/tempo/Enter; vier dashboardperiodes, beide lijngrafieken en oefeningfilters; frequentie en 30-dagenknoppen. Oude bibliotheek/sessies blijven behouden. Automatische checks zijn geen muzikale luisteracceptatie of interactieve OS-installatiecontrole; signing/notariserings- en licentiegrenzen blijven gelijk.
+
+PR #31 is na zelfreview en groene CI op beide platformen samengevoegd; #27 en #28 zijn gesloten. Run 39019236877: per platform build/typecheck, 20 gerichte Node-tests en 14 desktoptests. De Mac-ontwikkelapp 1.1.0 is gebouwd als appdirectory, lokaal ad-hoc ondertekend en met de geisoleerde shell/start/herstarttest gecontroleerd. Geen nieuwe DMG/EXE/ZIP gebouwd of gepubliceerd. Volledige regressie en handmatige eindcontrole volgen op de vaste releasebron.
