@@ -13,8 +13,8 @@ export function setupNotationWindow({ entryUrl, authorize, readImage }) {
   let request = 0;
   /** @type {NotationState} */
   let state = { version: 0, context: 0, title: '', image: null, loading: false, error: '', fullscreen: false };
-  function publish() {
-    state = { ...state, version: state.version + 1, fullscreen: viewer?.isFullScreen() ?? false };
+  function publish(fullscreen = state.fullscreen) {
+    state = { ...state, version: state.version + 1, fullscreen };
     if (viewer && !viewer.isDestroyed()) viewer.webContents.send('notation:changed', state);
   }
   /** @param {Electron.IpcMainInvokeEvent} event */
@@ -44,13 +44,15 @@ export function setupNotationWindow({ entryUrl, authorize, readImage }) {
     viewer = current;
     current.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     current.webContents.on('will-navigate', (navigation, url) => { if (url !== viewerUrl) navigation.preventDefault(); });
-    current.on('closed', () => { if (viewer === current) viewer = null; });
-    current.on('enter-full-screen', publish); current.on('leave-full-screen', publish);
+    current.on('closed', () => { if (viewer === current) { viewer = null; publish(false); } });
+    // On Windows the event can precede the updated isFullScreen() value.
+    current.on('enter-full-screen', () => publish(true));
+    current.on('leave-full-screen', () => publish(false));
     await current.loadURL(viewerUrl);
     if (!current.isDestroyed()) current.show();
   });
   localizedHandle(ipcMain, 'notation:language', event => { authorizeViewer(event); return getLanguage(); });
-  localizedHandle(ipcMain, 'notation:state', event => { authorizeViewer(event); return { ...state, fullscreen: viewer?.isFullScreen() ?? false }; });
+  localizedHandle(ipcMain, 'notation:state', event => { authorizeViewer(event); return { ...state }; });
   localizedHandle(ipcMain, 'notation:fullscreen', event => { authorizeViewer(event); viewer?.setFullScreen(!viewer.isFullScreen()); });
   localizedHandle(ipcMain, 'notation:close', event => { authorizeViewer(event); viewer?.close(); });
   return () => { ++request; viewer?.close(); state = { version: state.version + 1, context: request, title: '', image: null, loading: false, error: '', fullscreen: false }; };

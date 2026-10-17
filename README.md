@@ -4,6 +4,8 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 
 ## Documenten
 
+- [Windows-herstelkandidaat 1.0.0-rc.2 en controles](docs/RC2-WINDOWS.md)
+- [Historische Windows-bevindingen van RC1](docs/WINDOWS-RC1-RESULTATEN.md)
 - [Release 1.0: analyse en implementatievoorstel (ter goedkeuring)](docs/RELEASE-1.0-ANALYSE.md)
 - [Voorgestelde permanente ontwikkelwerkwijze](docs/AGENTS-VOORSTEL.md)
 

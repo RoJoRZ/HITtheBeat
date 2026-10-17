@@ -13,8 +13,10 @@ export async function countInProbe() {
   const engine=new AudioEngine(),internals=engine as unknown as {context:AudioContext;output:GainNode};
   const silence=internals.context.createConstantSource();silence.offset.value=0;silence.connect(internals.output);silence.start();
   const analyser=internals.context.createAnalyser();analyser.fftSize=4096;internals.output.connect(analyser);
-  const buffer=internals.context.createBuffer(1,Math.round(sampleRate*.6),sampleRate),data=buffer.getChannelData(0);
-  for(let i=0;i<data.length;i++)data[i]=.25*Math.sin(2*Math.PI*440*i/sampleRate);
+  // loadBuffer takes context-rate samples; decoded media already uses this rate.
+  const deviceSampleRate=internals.context.sampleRate;
+  const buffer=internals.context.createBuffer(1,Math.round(deviceSampleRate*.6),deviceSampleRate),data=buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=.25*Math.sin(2*Math.PI*440*i/deviceSampleRate);
   const frame=new Float32Array(analyser.fftSize);
   const level=(hz:number)=>{analyser.getFloatTimeDomainData(frame);let real=0,imaginary=0;for(let i=0;i<frame.length;i++){const angle=2*Math.PI*hz*i/internals.context.sampleRate;real+=frame[i]*Math.cos(angle);imaginary+=frame[i]*Math.sin(angle);}return 2*Math.hypot(real,imaginary)/frame.length;};
   const peak=()=>{analyser.getFloatTimeDomainData(frame);return Math.max(...frame.map(Math.abs));};

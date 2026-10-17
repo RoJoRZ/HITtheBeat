@@ -1,5 +1,7 @@
 # Windows-testoverdracht — 1.0.0-rc.1
 
+Vervolg op Windows: de historische RC1-bevindingen staan in [WINDOWS-RC1-RESULTATEN.md](WINDOWS-RC1-RESULTATEN.md); herstel en nieuwe controles voor RC2 staan in [RC2-WINDOWS.md](RC2-WINDOWS.md). De onderstaande status beschrijft de oorspronkelijke overdracht bij publicatie van RC1.
+
 Status: nog niet uitgevoerd. De gebruiker stelt later een Windows-machine met Codex beschikbaar. De bestaande ZIP is een cross-build voor Windows x64; er is geen geslaagde installerbuild of Windows-gebruikstest. Een buildresultaat bewijst geen correcte audio of Windows-bediening.
 
 ## Download en eerste start
