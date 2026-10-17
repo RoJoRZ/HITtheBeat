@@ -1,4 +1,6 @@
-## Ontwikkelwerkwijze vanaf Release 1.0
+## Ontwikkelwerkwijze voor milestone 1
+
+De volgende tien onderdelen gelden voor de lopende afronding van milestone 1. Voor latere milestones vervangt de sectie **Werkwijze na afronding van milestone 1** de afwijkende afspraken over tussentijdse acceptatie en testomvang. Milestone 1 is niet door het publiceren van 1.0.0 automatisch administratief afgerond.
 
 ### 1. Werk vanuit GitHub Issues
 
@@ -93,3 +95,26 @@ Lever één testbaar issue tegelijk op zodat de gebruiker kan bijsturen. Begin a
 - Gebruikersverzoek #21: taalkeuze uitsluitend in Instellingen; de compacte headerkeuze vervalt. Oefening verwijderen naast Oefening importeren in de bovenste bibliotheekactiebalk; bestaande bevestiging/verwijzingscontrole behouden. Basis is Windows-RC2, geen autonome merge/publicatie. Gerichte bouw-/interfacetests volstaan voor deze plaatsingswijziging. Zie FUNCTIONEEL hoofdstuk 36.
 
 - De gebruiker accepteert #21 en vraagt expliciet de definitieve release 1.0.0 met Mac- en Windows-installers. Publicatie is geautoriseerd; geen autonome PR-merge. Gebruik bron inclusief Windows-RC2 en #21, Mac arm64 DMG en Windows x64 NSIS. Native Windows-runner bouwt/test de installer; Mac-regressie uitvoeren. RC1 blijft behouden. FUNCTIONEEL hoofdstuk 37 en docs/RELEASE-1.0.0-NOTES.md zijn leidend; geen licentiekeuze, notariseringsclaim of muzikale luisteracceptatie verzinnen.
+
+
+## Werkwijze na afronding van milestone 1 — issue #24
+
+### Vastgesteld door de gebruiker op 17 oktober 2026
+
+Deze procedure wordt pas actief nadat milestone 1 is afgerond. De huidige open PR's/issues worden hierdoor niet automatisch samengevoegd of gesloten. De gebruiker maakt GitHub-issues en bundelt maximaal tien issues in een nieuwe releasemilestone. Pas na opdracht die milestone te starten werkt de agent de geselecteerde scope zelfstandig af; toevoegen aan de backlog is geen opdracht om alvast te bouwen. Voeg niet stilzwijgend extra issues aan een lopende milestone toe.
+
+Werk de issues in afhankelijkheidsvolgorde af, met per issue analyse, implementatie, relevante documentatie, gerichte noodzakelijke controles, review en inhoudelijke goedkeuring op de acceptatiecriteria. Vraag niet na ieder afgerond issue opnieuw om toestemming om het volgende geselecteerde issue uit te voeren. Onvoldoende bewijs of een onopgeloste fout is geen goedkeuring. Zelfreview is geen onafhankelijke menselijke review. Belangrijke onbesliste functionele keuzes blijven bij de gebruiker. Commit/push voortgang en houd issues en milestone herleidbaar bij. Sluit een geselecteerd issue zodra alle criteria aantoonbaar zijn afgehandeld en de inhoudelijke goedkeuring is vastgelegd; onvolledige implementatie blijft open.
+
+Per issue alleen passende gerichte tests; geen volledige Node-/desktopregressie of beide installers automatisch bij ieder issue. Typecheck/build waar geraakt, relevante domein-/opslagtests en gerichte UI/audio/IPC-controles waar nodig. Testomvang volgt risico, niet een verplicht aantal tests. Een documentatiewijziging vraagt geen appbuild. Tests gebruiken geïsoleerde data; behoud expliciet de grens tussen echte platform-/luistercontroles en een build.
+
+De volledige gecureerde regressie hoort uitsluitend bij de releasefase en de automatische installerbuilds. Plan één releaseketen: vaste broncommit → volledige regressie op relevante platformen → installers bouwen → gerichte controles van de daadwerkelijk gebouwde pakketten/installatie → publicatie. Draai de volledige reeks niet opnieuw als afzonderlijke stap vóór én na dezelfde ongewijzigde build. Bij een relevante codefix na een fout moet de gewijzigde releasebron opnieuw worden gevalideerd. Een mislukte releasecontrole blokkeert publicatie, niet het registreren van reeds afgerond issuewerk.
+
+### Voorstel voor testcuratie, nog geen uitgevoerde CI-wijziging
+
+Houd per issue kort bij: geraakt gedrag, risico, geselecteerde tests met reden, resultaat en uitgestelde platform-/luistercontrole. Onderhoud een testmatrix per gebruikersfunctie/platform, met snelle gerichte suites voor issuewerk en een volledige releasegroep. Behoud tests die echte regressies ontdekken of kritieke gegevens, timing of procesgrenzen beschermen; voeg geen test toe die uitsluitend de implementatie herhaalt.
+
+Bekijk bij de release de gaten, overlap, looptijd en instabiele tests. Verwijder/vervang een test alleen met een concrete reden en aantoonbaar behouden dekking; een fout of instabiele test is geen reden om bescherming stilzwijgend weg te laten. Gebruik geen dekkingspercentage of aantal tests als zelfstandig kwaliteitsdoel. CI moet na activering dezelfde scheiding toepassen; de bestaande workflow is door dit document nog niet gewijzigd.
+
+### Nog te expliciteren
+
+De gebruiker vraagt zelfstandige issue-afhandeling en inhoudelijke goedkeuring. Zelfstandig PR's mergen en de uiteindelijke release publiceren zijn nog niet expliciet als permanente bevoegdheid vastgelegd. Tot die keuze is bevestigd blijft daarvoor de bestaande expliciete autorisatie gelden. Aanbeveling: sta bij het starten van een milestone ook merges binnen de afgesproken scope toe, zodat geen nieuwe PR-stapel ontstaat. Leg eveneens vast of het starten van een releasemilestone de eindpublicatie autoriseert of dat de gebruiker die ene eindstap goedkeurt. Deze open keuze vraagt geen nieuwe toestemming voor analyse, documentatie of geautoriseerd issuewerk.

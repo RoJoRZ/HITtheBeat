@@ -246,3 +246,8 @@ Op basis van Windows-RC2: taalkeuze uitsluitend in Instellingen en verwijderen n
 ### Definitieve release — 1.0.0 (#8 gedeeltelijk)
 
 Na acceptatie van #21 vraagt de gebruiker definitieve Mac- en Windows-installers. Basis is #21 inclusief Windows-RC2, versie 1.0.0. Mac arm64 DMG/ZIP lokaal bouwen en controleren; Windows x64 NSIS/ZIP native op Actions bouwen met gerichte pakket-/installatiecontrole. Publicatie van definitieve release expliciet geautoriseerd, zonder autonome PR-merge of vervanging van RC1. Windows-PR/tag-builds worden toegevoegd; volledige Mac-/tag-publicatieautomatisering blijft open onder #8. Zie docs/RELEASE.md en docs/RELEASE-1.0.0-NOTES.md; release-PR/Actions-run bevat de laatste uitslagen.
+
+
+### Procedure voor volgende releases — na afronding milestone 1 (#24)
+
+De gebruiker bundelt maximaal tien GitHub-issues per nieuwe releasemilestone en geeft opdracht die te starten. Daarna zelfstandige issue-afhandeling en inhoudelijke goedkeuring met gerichte tests, zonder volledige regressie per issue. Volledige gecureerde regressie uitsluitend bij releasefase/automatische installerbuilds; daarna gerichte pakketcontroles. AGENTS.md beschrijft vastgestelde afspraken, voorgestelde curatie en nog open merge-/publicatiebevoegdheid. Voer de CI-aanpassing pas bij activering van deze procedure uit. Eerst milestone 1 netjes afronden; die afsluiting is nog geen gevolg van deze documentatiestap.
