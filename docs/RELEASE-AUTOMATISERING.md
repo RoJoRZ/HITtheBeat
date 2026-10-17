@@ -21,7 +21,7 @@ Alleen de publicatiejob krijgt contents:write; PR-/test-/buildjobs hebben conten
 ## Controlebewijs en grenzen
 
 - De bestaande 1.0.0-appbron is op Mac gecontroleerd met 103 Node-tests, 31 desktoptests en 8 pakkettests; de native Windows-run leverde 103 Node-tests, 6 ZIP-tests en installatie/start/deïnstallatie. Geen herhaalde volledige appregressie voor uitsluitend workflow-/documentatieafronding.
-- Voor deze CI-wijziging: selectorcases, JavaScript-/YAML-syntaxis en gerichte PR-bouw/start op beide platforms. De uiteindelijke PR vermeldt de run en uitslagen.
+- Voor deze CI-wijziging: selectorcases, JavaScript-/YAML-syntaxis en gerichte PR-bouw/start op beide platforms. De uiteindelijke PR vermeldt de run en uitslagen. Alleen de afrondingsbranch codex/issue-8-ci-completion controleert daarnaast het nieuwe installatieharnas op beide platformen met de bestaande, gehashte 1.0.0-installers; dit bouwt of publiceert geen nieuwe installers en simuleert geen releasegoedkeuring.
 - De protected environment is via GitHub-instellingen opgeslagen en gecontroleerd. Een toekomstige echte release zal na de regressie op menselijke review wachten; dat akkoord wordt niet voor een proefpublicatie gesimuleerd. Geen nieuwe testtag/release aangemaakt voor deze administratie.
 - Automatische checks zijn geen muzikale luisterbeoordeling of interactieve SmartScreen/Gatekeeper-test. Mac blijft ad-hoc ondertekend/niet genotariseerd, Windows unsigned, projectlicentie onbeslist.
 

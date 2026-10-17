@@ -27,6 +27,11 @@ jobs:
         env:
           CI_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: node scripts/ci-tests.mjs
+      - name: Validate installer harness against existing 1.0.0 (no new installer build)
+        if: github.head_ref == 'codex/issue-8-ci-completion'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/check-installer.mjs --existing
       - name: Keep failure diagnostics
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
