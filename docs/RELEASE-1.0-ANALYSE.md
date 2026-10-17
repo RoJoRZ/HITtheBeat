@@ -208,3 +208,7 @@ Nieuwe documentatie beperken tot dit milestonevoorstel, het AGENTS-voorstel en l
 Op 15 oktober 2026: `pnpm build` (beide TypeScript-configuraties + Vite) geslaagd; `pnpm test`: **47/47** geslaagd. Bestaande bundlerwaarschuwing over een dependency-`use client`-directive, geen buildfout. Alleen documentatie gewijzigd in dit voorstel; desktopreeks en nieuwe pakketten niet opnieuw uitgevoerd/gebouwd. Historische v0.0.16-controles staan in docs/OEFENING-BEHEREN.md, tellen niet als nieuwe Windows-validatie.
 
 SSH-toegang naar origin faalt op deze machine met Permission denied (publickey), ook bij expliciete bestaande sleutel. Issues zijn via de gekoppelde GitHub-verbinding gelezen; publiceren van de analyse kan via diezelfde verbinding. Geen sleutels vervangen of remotes/accounts gewijzigd. Dit is een lokale verbindingsbeperking, geen productissue.
+
+### Voortgang na acceptatie van #5
+
+De gebruiker accepteert v0.0.23 en vraagt bij #7 optionele informele makerherkenning. V0.0.24 implementeert één offline .htbexercise-bestand, importpreview/naamconflictwaarschuwing, nieuwe identiteiten en makernaam/boodschap. De archiefsuggestie gebruikt versieerbaar JSON met base64-assets en inhoudscontrole zonder extra dependency; zie docs/OEFENING-DELEN.md voor impact en bewijs. Gebruikstest/PR-acceptatie volgen vóór #6; #8 blijft apart. Geen zelfstandige merges of issue-sluiting.

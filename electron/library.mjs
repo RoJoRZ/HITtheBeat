@@ -1,3 +1,4 @@
+import { validateCredit } from './exercise-sharing.mjs';
 import { isMetronome, meterBeats, validTempo, metronomeSeconds } from './exercise-model.mjs';
 import { audioFormat } from './audio-format.mjs';
 import { validateFragment } from './fragment-model.mjs';
@@ -8,9 +9,9 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 
-/** @typedef {{ kind?:string,meter?:string,bars?:number,id:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audioName:string, imageName:string|null, imageMime:string|null, updatedAt:string, normalizationDb:number|null, normalizeAudio:boolean, fragments:import('./fragment-model.mjs').Fragment[] }} Exercise */
+/** @typedef {{ credit?:{name:string,message:string}|null,kind?:string,meter?:string,bars?:number,id:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audioName:string, imageName:string|null, imageMime:string|null, updatedAt:string, normalizationDb:number|null, normalizeAudio:boolean, fragments:import('./fragment-model.mjs').Fragment[] }} Exercise */
 /** @typedef {{ name:string, bytes:Uint8Array }} Asset */
-/** @typedef {{ kind?:string,meter?:string,bars?:number,id?:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audio?:Asset, image?:Asset|null, normalizationDb?:number|null, normalizeAudio?:boolean }} SaveInput */
+/** @typedef {{ credit?:{name:string,message:string}|null,kind?:string,meter?:string,bars?:number,id?:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audio?:Asset, image?:Asset|null, normalizationDb?:number|null, normalizeAudio?:boolean }} SaveInput */
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /** @param {unknown} id */
 function validId(id) { if (typeof id !== 'string' || !idPattern.test(id)) throw new Error('Ongeldige oefening.'); return id; }
@@ -42,7 +43,7 @@ export async function openLibrary(root) {
   const db = new DatabaseSync(path.join(root, 'library.sqlite'));
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;');
   const version = /** @type {{user_version:number}} */ (db.prepare('PRAGMA user_version').get()).user_version;
-  if (version > 9) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
+  if (version > 10) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
   if (version === 0) db.exec(`BEGIN IMMEDIATE;
     CREATE TABLE exercises (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL,
       bpm REAL NOT NULL CHECK(bpm>0), detected_bpm REAL, analysis_status TEXT NOT NULL, duration REAL NOT NULL,
@@ -90,6 +91,7 @@ export async function openLibrary(root) {
     UPDATE routine_blocks SET count_in=(SELECT count_in FROM routines WHERE routines.id=routine_blocks.routine_id);
     UPDATE routines SET count_in=NULL;
     PRAGMA user_version=9; COMMIT;`);
+  if (version < 10) db.exec(`BEGIN IMMEDIATE; ALTER TABLE exercises ADD COLUMN credit TEXT; PRAGMA user_version=10; COMMIT;`);
   // An unclosed run is preserved, never promoted to a completed session.
   db.prepare("UPDATE sessions SET status='interrupted', ended_at=updated_at WHERE status='running'").run();
   /** @param {string} id */
@@ -112,7 +114,7 @@ export async function openLibrary(root) {
     })),
   });
   /** @param {Record<string, any>} row @returns {Exercise} */
-  const present = row => ({ kind: row.kind, meter: row.meter, bars: Number(row.bars), id: row.id, title: row.title, description: row.description, bpm: row.bpm, detectedBpm: row.detected_bpm, analysisStatus: row.analysis_status, duration: row.duration, audioName: row.audio_name, imageName: row.image_name, imageMime: row.image_mime, updatedAt: row.updated_at, normalizationDb: row.normalization_db, normalizeAudio: Boolean(row.normalize_audio), fragments: JSON.parse(String(row.fragments)) });
+  const present = row => ({ credit: row.credit ? JSON.parse(String(row.credit)) : null, kind: row.kind, meter: row.meter, bars: Number(row.bars), id: row.id, title: row.title, description: row.description, bpm: row.bpm, detectedBpm: row.detected_bpm, analysisStatus: row.analysis_status, duration: row.duration, audioName: row.audio_name, imageName: row.image_name, imageMime: row.image_mime, updatedAt: row.updated_at, normalizationDb: row.normalization_db, normalizeAudio: Boolean(row.normalize_audio), fragments: JSON.parse(String(row.fragments)) });
   /** @param {unknown} id */
   const rowFor = id => {
     const row = db.prepare('SELECT * FROM exercises WHERE id=?').get(validId(id));
@@ -127,8 +129,8 @@ export async function openLibrary(root) {
   return {
     root,
     list() { return db.prepare('SELECT * FROM exercises ORDER BY title COLLATE NOCASE, id').all().map(present); },
-    /** @param {SaveInput} input */
-    async save(input) {
+    /** @param {SaveInput} input @param {import('./fragment-model.mjs').FragmentInput[]|undefined} importedFragments */
+    async save(input, importedFragments = undefined) {
       if (!input || typeof input !== 'object') throw new Error('Ongeldige oefening.');
       const title = text(input.title, 160), description = text(input.description, 20000);
       const old = input.id ? rowFor(input.id) : null;
@@ -152,6 +154,13 @@ export async function openLibrary(root) {
           catch { throw new Error(`De nieuwe audio past niet bij de grenzen of BPM in sessie “${routine.title}”. Pas eerst deze sessie aan.`); }
         }
       }
+      const credit = input.credit === undefined ? (old?.credit ? JSON.parse(String(old.credit)) : null) : validateCredit(input.credit);
+      let fragments = null;
+      if (importedFragments !== undefined) {
+        if (old || !Array.isArray(importedFragments) || importedFragments.length > 100 || (kind === 'metronome' && importedFragments.length)) throw new Error('Ongeldige importfragmenten.');
+        fragments = importedFragments.map(({name,start,end}) => validateFragment({name,start,end}, duration));
+        if (new Set(fragments.map(f => f.name.toLocaleLowerCase('nl'))).size !== fragments.length) throw new Error('Dubbele fragmentnaam in de import.');
+      }
       const audioInfo = input.audio ? validateAsset(input.audio, 'audio') : null;
       const imageInfo = input.image ? validateAsset(input.image, 'image') : null;
       const audioFile = kind === 'metronome' ? '' : audioInfo ? `${randomUUID()}.${audioInfo.extension}` : String(old?.audio_file);
@@ -162,16 +171,17 @@ export async function openLibrary(root) {
         if (input.audio) { created.push(audioFile); await writeFile(mediaPath(audioFile), input.audio.bytes, { flag: 'wx', mode: 0o600 }); }
         if (input.image && typeof imageFile === 'string') { created.push(imageFile); await writeFile(mediaPath(imageFile), input.image.bytes, { flag: 'wx', mode: 0o600 }); }
         db.exec('BEGIN IMMEDIATE;');
-        db.prepare(`INSERT INTO exercises (id,title,description,bpm,detected_bpm,analysis_status,duration,audio_name,audio_file,image_name,image_file,image_mime,updated_at,normalization_db,normalize_audio,kind,meter,bars) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        db.prepare(`INSERT INTO exercises (id,title,description,bpm,detected_bpm,analysis_status,duration,audio_name,audio_file,image_name,image_file,image_mime,updated_at,normalization_db,normalize_audio,kind,meter,bars,credit) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
           ON CONFLICT(id) DO UPDATE SET title=excluded.title, description=excluded.description, bpm=excluded.bpm,
           detected_bpm=excluded.detected_bpm, analysis_status=excluded.analysis_status, duration=excluded.duration,
           audio_name=excluded.audio_name, audio_file=excluded.audio_file, image_name=excluded.image_name,
           image_file=excluded.image_file, image_mime=excluded.image_mime, updated_at=excluded.updated_at,
-          normalization_db=excluded.normalization_db, normalize_audio=excluded.normalize_audio, kind=excluded.kind, meter=excluded.meter, bars=excluded.bars`).run(
+          normalization_db=excluded.normalization_db, normalize_audio=excluded.normalize_audio, kind=excluded.kind, meter=excluded.meter, bars=excluded.bars, credit=excluded.credit`).run(
           id, title, description, bpm, detected, input.analysisStatus, duration,
           kind === 'metronome' ? '' : audioInfo?.name ?? String(old?.audio_name), audioFile,
           imageInfo?.name ?? (input.image === null ? null : old?.image_name ?? null), imageFile,
-          imageInfo?.mime ?? (input.image === null ? null : old?.image_mime ?? null), updated, normalizationDb, normalizeAudio ? 1 : 0, kind, meter, kind === 'metronome' ? bars : 8);
+          imageInfo?.mime ?? (input.image === null ? null : old?.image_mime ?? null), updated, normalizationDb, normalizeAudio ? 1 : 0, kind, meter, kind === 'metronome' ? bars : 8, credit ? JSON.stringify(credit) : null);
+        if (fragments) db.prepare('UPDATE exercises SET fragments=? WHERE id=?').run(JSON.stringify(fragments), id);
         if (kind === 'metronome' && old && input.bars !== undefined) {
           db.prepare("UPDATE routines SET updated_at=? WHERE id IN (SELECT routine_id FROM routine_blocks WHERE exercise_id=?)").run(new Date(Math.max(Date.now(), ...this.listRoutines().map(item => Date.parse(item.updatedAt) + 1))).toISOString(), id);
           db.prepare('UPDATE routine_steps SET bars=NULL WHERE block_id IN (SELECT id FROM routine_blocks WHERE exercise_id=?)').run(id);
@@ -185,6 +195,15 @@ export async function openLibrary(root) {
       if (old?.audio_file && old.audio_file !== audioFile) await rm(mediaPath(String(old.audio_file)), { force: true }).catch(() => {});
       if (old?.image_file && old.image_file !== imageFile) await rm(mediaPath(String(old.image_file)), { force: true }).catch(() => {});
       return present(rowFor(id));
+    },
+    /** Capture metadata and immutable filenames together, before awaiting file reads. @param {string} id */
+    async exportExercise(id) {
+      const row = rowFor(id), exercise = present(row);
+      try {
+      const audio = row.audio_file ? { name: String(row.audio_name), bytes: new Uint8Array(await readFile(mediaPath(String(row.audio_file)))) } : undefined;
+      const image = row.image_file ? { name: String(row.image_name), bytes: new Uint8Array(await readFile(mediaPath(String(row.image_file)))) } : null;
+      return { ...exercise, audio, image };
+      } catch { throw new Error('De media van deze oefening ontbreken of kunnen niet worden gelezen.'); }
     },
     /** @param {string} id */
     async deleteExercise(id) {
