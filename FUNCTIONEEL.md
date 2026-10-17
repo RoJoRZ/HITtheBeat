@@ -373,3 +373,22 @@ Dit is een afzonderlijke verbetering; fase 8, Windows-gebruikstest en muzikale l
 Gebruiksfeedback 11 oktober 2026: de gebruiker heeft v0.0.16 geprobeerd en meldt dat alles lijkt te werken. De wijzigingen zijn daarmee in gebruik goedgekeurd. Dit is geen afzonderlijke bevestiging van een Windows-test, brede BPM-nauwkeurigheid of muzikale luisterkwaliteit. Fase 8 is nog niet gestart.
 
 Op 11 oktober 2026 heeft de gebruiker eenmalig gevraagd opnieuw te beginnen met de voortgangsrapportage. De 12 historische oefenregistraties zijn uit de lokale gebruikersdatabase verwijderd; oefeningen, media, fragmenten en opgeslagen sessie-opbouwen zijn behouden. Dit betreft een eenmalige gegevensreset, geen nieuwe resetfunctie in de app. Nieuwe oefenregistraties bouwen de voortgang opnieuw op.
+
+## 26. Release 1.0 — vastgelegde wensen, nog niet geïmplementeerd
+
+Op 15 oktober 2026 vraagt de gebruiker de acht open GitHub-issues in milestone Release 1.0 te onderzoeken en prioriteren. Na verduidelijking kiest de gebruiker **eerst analyse en plan ter goedkeuring**; onderstaande wensen zijn geen bestaande appfunctionaliteit. Uitwerking, afhankelijkheden, testplan en open keuzes staan in [docs/RELEASE-1.0-ANALYSE.md](docs/RELEASE-1.0-ANALYSE.md). De voorgestelde permanente werkwijze staat in docs/AGENTS-VOORSTEL.md; AGENTS.md wordt pas na akkoord definitief aangepast.
+
+| Issue | Vastgelegde gewenste functionaliteit |
+|---|---|
+| [#1](https://github.com/RoJoRZ/HITtheBeat/issues/1) | Metronoom-oefening zonder audio-upload, met BPM en maatsoort, bruikbaar in gewone sessies. Duur/eindconditie en betekenis van BPM bij 6/8 vragen nog een keuze. |
+| [#2](https://github.com/RoJoRZ/HITtheBeat/issues/2) | Optionele aftelmaat vóór iedere herhaling op het tempo van die herhaling; maatsoort standaard 4/4; ander geluid dan de metronoom; instelling per sessie. Gevolgen voor tijdweergave nog afstemmen. |
+| [#3](https://github.com/RoJoRZ/HITtheBeat/issues/3) | Tablatuur via vergrootglas in los verplaatsbaar en vergrootbaar venster, volgt actieve oefening, beeldzoom en fullscreen; sluiten stopt sessie niet. |
+| [#4](https://github.com/RoJoRZ/HITtheBeat/issues/4) | Waveformselectie met muis, sleepbare A/B, horizontaal zoomen/pannen en fragmentpreview; grenzen blijven juist bij zoom; handmatige secondeninvoer mag blijven. |
+| [#5](https://github.com/RoJoRZ/HITtheBeat/issues/5) | Half-/dubbeltempo bij BPM-herkenning onderzoeken en beperken; handmatige correctie behouden; BPM overal als geheel getal tonen, interne precisie mag blijven. |
+| [#6](https://github.com/RoJoRZ/HITtheBeat/issues/6) | Volledige Nederlandse en Engelse interface; eerste taal uit systeem/browser, daarna handmatige blijvende voorkeur. Fallback voor andere talen nog vastleggen. |
+| [#7](https://github.com/RoJoRZ/HITtheBeat/issues/7) | Eén offline oefenbestand exporteren/importeren met aanwezige audio, tablatuur, opmerkingen en relevante instellingen; import voegt toe zonder overschrijven; gelijke naam waarschuwt en kan vóór import worden gewijzigd. |
+| [#8](https://github.com/RoJoRZ/HITtheBeat/issues/8) | PR-builds en taggestuurde macOS-/Windows-installers via GitHub Actions; publiceren als release, Windows-installatie/audio/opslag testen en releaseproces beschrijven. Automatische appupdates vallen buiten scope. |
+
+Bestaand werkend gedrag en persoonlijke gegevens blijven tijdens deze analyse ongewijzigd. De voorgestelde bouwvolgorde is #1 → #2 → #3 → #4 → #5 → #7 → #6 → #8; dit is ter goedkeuring en sluit de bestaande afrondingsfase aan op de milestone. Nieuwe diensten of een grote architectuurvervanging zijn niet voorgesteld.
+
+Goedkeuring 15 oktober 2026: gebruiker geeft akkoord op de voorgestelde volgorde en werkwijze en opdracht te starten met #1. Een metronoomherhaling duurt standaard 8 maten, instelbaar per sessiestap. BPM is kwartnoten per minuut, ook bij 6/8. Afteltijd wordt afzonderlijk getoond en telt niet mee als gespeelde oefentijd (#2). De nieuwe functies zijn hiermee geautoriseerd, maar pas na hun afzonderlijke implementatie beschikbaar.

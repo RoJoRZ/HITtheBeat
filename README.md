@@ -4,6 +4,9 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 
 ## Documenten
 
+- [Release 1.0: analyse en implementatievoorstel (ter goedkeuring)](docs/RELEASE-1.0-ANALYSE.md)
+- [Voorgestelde permanente ontwikkelwerkwijze](docs/AGENTS-VOORSTEL.md)
+
 - [Functionele afspraken](FUNCTIONEEL.md)
 - [Goedgekeurde designrichting](DESIGN.md)
 - [Technisch ontwerp](TECHNISCH-ONTWERP.md)

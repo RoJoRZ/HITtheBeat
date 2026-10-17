@@ -179,3 +179,11 @@ De gebruiker heeft opdracht gegeven voor het dashboard. Voortgang toont echte oe
 ### Tussenstap vóór verdere distributie — v0.0.15
 
 Op verzoek: losse Audioproef verwijderen, Bibliotheekmap openen naar Instellingen verplaatsen met uitleg over kopieën, en MP3-import uitbreiden met M4A AAC. Deze stap krijgt afzonderlijke opslag-, decoder-, import-, herstart- en navigatiecontroles. Zie docs/IMPORT-INSTELLINGEN.md. Dit rondt fase 8 nog niet af: installatieprogramma’s, externe distributie/licenties, ondertekening en echte Windows-gebruikstest blijven open.
+
+### Release 1.0 — analyse ter goedkeuring (15 oktober 2026)
+
+De gebruiker kiest expliciet eerst een analyse en plan voor de acht milestone-issues, vóór functionele implementatie. Zie [docs/RELEASE-1.0-ANALYSE.md](docs/RELEASE-1.0-ANALYSE.md) voor architectuur, componentimpact, afhankelijkheden, open keuzes en tests. Voorgestelde volgorde: #1 metronoom → #2 aftelmaat → #3 tablatuurvenster → #4 waveformselectie → #5 BPM → #7 export/import → #6 taal → #8 releaseautomatisering. Dit is een voorstel, geen afgeronde fase of toestemming om alle issues zonder tussenliggende acceptatie te bouwen.
+
+De voorgestelde issuebranch-/PR-werkwijze staat in docs/AGENTS-VOORSTEL.md. AGENTS.md blijft in de analyse ongewijzigd. Na akkoord per issue een afzonderlijk testbaar resultaat en PR; geen zelfstandige merges. De bestaande Windows-/luistercontroles en distributiekeuzes blijven open.
+
+Op 15 oktober 2026 keurt de gebruiker dit plan en de eerste drie uitgangspunten goed en geeft opdracht te starten. AGENTS.md neemt de nieuwe werkwijze over. Issue #1 wordt eerst afzonderlijk geïmplementeerd en getest; overige issues blijven gepland.
