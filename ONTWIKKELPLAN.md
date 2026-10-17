@@ -219,3 +219,7 @@ Na gebruiksgoedkeuring van de waveformselectie: onderzoek/benchmark van halve/du
 ### Issue #7 — Oefeningen delen met makervermelding (v0.0.24)
 
 Na gebruiksgoedkeuring van v0.0.23 volgt één offline deelbestand per oefening, importpreview met hernoemen/waarschuwing en toevoeging zonder overschrijven. Aanvullend gebruikersverzoek: optionele informele makernaam/boodschap die na import zichtbaar blijft en bij herexport wordt voorgesteld. Zie docs/OEFENING-DELEN.md voor impact, exportspecificatie en controles. Basis is de geaccepteerde issue-5-commit; niet zelfstandig mergen. Geef ruimte voor feedback vóór #6 (taalkeuze), daarna #8 (distributie).
+
+### Issue #6 — Nederlands en Engels (v0.0.25)
+
+Na acceptatie van v0.0.24 volgt volledige lokalisatie met systeemtaalfallback, expliciete bewaarde keuze in Instellingen en directe wisseling zonder verlies van speler-/formulierstatus. De paginakop biedt dezelfde keuze tijdens het spelen. Eigen inhoud en historie blijven ongewijzigd. Zie docs/TAALKEUZE.md voor impact en controles. Basis is de geaccepteerde issue-7-commit; niet zelfstandig mergen. Geef ruimte voor gebruiksfeedback vóór #8 (afronden/distributie).

@@ -6,7 +6,7 @@ import path from 'node:path';
 test('detached notation follows exercises, zooms/resizes/fullscreens, reuses and closes without stopping playback', async () => {
   test.setTimeout(60000);
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-notation-')), executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const app = await electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const app = await electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   try {
     const main = await app.firstWindow(), errors: string[] = [];
     await expect(main.locator('h1')).toBeVisible(); await main.waitForLoadState('load');
@@ -34,16 +34,17 @@ test('detached notation follows exercises, zooms/resizes/fullscreens, reuses and
     await expect(viewer.getByRole('img', { name: 'Tablatuur bij Wisselslag' })).toBeVisible();
     expect(await viewer.evaluate(() => typeof window.hitthebeat)).toBe('undefined');
     expect(await viewer.evaluate(() => typeof (window as unknown as { require?: unknown }).require)).toBe('undefined');
-    expect(await viewer.evaluate(() => Object.keys(window.notationViewer!))).toEqual(['getState', 'onChange', 'toggleFullscreen', 'close']);
-    const security = await app.evaluate(({ BrowserWindow, ipcMain }) => {
+    expect(await viewer.evaluate(() => Object.keys(window.notationViewer!))).toEqual(['getLanguage', 'onLanguageChange', 'getState', 'onChange', 'toggleFullscreen', 'close']);
+    const security = await app.evaluate(async ({ BrowserWindow, ipcMain }) => {
       const windows = BrowserWindow.getAllWindows(), child = windows.find(w => w.webContents.getURL().includes('?view=notation'))!;
       const prefs = child.webContents.getLastWebPreferences();
       const mainBackgroundThrottling = windows.find(w => w !== child)!.webContents.getBackgroundThrottling();
       const handlers = (ipcMain as unknown as { _invokeHandlers: Map<string, (event: unknown) => unknown> })._invokeHandlers;
-      let blocked = false; try { handlers.get('library:list')!({ sender: child.webContents, senderFrame: child.webContents.mainFrame }); } catch { blocked = true; }
-      return { mainBackgroundThrottling, sandbox: prefs.sandbox, isolation: prefs.contextIsolation, node: prefs.nodeIntegration, blocked, movable: child.isMovable(), resizable: child.isResizable() };
+      let blocked = false; try { await handlers.get('library:list')!({ sender: child.webContents, senderFrame: child.webContents.mainFrame }); } catch { blocked = true; }
+      let languageBlocked = false; try { await handlers.get('language:set')!({ sender: child.webContents, senderFrame: child.webContents.mainFrame }); } catch { languageBlocked = true; }
+      return { languageBlocked, mainBackgroundThrottling, sandbox: prefs.sandbox, isolation: prefs.contextIsolation, node: prefs.nodeIntegration, blocked, movable: child.isMovable(), resizable: child.isResizable() };
     });
-    expect(security).toEqual({ mainBackgroundThrottling: false, sandbox: true, isolation: true, node: false, blocked: true, movable: true, resizable: true });
+    expect(security).toEqual({ languageBlocked: true, mainBackgroundThrottling: false, sandbox: true, isolation: true, node: false, blocked: true, movable: true, resizable: true });
     const width = await viewer.getByRole('img').evaluate(img => img.getBoundingClientRect().width);
     await viewer.getByRole('button', { name: 'Inzoomen', exact: true }).click();
     await expect(viewer.getByLabel('Afbeeldingszoom')).toHaveText('125%');

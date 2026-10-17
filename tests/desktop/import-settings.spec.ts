@@ -8,7 +8,7 @@ test('settings replaces audio demo; AAC imports, normalizes and plays after sour
   const bytes = await readFile('tests/fixtures/pulse-aac.m4a');
   const source = path.join(root, 'Mijn passage.M4A'); await writeFile(source, bytes);
   const executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const launch = () => electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${path.join(root, 'data')}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const launch = () => electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${path.join(root, 'data')}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   let desktop = await launch();
   try {
     let page = await desktop.firstWindow(); await page.context().setOffline(true);

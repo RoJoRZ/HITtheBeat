@@ -11,7 +11,7 @@ function mp3(amplitude: number) {
 test('import normalizes quiet and loud MP3, volume and mute survive exercise changes, free loops and reopening', async () => {
   test.setTimeout(45000);
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-volume-')), executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const launch = () => electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const launch = () => electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   let app = await launch();
   try {
     let page = await app.firstWindow(); const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));

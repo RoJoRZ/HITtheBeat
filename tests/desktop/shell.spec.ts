@@ -9,7 +9,7 @@ test('desktop loads offline, exposes only its narrow bridge, navigates and reope
   try {
     for (let launch = 0; launch < 2; launch++) {
       const executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-      const desktop = await electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${data}`], env: { ...process.env, HITTHEBEAT_TEST_DATA: data, HITTHEBEAT_DEV: '0' } });
+      const desktop = await electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${data}`], env: { ...process.env, HITTHEBEAT_TEST_DATA: data, HITTHEBEAT_DEV: '0' } });
       try {
         const page = await desktop.firstWindow();
         const errors: string[] = [];

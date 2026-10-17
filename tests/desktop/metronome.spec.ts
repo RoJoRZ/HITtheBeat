@@ -6,7 +6,7 @@ import path from 'node:path';
 test('audio-free metronome creates offline, reopens, edits bars and plays mixed session with evaluation/history', async () => {
   test.setTimeout(45000);
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-metronome-ui-')), executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const launch = () => electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const launch = () => electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   let app = await launch();
   try {
     let page = await app.firstWindow(); const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
@@ -86,7 +86,7 @@ test('metronome rendered pulses use the audio clock, scale with tempo and mute/p
   test.skip(Boolean(process.env.HITTHEBEAT_TEST_EXECUTABLE), 'Source DSP harness; packaged UI is checked separately.');
   const { createServer } = await import('vite'); const server = await createServer(); await server.listen();
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-metronome-dsp-'));
-  const app = await electron.launch({ args: ['.', `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '1' } });
+  const app = await electron.launch({ args: ['--lang=nl-NL', '.', `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '1' } });
   try {
     const page = await app.firstWindow(); await expect(page.locator('h1')).toBeVisible();
     const result = await page.evaluate(async () => { const { metronomeProbe } = await import('/tests/audio/metronome-probe.ts'); return metronomeProbe(); });

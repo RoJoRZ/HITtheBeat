@@ -20,7 +20,7 @@ test('own library imports, estimates, corrects, edits and reopens copied media o
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-library-ui-'));
   const source = path.join(root, 'original.mp3'); await writeFile(source, mp3());
   const executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const launch = () => electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${path.join(root, 'data')}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const launch = () => electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${path.join(root, 'data')}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   let desktop = await launch();
   try {
     let page = await desktop.firstWindow(); const errors: string[] = [];

@@ -1,3 +1,4 @@
+import { t, LocalizedError } from './i18n.mjs';
 import { validateCredit } from './exercise-sharing.mjs';
 import { isMetronome, meterBeats, validTempo, metronomeSeconds } from './exercise-model.mjs';
 import { audioFormat } from './audio-format.mjs';
@@ -14,17 +15,17 @@ import path from 'node:path';
 /** @typedef {{ credit?:{name:string,message:string}|null,kind?:string,meter?:string,bars?:number,id?:string, title:string, description:string, bpm:number, detectedBpm:number|null, analysisStatus:string, duration:number, audio?:Asset, image?:Asset|null, normalizationDb?:number|null, normalizeAudio?:boolean }} SaveInput */
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /** @param {unknown} id */
-function validId(id) { if (typeof id !== 'string' || !idPattern.test(id)) throw new Error('Ongeldige oefening.'); return id; }
+function validId(id) { if (typeof id !== 'string' || !idPattern.test(id)) throw new LocalizedError("Ongeldige oefening."); return id; }
 /** @param {unknown} value @param {number} maximum */
 function text(value, maximum) {
-  if (typeof value !== 'string' || value.length > maximum || value.includes('\0')) throw new Error('Controleer de ingevoerde tekst.');
+  if (typeof value !== 'string' || value.length > maximum || value.includes('\0')) throw new LocalizedError("Controleer de ingevoerde tekst.");
   return value.trim();
 }
 /** @param {unknown} value */
-function number(value) { if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error('Controleer tempo en duur.'); return value; }
+function number(value) { if (typeof value !== 'number' || !Number.isFinite(value)) throw new LocalizedError("Controleer tempo en duur."); return value; }
 /** @param {Asset} asset @param {'audio'|'image'} kind */
 function validateAsset(asset, kind) {
-  if (!asset || !(asset.bytes instanceof Uint8Array) || asset.bytes.length < 12 || asset.bytes.length > (kind === 'audio' ? 50 : 12) * 1024 * 1024) throw new Error(kind === 'audio' ? 'Kies een MP3 of M4A van maximaal 50 MB.' : 'Kies een PNG, JPEG of WebP van maximaal 12 MB.');
+  if (!asset || !(asset.bytes instanceof Uint8Array) || asset.bytes.length < 12 || asset.bytes.length > (kind === 'audio' ? 50 : 12) * 1024 * 1024) throw new Error(kind === 'audio' ? t("Kies een MP3 of M4A van maximaal 50 MB.") : t("Kies een PNG, JPEG of WebP van maximaal 12 MB."));
   const name = text(asset.name, 240);
   const bytes = asset.bytes;
   if (kind === 'audio') {
@@ -33,7 +34,7 @@ function validateAsset(asset, kind) {
   if (Buffer.from(bytes.subarray(0, 8)).equals(Buffer.from([137,80,78,71,13,10,26,10]))) return { extension: 'png', mime: 'image/png', name };
   if (bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) return { extension: 'jpg', mime: 'image/jpeg', name };
   if (Buffer.from(bytes.subarray(0, 4)).toString() === 'RIFF' && Buffer.from(bytes.subarray(8, 12)).toString() === 'WEBP') return { extension: 'webp', mime: 'image/webp', name };
-  throw new Error('Kies een PNG, JPEG of WebP-afbeelding.');
+  throw new LocalizedError("Kies een PNG, JPEG of WebP-afbeelding.");
 }
 
 /** @param {string} root */
@@ -43,7 +44,7 @@ export async function openLibrary(root) {
   const db = new DatabaseSync(path.join(root, 'library.sqlite'));
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;');
   const version = /** @type {{user_version:number}} */ (db.prepare('PRAGMA user_version').get()).user_version;
-  if (version > 10) { db.close(); throw new Error('Deze bibliotheek is gemaakt met een nieuwere appversie.'); }
+  if (version > 10) { db.close(); throw new LocalizedError("Deze bibliotheek is gemaakt met een nieuwere appversie."); }
   if (version === 0) db.exec(`BEGIN IMMEDIATE;
     CREATE TABLE exercises (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL,
       bpm REAL NOT NULL CHECK(bpm>0), detected_bpm REAL, analysis_status TEXT NOT NULL, duration REAL NOT NULL,
@@ -97,7 +98,7 @@ export async function openLibrary(root) {
   /** @param {string} id */
   const sessionRow = id => {
     const row = db.prepare('SELECT * FROM sessions WHERE id=?').get(sessionId(id));
-    if (!row) throw new Error('Deze sessie bestaat niet meer.');
+    if (!row) throw new LocalizedError("Deze sessie bestaat niet meer.");
     return row;
   };
   /** @param {Record<string, any>} row */
@@ -118,12 +119,12 @@ export async function openLibrary(root) {
   /** @param {unknown} id */
   const rowFor = id => {
     const row = db.prepare('SELECT * FROM exercises WHERE id=?').get(validId(id));
-    if (!row) throw new Error('Deze oefening is niet meer beschikbaar.');
+    if (!row) throw new LocalizedError("Deze oefening is niet meer beschikbaar.");
     return row;
   };
   /** @param {string} filename */
   const mediaPath = filename => {
-    if (!/^[0-9a-f-]{36}\.(mp3|m4a|png|jpg|webp)$/.test(filename)) throw new Error('Ongeldig bibliotheekbestand.');
+    if (!/^[0-9a-f-]{36}\.(mp3|m4a|png|jpg|webp)$/.test(filename)) throw new LocalizedError("Ongeldig bibliotheekbestand.");
     return path.join(media, filename);
   };
   return {
@@ -131,35 +132,35 @@ export async function openLibrary(root) {
     list() { return db.prepare('SELECT * FROM exercises ORDER BY title COLLATE NOCASE, id').all().map(present); },
     /** @param {SaveInput} input @param {import('./fragment-model.mjs').FragmentInput[]|undefined} importedFragments */
     async save(input, importedFragments = undefined) {
-      if (!input || typeof input !== 'object') throw new Error('Ongeldige oefening.');
+      if (!input || typeof input !== 'object') throw new LocalizedError("Ongeldige oefening.");
       const title = text(input.title, 160), description = text(input.description, 20000);
       const old = input.id ? rowFor(input.id) : null;
       const kind = input.kind ?? String(old?.kind ?? 'audio'), meter = input.meter ?? String(old?.meter ?? '4/4');
-      if (!['audio','metronome'].includes(kind) || (old && old.kind !== kind)) throw new Error('Het oefentype kan na opslaan niet worden gewijzigd.');
+      if (!['audio','metronome'].includes(kind) || (old && old.kind !== kind)) throw new LocalizedError("Het oefentype kan na opslaan niet worden gewijzigd.");
       const bars = input.bars ?? Number(old?.bars ?? 8);
       if (kind === 'metronome') { meterBeats(meter); metronomeSeconds({ kind, meter, bpm: 120, duration: 0 }, bars); }
       const bpm = number(input.bpm), duration = kind === 'metronome' ? 0 : number(input.duration);
       const detected = input.detectedBpm === null ? null : number(input.detectedBpm);
-      if (!title || bpm <= 0 || bpm > 1000 || (kind === 'audio' && (duration < .1 || duration > 86400)) || (kind === 'metronome' && (!validTempo(bpm, {kind,bpm,duration}) || input.audio)) || (detected !== null && (detected < 40 || detected > 240)) || !['estimated', 'unavailable', 'failed'].includes(input.analysisStatus)) throw new Error('Controleer de naam, het BPM en de audiogegevens.');
+      if (!title || bpm <= 0 || bpm > 1000 || (kind === 'audio' && (duration < .1 || duration > 86400)) || (kind === 'metronome' && (!validTempo(bpm, {kind,bpm,duration}) || input.audio)) || (detected !== null && (detected < 40 || detected > 240)) || !['estimated', 'unavailable', 'failed'].includes(input.analysisStatus)) throw new LocalizedError("Controleer de naam, het BPM en de audiogegevens.");
       const normalizationDb = kind === 'metronome' ? null : input.normalizationDb === undefined ? old?.normalization_db ?? null : input.normalizationDb;
       const normalizeAudio = kind === 'metronome' ? false : input.normalizeAudio === undefined ? Boolean(old?.normalize_audio ?? true) : input.normalizeAudio;
-      if ((normalizationDb !== null && (typeof normalizationDb !== 'number' || !Number.isFinite(normalizationDb) || normalizationDb < -60 || normalizationDb > 12 + 1e-9)) || typeof normalizeAudio !== 'boolean') throw new Error('Ongeldige volumenormalisatie.');
-      if (kind === 'audio' && !old && !input.audio) throw new Error('Kies een MP3- of M4A-bestand.');
+      if ((normalizationDb !== null && (typeof normalizationDb !== 'number' || !Number.isFinite(normalizationDb) || normalizationDb < -60 || normalizationDb > 12 + 1e-9)) || typeof normalizeAudio !== 'boolean') throw new LocalizedError("Ongeldige volumenormalisatie.");
+      if (kind === 'audio' && !old && !input.audio) throw new LocalizedError("Kies een MP3- of M4A-bestand.");
       if (old && input.audio) {
         const fragments = present(old).fragments;
-        if (fragments.some(fragment => fragment.end > duration)) throw new Error('De nieuwe audio is korter dan een opgeslagen fragment. Pas eerst de fragmentgrenzen aan.');
+        if (fragments.some(fragment => fragment.end > duration)) throw new LocalizedError("De nieuwe audio is korter dan een opgeslagen fragment. Pas eerst de fragmentgrenzen aan.");
         const sources = this.list().map(item => item.id === old.id ? { ...item, bpm, duration } : item);
         for (const routine of this.listRoutines().filter(item => item.blocks.some(block => block.exerciseId === old.id))) {
           try { validateRoutine(routine, sources); }
-          catch { throw new Error(`De nieuwe audio past niet bij de grenzen of BPM in sessie “${routine.title}”. Pas eerst deze sessie aan.`); }
+          catch { throw new LocalizedError("De nieuwe audio past niet bij de grenzen of BPM in sessie “{0}”. Pas eerst deze sessie aan.", routine.title); }
         }
       }
       const credit = input.credit === undefined ? (old?.credit ? JSON.parse(String(old.credit)) : null) : validateCredit(input.credit);
       let fragments = null;
       if (importedFragments !== undefined) {
-        if (old || !Array.isArray(importedFragments) || importedFragments.length > 100 || (kind === 'metronome' && importedFragments.length)) throw new Error('Ongeldige importfragmenten.');
+        if (old || !Array.isArray(importedFragments) || importedFragments.length > 100 || (kind === 'metronome' && importedFragments.length)) throw new LocalizedError("Ongeldige importfragmenten.");
         fragments = importedFragments.map(({name,start,end}) => validateFragment({name,start,end}, duration));
-        if (new Set(fragments.map(f => f.name.toLocaleLowerCase('nl'))).size !== fragments.length) throw new Error('Dubbele fragmentnaam in de import.');
+        if (new Set(fragments.map(f => f.name.toLocaleLowerCase('nl'))).size !== fragments.length) throw new LocalizedError("Dubbele fragmentnaam in de import.");
       }
       const audioInfo = input.audio ? validateAsset(input.audio, 'audio') : null;
       const imageInfo = input.image ? validateAsset(input.image, 'image') : null;
@@ -203,24 +204,24 @@ export async function openLibrary(root) {
       const audio = row.audio_file ? { name: String(row.audio_name), bytes: new Uint8Array(await readFile(mediaPath(String(row.audio_file)))) } : undefined;
       const image = row.image_file ? { name: String(row.image_name), bytes: new Uint8Array(await readFile(mediaPath(String(row.image_file)))) } : null;
       return { ...exercise, audio, image };
-      } catch { throw new Error('De media van deze oefening ontbreken of kunnen niet worden gelezen.'); }
+      } catch { throw new LocalizedError("De media van deze oefening ontbreken of kunnen niet worden gelezen."); }
     },
     /** @param {string} id */
     async deleteExercise(id) {
       const row = rowFor(id);
       const used = this.listRoutines().filter(item => item.blocks.some(block => block.exerciseId === id));
-      if (used.length) throw new Error(`Verwijder deze oefening eerst uit de opgeslagen sessies: ${used.map(item => item.title).join(', ')}.`);
+      if (used.length) throw new LocalizedError("Verwijder deze oefening eerst uit de opgeslagen sessies: {0}.", used.map(item => item.title).join(', '));
       db.prepare('DELETE FROM exercises WHERE id=?').run(id);
       await Promise.all([row.audio_file, row.image_file].filter(Boolean).map(file => rm(mediaPath(String(file)), { force: true }).catch(() => {})));
     },
     /** @param {string} exerciseId @param {import('./fragment-model.mjs').FragmentInput} input */
     saveFragment(exerciseId, input) {
       const row = rowFor(exerciseId), fragments = present(row).fragments;
-      if (isMetronome(present(row))) throw new Error('Metronoom-oefeningen hebben geen audiofragmenten.');
+      if (isMetronome(present(row))) throw new LocalizedError("Metronoom-oefeningen hebben geen audiofragmenten.");
       const clean = validateFragment(input, Number(row.duration));
-      if (input.id && !fragments.some(item => item.id === input.id)) throw new Error('Dit fragment bestaat niet meer.');
-      if (fragments.some(item => item.id !== clean.id && item.name.toLocaleLowerCase('nl') === clean.name.toLocaleLowerCase('nl'))) throw new Error('Kies een unieke fragmentnaam bij deze oefening.');
-      if (!input.id && fragments.length >= 100) throw new Error('Bewaar maximaal 100 fragmenten per oefening.');
+      if (input.id && !fragments.some(item => item.id === input.id)) throw new LocalizedError("Dit fragment bestaat niet meer.");
+      if (fragments.some(item => item.id !== clean.id && item.name.toLocaleLowerCase('nl') === clean.name.toLocaleLowerCase('nl'))) throw new LocalizedError("Kies een unieke fragmentnaam bij deze oefening.");
+      if (!input.id && fragments.length >= 100) throw new LocalizedError("Bewaar maximaal 100 fragmenten per oefening.");
       const next = input.id ? fragments.map(item => item.id === clean.id ? clean : item) : [...fragments, clean];
       db.prepare('UPDATE exercises SET fragments=?, updated_at=? WHERE id=?').run(JSON.stringify(next), new Date().toISOString(), exerciseId);
       return present(rowFor(exerciseId));
@@ -229,7 +230,7 @@ export async function openLibrary(root) {
     deleteFragment(exerciseId, fragmentId) {
       validId(fragmentId);
       const fragments = present(rowFor(exerciseId)).fragments;
-      if (!fragments.some(item => item.id === fragmentId)) throw new Error('Dit fragment bestaat niet meer.');
+      if (!fragments.some(item => item.id === fragmentId)) throw new LocalizedError("Dit fragment bestaat niet meer.");
       db.prepare('UPDATE exercises SET fragments=?, updated_at=? WHERE id=?').run(JSON.stringify(fragments.filter(item => item.id !== fragmentId)), new Date().toISOString(), exerciseId);
       return present(rowFor(exerciseId));
     },
@@ -239,7 +240,7 @@ export async function openLibrary(root) {
       const filename = kind === 'audio' ? row.audio_file : row.image_file;
       if (!filename) return null;
       try { return { bytes: new Uint8Array(await readFile(mediaPath(String(filename)))), mime: kind === 'audio' ? (String(filename).endsWith('.m4a') ? 'audio/mp4' : 'audio/mpeg') : String(row.image_mime) }; }
-      catch { throw new Error('Het bibliotheekbestand ontbreekt of kan niet worden gelezen.'); }
+      catch { throw new LocalizedError("Het bibliotheekbestand ontbreekt of kan niet worden gelezen."); }
     },
     listRoutines() { return db.prepare('SELECT * FROM routines ORDER BY title COLLATE NOCASE, id').all().map(routineFrom); },
     /** @param {import('./routine-model.mjs').RoutineInput} input */
@@ -253,7 +254,7 @@ export async function openLibrary(root) {
       }) })) };
       const clean = validateRoutine(candidate, sources);
       const id = clean.id ?? randomUUID();
-      if (clean.id && !db.prepare('SELECT id FROM routines WHERE id=?').get(id)) throw new Error('Deze sessie bestaat niet meer.');
+      if (clean.id && !db.prepare('SELECT id FROM routines WHERE id=?').get(id)) throw new LocalizedError("Deze sessie bestaat niet meer.");
       db.exec('BEGIN IMMEDIATE;');
       try {
         db.prepare('INSERT INTO routines (id,title,updated_at,count_in) VALUES (?,?,?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, updated_at=excluded.updated_at, count_in=excluded.count_in').run(id, clean.title, new Date(Math.max(Date.now(), Date.parse(String(db.prepare('SELECT updated_at FROM routines WHERE id=?').get(id)?.updated_at ?? '1970-01-01')) + 1)).toISOString(), null);
@@ -267,11 +268,11 @@ export async function openLibrary(root) {
       return routineFrom(db.prepare('SELECT * FROM routines WHERE id=?').get(id) ?? {});
     },
     /** @param {string} id */
-    deleteRoutine(id) { const result = db.prepare('DELETE FROM routines WHERE id=?').run(validId(id)); if (!result.changes) throw new Error('Deze sessie bestaat niet meer.'); },
+    deleteRoutine(id) { const result = db.prepare('DELETE FROM routines WHERE id=?').run(validId(id)); if (!result.changes) throw new LocalizedError("Deze sessie bestaat niet meer."); },
     /** @param {string} routineId */
     startSession(routineId) {
       const row = db.prepare('SELECT * FROM routines WHERE id=?').get(validId(routineId));
-      if (!row) throw new Error('Deze sessie bestaat niet meer.');
+      if (!row) throw new LocalizedError("Deze sessie bestaat niet meer.");
       const routine = routineFrom(row), exercises = this.list().filter(item => routine.blocks.some(block => block.exerciseId === item.id));
       validateRoutine(routine, exercises);
       const id = randomUUID(), now = new Date().toISOString();
@@ -284,12 +285,12 @@ export async function openLibrary(root) {
     saveSession(id, input, status = 'running') {
       const row = sessionRow(id);
       const old = JSON.parse(String(row.progress));
-      if (!['running','stopped','completed','partial'].includes(status)) throw new Error('Ongeldige sessiestatus.');
+      if (!['running','stopped','completed','partial'].includes(status)) throw new LocalizedError("Ongeldige sessiestatus.");
       if (row.status !== 'running') return sessionFrom(row);
       const progress = validateProgress(input, JSON.parse(String(row.snapshot)));
       if (progress.seq <= old.seq) return sessionFrom(row);
-      if (progress.passes < old.passes || ['planned','fragment','pause','preparation'].some(key => (progress.times[/** @type {keyof typeof progress.times} */ (key)] ?? 0) < (old.times[key] ?? 0) - 1e-6)) throw new Error('Sessieresultaten mogen niet teruglopen.');
-      if ((status === 'completed' || status === 'partial') && (progress.phase !== 'complete' || progress.statuses.includes('pending') || (status === 'completed' && progress.statuses.includes('skipped')) || (status === 'partial' && !progress.statuses.includes('skipped')))) throw new Error('Deze sessie is nog niet volledig doorlopen.');
+      if (progress.passes < old.passes || ['planned','fragment','pause','preparation'].some(key => (progress.times[/** @type {keyof typeof progress.times} */ (key)] ?? 0) < (old.times[key] ?? 0) - 1e-6)) throw new LocalizedError("Sessieresultaten mogen niet teruglopen.");
+      if ((status === 'completed' || status === 'partial') && (progress.phase !== 'complete' || progress.statuses.includes('pending') || (status === 'completed' && progress.statuses.includes('skipped')) || (status === 'partial' && !progress.statuses.includes('skipped')))) throw new LocalizedError("Deze sessie is nog niet volledig doorlopen.");
       const now = new Date().toISOString();
       db.prepare('UPDATE sessions SET progress=?, status=?, updated_at=?, ended_at=? WHERE id=?').run(JSON.stringify(progress), status, now, status === 'running' ? null : now, id);
       return sessionFrom(sessionRow(id));
@@ -300,7 +301,7 @@ export async function openLibrary(root) {
       const row = sessionRow(id), evaluations = JSON.parse(String(row.evaluations));
       sessionId(input?.id);
       if (evaluations.some((/** @type {{id:string}} */ item) => item.id === input.id)) return sessionFrom(row);
-      if (row.status !== 'running') throw new Error('Deze sessie is al afgesloten.');
+      if (row.status !== 'running') throw new LocalizedError("Deze sessie is al afgesloten.");
       const snapshot = JSON.parse(String(row.snapshot)), progress = JSON.parse(String(row.progress));
       const evaluation = validateEvaluation(input, snapshot, progress);
       db.exec('BEGIN IMMEDIATE;');
@@ -308,10 +309,10 @@ export async function openLibrary(root) {
         let routineVersion = String(row.routine_version);
         if (evaluation.delta !== 0) {
           const saved = db.prepare('SELECT * FROM routines WHERE id=?').get(snapshot.routine.id);
-          if (!saved || saved.updated_at !== routineVersion) throw new Error('De sessie is intussen gewijzigd. Bewaar deze evaluatie zonder BPM-aanpassing en pas de sessie daarna aan in de editor.');
+          if (!saved || saved.updated_at !== routineVersion) throw new LocalizedError("De sessie is intussen gewijzigd. Bewaar deze evaluatie zonder BPM-aanpassing en pas de sessie daarna aan in de editor.");
           const routine = routineFrom(saved);
           const block = routine.blocks.find(item => item.id === snapshot.routine.blocks[evaluation.block].id);
-          if (!block) throw new Error('Deze oefening staat niet meer in de sessie.');
+          if (!block) throw new LocalizedError("Deze oefening staat niet meer in de sessie.");
           block.steps = block.steps.map(step => ({ ...step, bpm: Math.round((step.bpm + evaluation.delta) * 1000000) / 1000000 }));
           validateRoutine(routine, this.list());
           // Monotonic version even when two saves happen in the same millisecond.

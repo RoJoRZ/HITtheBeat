@@ -11,7 +11,7 @@ async function wholeBpm(page: import('@playwright/test').Page) {
 }
 test('whole BPM presentation preserves fractional exercises, plans and historical snapshots until explicitly edited',async()=>{
  const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-bpm-display-')),executablePath=process.env.HITTHEBEAT_TEST_EXECUTABLE;
- const app=await electron.launch({executablePath,args:[...(executablePath?[]:['.']),`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
+ const app=await electron.launch({executablePath,args:['--lang=nl-NL',...(executablePath?[]:['.']),`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
  try{
   const page=await app.firstWindow();await expect(page.locator('h1')).toBeVisible();await page.waitForLoadState('load');
   const bytes=Array.from(await readFile('tests/fixtures/pulse-aac.m4a'));
@@ -51,7 +51,7 @@ test('whole BPM presentation preserves fractional exercises, plans and historica
 
 test('MP3 worker detects accented subdivisions and retains a manual BPM entered during analysis',async()=>{
  const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-bpm-worker-')),executablePath=process.env.HITTHEBEAT_TEST_EXECUTABLE;
- const app=await electron.launch({executablePath,args:[...(executablePath?[]:['.']),`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
+ const app=await electron.launch({executablePath,args:['--lang=nl-NL',...(executablePath?[]:['.']),`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
  try{
   const page=await app.firstWindow();await expect(page.locator('h1')).toBeVisible();await page.getByRole('button',{name:'Oefeningen',exact:true}).click();await page.getByRole('button',{name:'Oefening toevoegen',exact:true}).click();
   const {samples,sampleRate}=rhythm(85,{division:2,pattern:[1,.6],accompaniment:true}),encoder=new Mp3Encoder(1,sampleRate,96),chunks:Uint8Array[]=[];

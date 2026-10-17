@@ -1,9 +1,10 @@
+import { LocalizedError } from '../../electron/i18n.mjs';
 import { scheduleCountIn, type CountIn } from './count-in';
 import { createStretch } from './stretch';
 import type { StretchNode } from 'signalsmith-stretch';
 
 export function validateAudioSettings(rate: number, semitones: number, a: number, b: number, duration: number) {
-  if (![rate, semitones, a, b].every(Number.isFinite) || rate < .25 || rate > 3 || Math.abs(semitones) > 12 || a < 0 || b > duration || b - a < .1) throw new Error('Kies een tempo van 25–300%, toonhoogte van −12 tot +12 en een fragment van minstens 0,1 seconde.');
+  if (![rate, semitones, a, b].every(Number.isFinite) || rate < .25 || rate > 3 || Math.abs(semitones) > 12 || a < 0 || b > duration || b - a < .1) throw new LocalizedError("Kies een tempo van 25–300%, toonhoogte van −12 tot +12 en een fragment van minstens 0,1 seconde.");
 }
 
 export class AudioEngine {
@@ -52,7 +53,7 @@ export class AudioEngine {
     if (this.disposed) { this.node.disconnect(); return; }
     const channels = Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i));
     if (normalizationDb !== null) {
-      if (!Number.isFinite(normalizationDb) || normalizationDb < -60 || normalizationDb > 12 + 1e-9) throw new Error('Ongeldige volumenormalisatie.');
+      if (!Number.isFinite(normalizationDb) || normalizationDb < -60 || normalizationDb > 12 + 1e-9) throw new LocalizedError("Ongeldige volumenormalisatie.");
       let peak = 0; for (const channel of channels) for (const sample of channel) peak = Math.max(peak, Math.abs(sample));
       const gain = Math.min(Math.pow(10, normalizationDb / 20), peak ? Math.pow(10, -1 / 20) / peak : 1);
       await this.node.addBuffers(channels.map(channel => Float32Array.from(channel, sample => sample * gain)));
@@ -64,7 +65,7 @@ export class AudioEngine {
     this.b = buffer.duration;
   }
   setVolume(value: number) {
-    if (!Number.isFinite(value) || value < 0 || value > 1) throw new Error('Kies een volume van 0–100%.');
+    if (!Number.isFinite(value) || value < 0 || value > 1) throw new LocalizedError("Kies een volume van 0–100%.");
     if (this.disposed) return;
     const now = this.context.currentTime;
     this.output.gain.cancelAndHoldAtTime(now);

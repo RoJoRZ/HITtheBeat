@@ -10,7 +10,7 @@ async function drag(page: Page, from: number, to: number) {
 test('waveform selects source passages, drags markers after zoom/pan, previews, saves and resumes the unchanged session', async () => {
   test.setTimeout(60000);
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-wave-')), executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const app = await electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const app = await electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   try {
     const page = await app.firstWindow(), errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
     await expect(page.locator('h1')).toBeVisible(); await page.waitForLoadState('load');

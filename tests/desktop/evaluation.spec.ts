@@ -11,7 +11,7 @@ function track() {
 test('evaluate at fragment boundaries, repeat a series, change one future block and retain history after reopening', async () => {
   test.setTimeout(60000);
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-evaluation-')), executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const launch = () => electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const launch = () => electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   let app = await launch();
   try {
     let page = await app.firstWindow(); const errors: string[] = [];
@@ -114,7 +114,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
 
 test('a conflicting plan edit leaves evaluation open and can be saved without overwriting that edit', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-review-conflict-')), executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const app = await electron.launch({ executablePath, args: [...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
+  const app = await electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   try {
     const page = await app.firstWindow();
     await page.evaluate(async bytes => {

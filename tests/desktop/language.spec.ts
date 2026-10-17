@@ -1,0 +1,58 @@
+import {test,expect,_electron as electron} from '@playwright/test';
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+const executablePath=process.env.HITTHEBEAT_TEST_EXECUTABLE;
+const launch=(root:string,system='en-US')=>electron.launch({executablePath,args:[...(executablePath?[]:['.']),`--user-data-dir=${root}`,`--lang=${system}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
+
+test('first-start system language, explicit override, restart persistence and native menu translation offline',async()=>{
+ const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-language-ui-'));let app=await launch(root,'de-DE');
+ try {let page=await app.firstWindow();await page.context().setOffline(true);await expect(page.getByRole('heading',{name:'My practice sessions',exact:true})).toBeVisible();await expect(page.locator('html')).toHaveAttribute('lang','en');
+ await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByLabel('Language',{exact:true}).selectOption('nl');await expect(page.getByRole('heading',{name:'Instellingen',exact:true})).toBeVisible();await expect(page.locator('html')).toHaveAttribute('lang','nl');
+ expect(await app.evaluate(({Menu})=>Menu.getApplicationMenu()!.items.map(item=>item.label))).toContain('Bewerken');
+ await app.close();app=await launch(root,'en-US');page=await app.firstWindow();await expect(page.getByRole('heading',{name:'Mijn oefensessies',exact:true})).toBeVisible();
+ await page.getByLabel('Kies je taal',{exact:true}).selectOption('en');await expect(page.getByRole('heading',{name:'My practice sessions',exact:true})).toBeVisible();expect(await app.evaluate(({Menu})=>Menu.getApplicationMenu()!.items.map(item=>item.label))).toContain('Edit');
+ await page.screenshot({path:'test-results/language-overview-en.png',fullPage:true});
+ }finally{await app.close();await rm(root,{recursive:true,force:true});}
+ const dutch=await mkdtemp(path.join(tmpdir(),'hitthebeat-language-nl-'));const other=await launch(dutch,'nl-BE');try{await expect((await other.firstWindow()).getByRole('heading',{name:'Mijn oefensessies',exact:true})).toBeVisible();}finally{await other.close();await rm(dutch,{recursive:true,force:true});}
+});
+
+test('live language switch keeps playback, notation zoom, creator/user content and unsaved input',async()=>{
+ const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-language-live-')),app=await launch(root);
+ try {const page=await app.firstWindow();await expect(page.locator('h1')).toBeVisible();await page.context().setOffline(true);
+ const ids=await page.evaluate(async()=>{
+ const canvas=document.createElement('canvas');canvas.width=400;canvas.height=160;canvas.getContext('2d')!.fillRect(0,0,400,160);const bytes=Uint8Array.from(atob(canvas.toDataURL().split(',')[1]),c=>c.charCodeAt(0));
+ const input={kind:'metronome',title:'Mijn oefening',description:'Speel ontspannen.',bpm:120,detectedBpm:null,analysisStatus:'unavailable' as const,duration:0,meter:'4/4',bars:32,image:{name:'tab.png',bytes},credit:{name:'Mijn maker',message:'Veel plezier {0}!'}};
+ const exercise=await window.hitthebeat!.saveExercise(input);const routine=await window.hitthebeat!.saveRoutine({title:'Mijn sessie',blocks:[{id:crypto.randomUUID(),exerciseId:exercise.id,steps:[{id:crypto.randomUUID(),bpm:120,repetitions:1,start:null,end:null}]}]});return {exercise,routine};});
+ await page.reload();await page.getByRole('article',{name:'Mijn sessie'}).getByRole('button',{name:'Start',exact:true}).click();await page.getByRole('button',{name:'Play',exact:true}).click();await expect(page.getByRole('button',{name:'Pause',exact:true})).toBeVisible();
+ const opened=app.waitForEvent('window');await page.getByRole('button',{name:'Enlarge notation',exact:true}).click();const viewer=await opened;await expect(viewer.getByRole('img')).toBeVisible();await viewer.getByRole('button',{name:'Zoom in',exact:true}).click();await expect(viewer.getByLabel('Image zoom')).toHaveText('125%');const src=await viewer.getByRole('img').getAttribute('src');
+ await expect(page.getByTestId('time-planned')).not.toHaveText('0:00');const before=await page.getByTestId('time-planned').innerText();
+ await page.getByLabel('Choose your language',{exact:true}).selectOption('nl');await expect(page.getByRole('button',{name:'Pauzeren',exact:true})).toBeVisible();await expect(viewer.getByLabel('Afbeeldingszoom')).toHaveText('125%');expect(await viewer.getByRole('img').getAttribute('src')).toBe(src);await expect(viewer.getByRole('heading',{name:'Mijn oefening'})).toBeVisible();await expect(page.getByText('Speel ontspannen.',{exact:true})).toBeVisible();
+ await expect(page.getByTestId('time-planned')).not.toHaveText(before);await page.getByRole('button',{name:'Pauzeren',exact:true}).click();await viewer.close();
+ await page.getByRole('button',{name:'Oefeningen',exact:true}).click();await page.getByRole('button',{name:'Stoppen en terug',exact:true}).click();await expect(page.getByText('Gemaakt door Mijn maker')).toBeVisible();await page.getByRole('button',{name:'Bewerken',exact:true}).click();await page.getByRole('textbox',{name:'Opdracht',exact:true}).fill('Nieuwe eigen opdracht');
+ await page.getByLabel('Kies je taal',{exact:true}).selectOption('en');await expect(page.getByRole('textbox',{name:'Instructions',exact:true})).toHaveValue('Nieuwe eigen opdracht');await page.getByRole('button',{name:'Save exercise',exact:true}).click();await expect(page.getByText('Created by Mijn maker')).toBeVisible();await expect(page.getByText('Veel plezier {0}!',{exact:true})).toBeVisible();expect((await page.evaluate(()=>window.hitthebeat!.listExercises()))[0].id).toBe(ids.exercise.id);
+ await page.screenshot({path:'test-results/language-library-en.png',fullPage:true});
+ }finally{await app.close();await rm(root,{recursive:true,force:true});}
+});
+
+test('evaluation values and number-key flow survive a language change',async()=>{
+ const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-language-review-')),app=await launch(root);
+ try{const page=await app.firstWindow();await expect(page.locator('h1')).toBeVisible();await page.evaluate(async()=>{const e=await window.hitthebeat!.saveExercise({kind:'metronome',title:'Evaluatie',description:'Eigen opdracht',bpm:120,detectedBpm:null,analysisStatus:'unavailable',duration:0,meter:'4/4',bars:1});await window.hitthebeat!.saveRoutine({title:'Kort',blocks:[{id:crypto.randomUUID(),exerciseId:e.id,steps:[{id:crypto.randomUUID(),bpm:120,repetitions:1,start:null,end:null}]}]});});await page.reload();await page.getByRole('article',{name:'Kort'}).getByRole('button',{name:'Start',exact:true}).click();await page.getByRole('button',{name:'Play',exact:true}).click();
+ const review=page.getByLabel('Keyboard evaluation',{exact:true});await expect(review).toBeVisible();await review.press('4');await review.press('3');await page.getByLabel('3. BPM adjustment',{exact:true}).fill('7');await page.getByRole('textbox',{name:'Note (optional)',exact:true}).fill('Mijn notitie');
+ await page.getByLabel('Choose your language',{exact:true}).selectOption('nl');await expect(page.getByRole('button',{name:'Beoordeling 4 van 5'})).toHaveAttribute('aria-pressed','true');await expect(page.getByLabel('3. Aanpassing in BPM',{exact:true})).toHaveValue('7');await page.getByRole('textbox',{name:'Notitie (optioneel)',exact:true}).press('Enter');await expect(page.getByRole('heading',{name:'Sessie afgerond',exact:true})).toBeVisible();
+ const record=(await page.evaluate(()=>window.hitthebeat!.listSessions()))[0];expect(record.evaluations[0]).toMatchObject({rating:4,action:'faster',delta:7,note:'Mijn notitie'});await page.getByLabel('Kies je taal',{exact:true}).selectOption('en');await expect(page.getByRole('heading',{name:'Session completed',exact:true})).toBeVisible();await page.screenshot({path:'test-results/language-results-en.png',fullPage:true});
+ }finally{await app.close();await rm(root,{recursive:true,force:true});}
+});
+
+test('English editor, history/dashboard and native file errors; existing errors also switch language',async()=>{
+ const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-language-screens-')),app=await launch(root);
+ try{const page=await app.firstWindow();await expect(page.locator('h1')).toBeVisible();await page.context().setOffline(true);
+ await page.evaluate(async()=>{const api=window.hitthebeat!,exercise=await api.saveExercise({kind:'metronome',title:'User exercise',description:'Personal instructions.',bpm:120,detectedBpm:null,analysisStatus:'unavailable',duration:0,meter:'4/4',bars:1});const routine=await api.saveRoutine({title:'User session',blocks:[{id:crypto.randomUUID(),exerciseId:exercise.id,countIn:{enabled:true,meter:'3/4'},steps:[{id:crypto.randomUUID(),bpm:120,repetitions:1,start:null,end:null}]}]});const run=await api.startSession(routine.id);await api.saveSession(run.id,{...run.progress,seq:1,phase:'complete',passes:1,statuses:['completed'],times:{planned:2,fragment:0,pause:0,preparation:1.5},played:[{mode:'planned',block:0,step:0,a:0,b:2,bpm:120,pitch:0,seconds:2,completed:1}]},'completed');});
+ await page.reload();await page.getByRole('article',{name:'User session'}).getByRole('button',{name:'Edit',exact:true}).click();await expect(page.getByLabel('Session name',{exact:true})).toHaveValue('User session');await expect(page.getByLabel('Count-in exercise 1',{exact:true})).toBeChecked();await expect(page.getByLabel('Count-in time signature exercise 1',{exact:true})).toHaveValue('3/4');await page.screenshot({path:'test-results/language-editor-en.png',fullPage:true});
+ await page.getByRole('button',{name:'Progress',exact:true}).click();await expect(page.getByRole('heading',{name:'Tempo development',exact:true})).toBeVisible();await expect(page.getByRole('img',{name:/Tempo played for User exercise, Metronome 4\/4 · 1 bar/})).toBeVisible();await expect(page.getByRole('heading',{name:'Recent sessions and results',exact:true})).toBeVisible();await page.screenshot({path:'test-results/language-progress-en.png',fullPage:true});
+ await page.getByRole('button',{name:'Exercises',exact:true}).click();await page.getByRole('button',{name:'Export',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Export exercise',exact:true});await expect(dialog.getByLabel('Creator or artist name (optional)',{exact:true})).toBeVisible();await dialog.getByRole('button',{name:'Cancel',exact:true}).click();
+ const {writeFile}=await import('node:fs/promises');const broken=path.join(root,'broken.htbexercise');await writeFile(broken,'invalid');await app.evaluate(({dialog},file)=>{dialog.showOpenDialog=(async()=>({canceled:false,filePaths:[file]})) as typeof dialog.showOpenDialog;},broken);
+ await page.getByRole('button',{name:'Import exercise',exact:true}).click();await expect(page.getByRole('alert')).toContainText('This is not a valid HITtheBeat exercise file.');await page.getByLabel('Choose your language',{exact:true}).selectOption('nl');await expect(page.getByRole('alert')).toContainText('Dit is geen geldig HITtheBeat-oefenbestand.');
+ await page.getByLabel('Kies je taal',{exact:true}).selectOption('en');await page.setViewportSize({width:960,height:800});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:'test-results/language-error-en.png',fullPage:true});
+ }finally{await app.close();await rm(root,{recursive:true,force:true});}
+});

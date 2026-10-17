@@ -2,12 +2,17 @@
 
 interface Window {
   notationViewer?: {
+    getLanguage(): Promise<'nl'|'en'>;
+    onLanguageChange(listener: (language:'nl'|'en')=>void): ()=>void;
     getState(): Promise<import('../electron/notation-window.mjs').NotationState>;
     onChange(listener: (state: import('../electron/notation-window.mjs').NotationState) => void): () => void;
     toggleFullscreen(): Promise<void>;
     close(): Promise<void>;
   };
   hitthebeat?: {
+    getLanguage(): Promise<'nl'|'en'>;
+    setLanguage(language:'nl'|'en'): Promise<'nl'|'en'>;
+    onLanguageChange(listener: (language:'nl'|'en')=>void): ()=>void;
     setNotation(context: { id: string; title: string } | null): Promise<void>;
     openNotation(): Promise<void>;
     exportExercise(id: string, credit: import('./library/types').Credit | null): Promise<boolean>;

@@ -1,10 +1,11 @@
+import { LocalizedError } from '../../electron/i18n.mjs';
 /** @typedef {{levels:Float32Array[],binSeconds:number,duration:number}} Waveform */
 /** Compact peak pyramid preserving transients in every channel.
  * @param {Float32Array[]} channels @param {number} sampleRate @returns {Waveform}
  */
 export function buildWaveform(channels, sampleRate) {
   const length = channels[0]?.length ?? 0;
-  if (!length || !Number.isFinite(sampleRate) || sampleRate <= 0 || channels.some(channel => channel.length !== length)) throw new Error('Ongeldige audiodata.');
+  if (!length || !Number.isFinite(sampleRate) || sampleRate <= 0 || channels.some(channel => channel.length !== length)) throw new LocalizedError("Ongeldige audiodata.");
   const size = Math.max(1, Math.ceil(length / 65536)), base = new Float32Array(Math.ceil(length / size));
   let maximum = .001;
   for (const channel of channels) for (let i = 0; i < channel.length; i++) { const value = Math.abs(channel[i]), bin = Math.floor(i / size); if (value > base[bin]) base[bin] = value; maximum = Math.max(maximum, value); }

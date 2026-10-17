@@ -1,3 +1,4 @@
+import { t, LocalizedError } from './i18n.mjs';
 import { bpmText } from './tempo-display.mjs';
 import { validateCountIn } from './count-in-model.mjs';
 import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
@@ -19,30 +20,30 @@ export function validateRoutine(input, exercises) {
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
   const ids = new Set();
   /** @param {unknown} id */
-  function identity(id) { if (typeof id !== 'string' || !uuid.test(id) || ids.has(id)) throw new Error('Ongeldige of dubbele stap.'); ids.add(id); return id; }
-  if (!input || typeof input.title !== 'string' || !input.title.trim() || input.title.length > 160 || input.title.includes('\0')) throw new Error('Geef de sessie een naam van maximaal 160 tekens.');
-  if (!Array.isArray(input.blocks) || !input.blocks.length || input.blocks.length > 100) throw new Error('Kies 1 tot 100 oefeningen in je sessie.');
+  function identity(id) { if (typeof id !== 'string' || !uuid.test(id) || ids.has(id)) throw new LocalizedError("Ongeldige of dubbele stap."); ids.add(id); return id; }
+  if (!input || typeof input.title !== 'string' || !input.title.trim() || input.title.length > 160 || input.title.includes('\0')) throw new LocalizedError("Geef de sessie een naam van maximaal 160 tekens.");
+  if (!Array.isArray(input.blocks) || !input.blocks.length || input.blocks.length > 100) throw new LocalizedError("Kies 1 tot 100 oefeningen in je sessie.");
   let totalSteps = 0;
   const blocks = input.blocks.map(block => {
     const id = identity(block.id), exercise = exercises.find(item => item.id === block.exerciseId);
-    if (!exercise) throw new Error('Een oefening uit deze sessie ontbreekt in de bibliotheek.');
-    if (!Array.isArray(block.steps) || !block.steps.length || (totalSteps += block.steps.length) > 1000) throw new Error('Kies minstens één stap per oefening en maximaal 1000 stappen per sessie.');
+    if (!exercise) throw new LocalizedError("Een oefening uit deze sessie ontbreekt in de bibliotheek.");
+    if (!Array.isArray(block.steps) || !block.steps.length || (totalSteps += block.steps.length) > 1000) throw new LocalizedError("Kies minstens één stap per oefening en maximaal 1000 stappen per sessie.");
     const steps = block.steps.map(step => {
       const stepId = identity(step.id);
-      if (!Number.isInteger(step.repetitions) || step.repetitions < 1 || step.repetitions > 99) throw new Error('Kies 1 tot 99 herhalingen per stap.');
-      if (!validTempo(step.bpm, exercise)) throw new Error(isMetronome(exercise) ? 'Kies een tempo van 20–300 BPM.' : `Kies een tempo van 25–300% van het originele BPM (${bpmText(exercise.bpm)}).`);
+      if (!Number.isInteger(step.repetitions) || step.repetitions < 1 || step.repetitions > 99) throw new LocalizedError("Kies 1 tot 99 herhalingen per stap.");
+      if (!validTempo(step.bpm, exercise)) throw new Error(isMetronome(exercise) ? t("Kies een tempo van 20–300 BPM.") : t("Kies een tempo van 25–300% van het originele BPM ({0}).", bpmText(exercise.bpm)));
       if (isMetronome(exercise)) {
         sourceSeconds(step, exercise);
-        if (step.start !== null || step.end !== null || step.fragmentId !== undefined) throw new Error('Een metronoomstap gebruikt maten, geen audiofragment.');
-      } else if (step.bars !== undefined) throw new Error('Maten zijn alleen voor metronoom-oefeningen.');
+        if (step.start !== null || step.end !== null || step.fragmentId !== undefined) throw new LocalizedError("Een metronoomstap gebruikt maten, geen audiofragment.");
+      } else if (step.bars !== undefined) throw new LocalizedError("Maten zijn alleen voor metronoom-oefeningen.");
       if (step.start !== null || step.end !== null) {
-        if (typeof step.start !== 'number' || typeof step.end !== 'number' || !Number.isFinite(step.start) || !Number.isFinite(step.end) || step.start < 0 || step.end > exercise.duration || step.end - step.start < .1 - 1e-9) throw new Error('Kies een fragment binnen de track, met A vóór B en minstens 0,1 seconde duur.');
+        if (typeof step.start !== 'number' || typeof step.end !== 'number' || !Number.isFinite(step.start) || !Number.isFinite(step.end) || step.start < 0 || step.end > exercise.duration || step.end - step.start < .1 - 1e-9) throw new LocalizedError("Kies een fragment binnen de track, met A vóór B en minstens 0,1 seconde duur.");
       }
-      if (step.fragmentId !== undefined && (typeof step.fragmentId !== 'string' || !uuid.test(step.fragmentId) || typeof step.fragmentName !== 'string' || !step.fragmentName.trim() || step.fragmentName.length > 160 || step.fragmentName.includes('\0') || step.start === null)) throw new Error('Controleer het benoemde fragment.');
+      if (step.fragmentId !== undefined && (typeof step.fragmentId !== 'string' || !uuid.test(step.fragmentId) || typeof step.fragmentName !== 'string' || !step.fragmentName.trim() || step.fragmentName.length > 160 || step.fragmentName.includes('\0') || step.start === null)) throw new LocalizedError("Controleer het benoemde fragment.");
       return { ...(isMetronome(exercise) && step.bars !== undefined ? { bars: step.bars } : {}), ...(step.fragmentId ? { fragmentId: step.fragmentId, fragmentName: step.fragmentName } : {}), id: stepId, repetitions: step.repetitions, bpm: step.bpm, start: step.start, end: step.end };
     });
     return { id, exerciseId: exercise.id, steps, ...(block.countIn === undefined ? {} : { countIn: validateCountIn(block.countIn) }) };
   });
-  if (input.id !== undefined && !uuid.test(input.id)) throw new Error('Ongeldig sessie.');
+  if (input.id !== undefined && !uuid.test(input.id)) throw new LocalizedError("Ongeldig sessie.");
   return { id: input.id, title: input.title.trim(), blocks, ...(input.countIn === undefined ? {} : { countIn: validateCountIn(input.countIn) }) };
 }

@@ -6,7 +6,7 @@ import path from 'node:path';
 test('session count-in persists, counts each pass at its BPM, pauses/restarts, returns from free training, and excludes preparation from practice', async () => {
   test.setTimeout(70000);
   const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-count-ui-')), executablePath=process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const launch=()=>electron.launch({executablePath,args:[...(executablePath?[]:['.']),`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
+  const launch=()=>electron.launch({executablePath,args:['--lang=nl-NL',...(executablePath?[]:['.']),`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
   let app=await launch();
   try {
     let page=await app.firstWindow();await expect(page.locator('h1')).toBeVisible();await page.waitForLoadState('load');const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
@@ -75,7 +75,7 @@ test('count-in audio uses distinct clicks and hands off to music on the audio cl
   test.skip(Boolean(process.env.HITTHEBEAT_TEST_EXECUTABLE),'Source DSP probe; packaged UI checked separately.');
   const {createServer}=await import('vite');const server=await createServer();await server.listen();
   const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-count-dsp-'));
-  const app=await electron.launch({args:['.',`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'1'}});
+  const app=await electron.launch({args:['--lang=nl-NL','.',`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'1'}});
   try{const page=await app.firstWindow();await expect(page.locator('h1')).toBeVisible();
     const result=await page.evaluate(async()=>{const {countInProbe}=await import('/tests/audio/count-in-probe.ts');return countInProbe();});
     expect(result.leadSeconds).toBe(1.5);expect(result.onsets).toHaveLength(7);
@@ -88,7 +88,7 @@ test('count-in audio uses distinct clicks and hands off to music on the audio cl
 
 test('stopping during count-in saves preparation without a completed pass or practice time',async()=>{
   const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-count-stop-')),executablePath=process.env.HITTHEBEAT_TEST_EXECUTABLE;
-  const app=await electron.launch({executablePath,args:[...(executablePath?[]:['.']),`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
+  const app=await electron.launch({executablePath,args:['--lang=nl-NL',...(executablePath?[]:['.']),`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
   try{const page=await app.firstWindow();await expect(page.locator('h1')).toBeVisible();await page.waitForLoadState('load');
     await page.evaluate(async()=>{const api=window.hitthebeat!,source=await api.saveExercise({kind:'metronome',meter:'6/8',bars:1,title:'Rustig',description:'',bpm:60,duration:0,detectedBpm:null,analysisStatus:'unavailable'});await api.saveRoutine({title:'Stop in aftelmaat',blocks:[{countIn:{enabled:true,meter:'3/4'},id:crypto.randomUUID(),exerciseId:source.id,steps:[{id:crypto.randomUUID(),bpm:60,repetitions:1,start:null,end:null}]}]});});
     await page.reload();await page.getByRole('article',{name:'Stop in aftelmaat'}).getByRole('button',{name:'Starten',exact:true}).click();
