@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildDashboard, localDay } from '../src/library/progress.mjs';
+import { buildDashboard, buildActivity, localDay } from '../src/library/progress.mjs';
 const now = new Date('2026-10-11T12:00:00Z'), timeZone = 'Europe/Amsterdam';
 const options = { now, timeZone, period: 'all' };
 function session(id, date = '2026-10-10T12:00:00Z', patch = {}) {
@@ -9,7 +9,7 @@ function session(id, date = '2026-10-10T12:00:00Z', patch = {}) {
 test('empty history has zero totals and real calendar days, without tempo points', () => {
   const data = buildDashboard([], { now, timeZone, period: 'week' });
   assert.equal(data.totalSeconds, 0); assert.equal(data.practiceDays, 0); assert.equal(data.practicedSessions, 0); assert.deepEqual(data.groups, []);
-  assert.equal(data.from, '2026-10-05'); assert.equal(data.days.length, 7); assert.ok(data.days.every(day => day.seconds === 0));
+  assert.equal(data.from, '2026-10-05'); assert.equal(data.days.length, 30); assert.ok(data.days.every(day => day.seconds === 0));
 });
 test('actual planned and free time counts across statuses, pauses and unplayed sessions do not', () => {
   const records = ['completed','partial','stopped','interrupted','running'].map((status, index) => session(`${index}`, undefined, { status }));
@@ -25,7 +25,7 @@ test('local day, DST fall-back, Monday and month boundaries use the chosen timez
   assert.equal(localDay('2026-03-31T22:30:00Z', timeZone), '2026-04-01');
   const records = [session('sunday', '2026-10-25T22:30:00Z'), session('monday', '2026-10-25T23:30:00Z'), session('future', '2026-10-27T12:00:00Z')];
   const data = buildDashboard(records, { period: 'week', now: new Date('2026-10-26T12:00:00Z'), timeZone });
-  assert.equal(data.from, '2026-10-26'); assert.deepEqual(data.sessions.map(item => item.id), ['monday']); assert.equal(data.days.length, 1);
+  assert.equal(data.from, '2026-10-26'); assert.deepEqual(data.sessions.map(item => item.id), ['monday']); assert.equal(data.days.length, 30);
   const month = buildDashboard([session('old', '2026-03-31T21:30:00Z'), session('new', '2026-03-31T22:30:00Z')], { period: 'month', now: new Date('2026-04-01T12:00:00Z'), timeZone });
   assert.deepEqual(month.sessions.map(item => item.id), ['new']);
   assert.equal(buildDashboard([session('tokyo', '2026-10-10T23:30:00Z')], { ...options, timeZone: 'Asia/Tokyo' }).days.at(-1).seconds, 10);
@@ -60,8 +60,40 @@ test('ratings and notes belong to the matching series; repeated assessments use 
   const full = data.groups.find(group => group.part === 'Volledige track').points[0]; const fragment = data.groups.find(group => group.part !== 'Volledige track').points[0];
   assert.equal(full.rating, 4); assert.equal(full.delta, 5); assert.equal(full.note, 'Ontspannen'); assert.equal(fragment.rating, 1); assert.equal(fragment.delta, -5);
 });
-test('aggregation leaves immutable source records intact and all-time chart only shows last 28 days', () => {
+test('aggregation leaves immutable source records intact and all-time chart only shows last 30 days', () => {
   const records = [session('old', '2026-01-01T12:00:00Z'), session('new')], original = structuredClone(records);
   const data = buildDashboard(records, options);
-  assert.deepEqual(records, original); assert.equal(data.totalSeconds, 20); assert.equal(data.days.length, 28); assert.equal(data.days.reduce((sum, day) => sum + day.seconds, 0), 10); assert.equal(data.groups[0].points.length, 2);
+  assert.deepEqual(records, original); assert.equal(data.totalSeconds, 20); assert.equal(data.days.length, 30); assert.equal(data.days.reduce((sum, day) => sum + day.seconds, 0), 10); assert.equal(data.groups[0].points.length, 2);
+});
+
+
+test('rolling year clamps leap day, keeps boundary day, excludes older and future days', () => {
+  const records = [session('outside', '2023-02-27T12:00:00Z'), session('boundary', '2023-02-28T12:00:00Z'), session('inside', '2024-02-29T12:00:00Z'), session('future', '2024-03-01T12:00:00Z')];
+  const data = buildDashboard(records, { now: new Date('2024-02-29T13:00:00Z'), timeZone, period: 'year' });
+  assert.equal(data.from, '2023-02-28');
+  assert.deepEqual(data.sessions.map(item => item.id), ['inside', 'boundary']);
+  assert.equal(data.totalSeconds, 20); assert.equal(data.practiceDays, 2);
+});
+test('exercise frequency counts each identity once per played session across blocks and free practice', () => {
+  const first = session('first'); first.routine.blocks.push({ ...first.routine.blocks[0], id: 'second-block' });
+  first.progress.played.push({ ...first.progress.played[0], block: 1, completed: 3 });
+  const second = session('second'); second.progress.played[0].mode = 'fragment'; second.progress.played[0].completed = 0;
+  const sameName = session('sameName'); sameName.exercises[0].id = 'different-exercise'; sameName.routine.blocks[0].exerciseId = 'different-exercise';
+  const none = session('unplayed'); none.progress.times.planned = 0; none.progress.played = [];
+  const data = buildDashboard([first, second, sameName, none], options);
+  assert.equal(data.exercises.find(item => item.id === 'exercise').count, 2);
+  assert.equal(data.exercises.find(item => item.id === 'different-exercise').count, 1);
+  assert.equal(data.groups[0].exerciseId !== undefined, true);
+});
+test('30-day navigation has no gaps or overlaps, ignores pause/preparation, and stops at history', () => {
+  const old = session('old', '2026-08-25T12:00:00Z');
+  old.progress.times.pause = 500; old.progress.times.preparation = 100;
+  const records = [old, session('today', '2026-10-11T12:00:00Z')];
+  const current = buildActivity(records, { now, timeZone }), previous = buildActivity(records, { now, timeZone, offset: 1 });
+  assert.equal(current.from, '2026-09-12'); assert.equal(current.end, '2026-10-11');
+  assert.equal(previous.from, '2026-08-13'); assert.equal(previous.end, '2026-09-11');
+  assert.equal(current.days.length, 30); assert.equal(previous.days.length, 30);
+  assert.equal(current.canGoBack, true); assert.equal(previous.canGoBack, false);
+  assert.equal(previous.days.find(day => day.day === '2026-08-25').seconds, 10);
+  assert.deepEqual(buildActivity(records, { now, timeZone, offset: -1 }), current);
 });

@@ -1,46 +1,69 @@
 import { t, locale } from '../../electron/i18n.mjs';
 import { bpmText } from '../../electron/tempo-display.mjs';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { SessionRecord } from '../library/types';
-import { buildDashboard } from '../library/progress.mjs';
+import { buildDashboard, buildActivity } from '../library/progress.mjs';
+import type { Period } from '../library/progress.mjs';
 import { durationLabel } from './controls';
 
 type Dashboard = ReturnType<typeof buildDashboard>;
-const statuses = { get running() { return t("Bezig"); }, get completed() { return t("Afgerond"); }, get partial() { return t("Oefeningen overgeslagen"); }, get stopped() { return t("Gestopt"); }, get interrupted() { return t("Onderbroken"); } };
-const actions: Record<string, string> = { get repeat() { return t("Serie opnieuw"); }, get same() { return t("Tempo gelijk houden"); }, get faster() { return t("Sneller"); }, get slower() { return t("Langzamer"); } };
-const dayLabel = (day: string) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' });
-function TempoChart({ group }: { group: Dashboard['groups'][number] }) {
-  const points = group.points;
-  if (!points.length) return <p role="status">{t("Nog geen afgeronde speelbeurt voor dit onderdeel. De afgespeelde tijd telt wel mee.")}</p>;
-  const min = Math.max(0, Math.floor(Math.min(...points.map(point => point.bpm)) / 10) * 10 - 5);
-  const max = Math.ceil(Math.max(...points.map(point => point.bpm)) / 10) * 10 + 5;
-  const start = Date.parse(points[0].date), end = Date.parse(points.at(-1)!.date);
-  const x = (index: number) => end === start ? 340 : 70 + (Date.parse(points[index].date) - start) / (end - start) * 540;
-  const y = (bpm: number) => 210 - (bpm - min) / (max - min) * 160;
-  return <><svg viewBox="0 0 660 270" className="tempo-chart" role="img" aria-label={t("Gespeeld tempo voor {0}, {1}. {2} meetpunten; laatst {3} BPM.", group.exercise, group.part, points.length, bpmText(points.at(-1)!.bpm))}>
-    {[0, 1, 2, 3, 4].map(tick => { const bpm = min + (max - min) * tick / 4; return <g key={tick}><line x1="60" y1={y(bpm)} x2="630" y2={y(bpm)} /><text x="48" y={y(bpm) + 4} textAnchor="end">{Math.round(bpm)}</text></g>; })}
-    <text x="12" y="25">BPM</text>
-    {points.length > 1 && <polyline points={points.map((point, index) => `${x(index)},${y(point.bpm)}`).join(' ')} />}
-    {points.map((point, index) => <circle key={point.sessionId} cx={x(index)} cy={y(point.bpm)} r="5"><title>{dayLabel(point.day)} · {bpmText(point.bpm)}{t(" BPM · ")}{statuses[point.status]}{point.rating !== undefined ? t(" · cijfer {0}/5", point.rating) : ''}</title></circle>)}
-    {[...new Set([0, Math.floor((points.length - 1) / 2), points.length - 1])].map(index => <text key={index} x={x(index)} y="245" textAnchor="middle">{dayLabel(points[index].day)}</text>)}
-  </svg><p className="caption">{group.mode === 'planned' ? t("Hoogste BPM met een afgeronde speelbeurt per sessie. Ook afgeronde speelbeurten uit gestopte sessies tellen mee.") : t("Hoogste werkelijk afgespeelde BPM per sessie in vrije fragmenttraining; dit zegt niets over afgeronde speelbeurten.")} {points.length === 1 ? t("In deze periode is één meetpunt bewaard.") : t("Een hoger tempo zegt niet automatisch dat je beter speelt.")}</p>
-    <details><summary>{t("Meetpunten bekijken")}</summary><div className="table-scroll"><table className="history-table"><caption>{t("Werkelijk gespeelde resultaten voor dit onderdeel")}</caption><thead><tr><th>{t("Datum")}</th><th>BPM</th><th>{t("Speelbeurten")}</th><th>{t("Beoordeling")}</th><th>{t("Sessie")}</th></tr></thead><tbody>{points.map(point => <tr key={point.sessionId}><td>{new Date(point.date).toLocaleString(locale())}</td><td>{bpmText(point.bpm)}</td><td>{group.mode === 'planned' ? point.completed : t("Vrij oefenen")}</td><td>{point.rating === undefined ? t("Niet beoordeeld") : `${point.rating}/5`}</td><td>{statuses[point.status]}</td></tr>)}</tbody></table></div></details>
-  </>;
+const palette = ['#FF922E', '#67C6E3', '#C6A0F6', '#9BCA72', '#F28DB0', '#F1D06A', '#7AD4BB', '#A4AFF5'];
+const dayLabel = (day: string) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+const dayTime = (day: string) => Date.parse(`${day}T12:00:00Z`);
+const color = (id: string) => palette[[...id].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0, 0) % palette.length];
+function context(group: Dashboard['groups'][number]) {
+  return `${group.exercise} · ${group.routine}${t(" · oefening ")}${group.block} · ${group.part} · ${group.mode === 'planned' ? t("Sessie") : t("Vrije training")} · ${bpmText(group.originalBpm)}${t(" BPM origineel")}${group.kind !== 'metronome' ? `${t(" · bron ")}${durationLabel(group.sourceDuration)}` : ''}${group.pitch ? t(" · {0}{1} halve tonen", group.pitch > 0 ? '+' : '', group.pitch) : ''}`;
 }
-export function ProgressDashboard({ sessions, period, changePeriod }: { sessions: SessionRecord[]; period: 'week' | 'month' | 'all'; changePeriod: (value: 'week' | 'month' | 'all') => void }) {
-  const data = buildDashboard(sessions, { period });
-  const [selection, setSelection] = useState('');
-  const group = data.groups.find(item => item.key === selection) ?? data.groups[0];
-  const latest = group?.points.at(-1);
-  const maximum = Math.max(1, ...data.days.map(day => day.seconds));
+function TrendChart({ data, hidden, metric }: { data: Dashboard; hidden: Set<string>; metric: 'bpm' | 'rating' }) {
+  const groups = data.groups.filter(group => !hidden.has(group.exerciseId) && group.points.some(point => point[metric] !== undefined));
+  const values = groups.flatMap(group => group.points.flatMap(point => point[metric] === undefined ? [] : [point[metric]!]));
+  const score = metric === 'rating';
+  const label = score ? t("Beoordelingen van alle zichtbare oefeningen") : t("Gespeelde tempo’s van alle zichtbare oefeningen");
+  if (!values.length) return <p role="status">{t("Geen zichtbare meetpunten in deze periode.")}</p>;
+  const min = score ? 1 : Math.max(0, Math.floor(Math.min(...values) / 10) * 10 - 5);
+  const max = score ? 5 : Math.ceil(Math.max(...values) / 10) * 10 + 5;
+  const from = data.from === '0000-00-00' ? (data.groups.flatMap(group => group.points.map(point => point.day)).sort()[0] ?? data.today) : data.from;
+  const start = dayTime(from), end = dayTime(data.today), span = end - start;
+  const x = (day: string) => span === 0 ? 400 : 65 + (dayTime(day) - start) / span * 700;
+  const y = (value: number) => 220 - (value - min) / (max - min) * 175;
+  return <svg viewBox="0 0 830 285" className="dashboard-chart" role="img" aria-label={label}>
+    {[0, 1, 2, 3, 4].map(tick => { const value = min + (max - min) * tick / 4; return <g key={tick}><line x1="60" y1={y(value)} x2="775" y2={y(value)} /><text x="48" y={y(value) + 4} textAnchor="end">{Math.round(value)}</text></g>; })}
+    <text x="12" y="23">{score ? t("Cijfer") : 'BPM'}</text>
+    {groups.map((group, index) => {
+      const points = group.points.filter(point => point[metric] !== undefined);
+      return <g key={group.key} data-exercise={group.exerciseId} data-testid={`trend-${metric}-series`}>
+        {points.length > 1 && <polyline style={{ stroke: color(group.exerciseId) }} strokeDasharray={index % 3 === 0 ? undefined : index % 3 === 1 ? '8 4' : '2 4'} points={points.map(point => `${x(point.day)},${y(point[metric]!)}`).join(' ')} />}
+        {points.map(point => { const text = `${dayLabel(point.day)} · ${context(group)} · ${score ? `${point.rating}/5` : `${bpmText(point.bpm)} BPM`}`; return <circle key={point.sessionId} cx={x(point.day)} cy={y(point[metric]!)} r="5" style={{ fill: color(group.exerciseId) }} tabIndex={0} aria-label={text}><title>{text}</title></circle>; })}
+      </g>;
+    })}
+    {[...new Set([start, Math.round((start + end) / 2), end])].map(date => <text key={date} x={span === 0 ? 400 : 65 + (date - start) / span * 700} y="260" textAnchor="middle">{dayLabel(new Date(date).toISOString().slice(0, 10))}</text>)}
+  </svg>;
+}
+function FrequencyChart({ exercises }: { exercises: Dashboard['exercises'] }) {
+  if (!exercises.length) return <p>{t("Nog geen oefeningen gespeeld in deze periode.")}</p>;
+  const width = Math.max(830, 90 + exercises.length * 100), step = (width - 90) / exercises.length, maximum = Math.max(1, ...exercises.map(item => item.count));
+  return <div className="table-scroll"><svg viewBox={`0 0 ${width} 340`} style={{ minWidth: width }} className="dashboard-chart frequency-chart" role="img" aria-label={t("Aantal keer geoefend per oefening")}>
+    {[0, Math.ceil(maximum / 2), maximum].filter((value, i, all) => all.indexOf(value) === i).map(value => <g key={value}><line x1="55" x2={width - 20} y1={205 - value / maximum * 160} y2={205 - value / maximum * 160} /><text x="45" y={209 - value / maximum * 160} textAnchor="end">{value}</text></g>)}
+    {exercises.map((item, index) => { const x = 65 + index * step, height = item.count / maximum * 160; return <g key={item.id} data-testid="exercise-frequency"><rect x={x + step * .15} y={205 - height} width={step * .55} height={height} fill={color(item.id)} tabIndex={0} aria-label={`${item.title}: ${item.count}`}><title>{item.title}: {item.count}</title></rect><text x={x + step * .42} y={195 - height} textAnchor="middle">{item.count}</text><text transform={`translate(${x + step * .3},225) rotate(45)`}>{item.title.length > 24 ? `${item.title.slice(0, 23)}…` : item.title}<title>{item.title}</title></text></g>; })}
+  </svg></div>;
+}
+export function ProgressDashboard({ sessions, period, changePeriod }: { sessions: SessionRecord[]; period: Period; changePeriod: (value: Period) => void }) {
+  const data = useMemo(() => buildDashboard(sessions, { period }), [sessions, period]);
+  const [hidden, setHidden] = useState<Set<string>>(new Set()), [offset, setOffset] = useState(0);
+  const activity = useMemo(() => buildActivity(sessions, { offset }), [sessions, offset]);
+  const maximum = Math.max(1, ...activity.days.map(day => day.seconds));
+  function toggle(id: string) { setHidden(before => { const next = new Set(before); if (next.has(id)) next.delete(id); else next.add(id); return next; }); }
   return <div className="screen-stack progress-dashboard">
-    <div className="round-heading"><p>{t("Maak zichtbaar wat je oefent, stap voor stap.")}</p><label className="round-picker">{t("Periode")}<select aria-label={t("Periode voortgang")} value={period} onChange={event => changePeriod(event.target.value as typeof period)}><option value="week">{t("Deze week")}</option><option value="month">{t("Deze maand")}</option><option value="all">{t("Alle tijd")}</option></select></label></div>
+    <div className="round-heading"><p>{t("Maak zichtbaar wat je oefent, stap voor stap.")}</p><label className="round-picker">{t("Periode")}<select aria-label={t("Periode voortgang")} value={period} onChange={event => changePeriod(event.target.value as Period)}><option value="week">{t("Week")}</option><option value="month">{t("Maand")}</option><option value="year">{t("Jaar · laatste 12 maanden")}</option><option value="all">{t("Altijd")}</option></select></label></div>
     <div className="stats-grid"><section className="panel stat-card"><h2>{t("Geoefende tijd")}</h2><strong data-testid="dashboard-time">{durationLabel(data.totalSeconds)}</strong><p>{t("min:sec · sessie ")}{durationLabel(data.plannedSeconds)}{t(" · vrij ")}{durationLabel(data.fragmentSeconds)}</p></section><section className="panel stat-card"><h2>{t("Oefendagen")}</h2><strong data-testid="dashboard-days">{data.practiceDays}</strong><p>{t("Dagen met afgespeelde muziek")}</p></section><section className="panel stat-card"><h2>{t("Geoefende sessies")}</h2><strong data-testid="dashboard-sessions">{data.practicedSessions}</strong><p>{data.completedSessions}{t(" volledig afgerond")}</p></section></div>
     <p className="caption">{t("Pauzes en evaluaties tellen niet mee. Gestopte en onderbroken sessies tellen mee voor hun afgespeelde tijd. Dagindeling: ")}{data.timeZone}{t("; tijd wordt toegerekend aan de startdag van de sessie.")}</p>
-
     {!data.practicedSessions && <section className="panel"><h2>{t("Elke oefening telt")}</h2><p>{t("In deze periode is nog geen afgespeelde oefentijd bewaard. Start een oefensessie of kies een andere periode.")}</p></section>}
-    {group && <div className="progress-detail-grid"><section className="panel progress-chart"><div className="panel-heading"><h2>{t("Tempo-ontwikkeling")}</h2></div><label className="progress-selection">{t("Oefening en onderdeel")}<select aria-label={t("Onderdeel tempo-ontwikkeling")} value={group.key} onChange={event => setSelection(event.target.value)}>{data.groups.map(item => <option key={item.key} value={item.key}>{item.routine}{t(" · oefening ")}{item.block}: {item.exercise} · {item.part} · {item.mode === 'planned' ? t("Sessie") : t("Vrije training")} · {bpmText(item.originalBpm)}{t(" BPM origineel")}{item.kind !== 'metronome' && <>{t(" · bron ")}{durationLabel(item.sourceDuration)}</>}{item.pitch ? t(" · {0}{1} halve tonen", item.pitch > 0 ? '+' : '', item.pitch) : ''}</option>)}</select></label><p className="chart-context">{group.exercise} · {group.part}</p><p className="caption">{group.routine}{t(" · oefening ")}{group.block} · {group.mode === 'planned' ? t("Geplande training") : t("Vrije fragmenttraining")} · {bpmText(group.originalBpm)}{t(" BPM origineel")}{group.kind !== 'metronome' && <>{t(" · bron ")}{durationLabel(group.sourceDuration)} · {group.pitch === 0 ? t("Originele toonhoogte") : t("{0}{1} halve tonen", group.pitch > 0 ? '+' : '', group.pitch)}</>}</p><TempoChart group={group} /></section>
-    <section className="panel"><h2>{t("Laatste resultaat voor dit onderdeel")}</h2>{latest ? <><p><strong>{bpmText(latest.bpm)}{t(" BPM")}</strong> · {dayLabel(latest.day)} · {statuses[latest.status]}</p><p>{latest.rating === undefined ? t("Geen cijfer bewaard.") : t("Jouw beoordeling: {0}/5", latest.rating)}</p>{latest.rating !== undefined && <p className="caption">{t("Het cijfer hoort bij de laatste bewaarde evaluatie van dit onderdeel in deze sessie.")}</p>}{latest.note && <p>{t("Notitie: ")}{latest.note}</p>}{latest.action && <p>{t("Destijds gekozen: ")}{actions[latest.action]}{latest.delta ? t(" ({0}{1} BPM voor dit oefenblok)", latest.delta > 0 ? '+' : '', bpmText(latest.delta)) : ''}.</p>}<p className="caption">{t("Een cijfer is jouw eigen evaluatie, geen automatische meting van nauwkeurigheid.")}</p></> : <p>{t("Er is nog geen meetpunt. Je oefentijd is wel bewaard.")}</p>}</section></div>}
-    <section className="panel"><h2>{t("Jouw oefenritme")}</h2><p className="caption">{period === 'all' ? t("De laatste 28 dagen") : period === 'week' ? t("Deze week tot vandaag") : t("Deze maand tot vandaag")}</p><div className="activity-chart" role="img" aria-label={t("Oefentijd per dag: {0}. Open de tabel voor exacte tijden.", period === 'all' ? t("de laatste 28 dagen") : t("de gekozen periode tot vandaag"))}>{data.days.map(day => <div className="activity-day" key={day.day} title={t("{0}: {1} geoefend", dayLabel(day.day), durationLabel(day.seconds))}><div className="activity-track"><span style={{ height: `${day.seconds / maximum * 100}%` }} /></div><span>{Number(day.day.slice(-2))}</span></div>)}</div><details><summary>{t("Oefentijd per dag bekijken")}</summary><div className="table-scroll"><table className="history-table"><thead><tr><th>{t("Datum")}</th><th>{t("Oefentijd")}</th></tr></thead><tbody>{data.days.map(day => <tr key={day.day}><td>{dayLabel(day.day)}</td><td>{durationLabel(day.seconds)}</td></tr>)}</tbody></table></div></details></section>
+    {!!data.exercises.length && <fieldset className="panel exercise-legend"><legend>{t("Oefeningen in de lijngrafieken")}</legend><p className="caption">{t("Vink oefeningen uit om ze in beide lijngrafieken te verbergen. Totalen en staafdiagram blijven gelijk.")}</p><div>{data.exercises.map(item => <label key={item.id}><input type="checkbox" checked={!hidden.has(item.id)} onChange={() => toggle(item.id)} /><span className="legend-swatch" style={{ background: color(item.id) }} />{item.title}</label>)}</div></fieldset>}
+    <section className="panel progress-chart"><h2>{t("Tempo-ontwikkeling")}</h2><TrendChart data={data} hidden={hidden} metric="bpm" /><p className="caption">{t("Hoogste BPM per sessie en onderdeel: afgeronde herhalingen in de sessie, werkelijk afgespeeld tempo bij vrije training. Verschillende fragmenten, sessie-opbouwen, broninstellingen en toonhoogtes krijgen aparte lijnen. Een hoger tempo betekent niet automatisch beter spel.")}</p></section>
+    <section className="panel progress-chart"><h2>{t("Score-ontwikkeling")}</h2><TrendChart data={data} hidden={hidden} metric="rating" /><p className="caption">{t("Laatste eigen beoordeling per sessie en onderdeel, van 1 tot 5. Zonder bewaard cijfer verschijnt geen scorepunt. Punten tonen datum, oefening en context.")}</p></section>
+    <section className="panel"><h2>{t("Aantal keer geoefend per oefening")}</h2><p className="caption">{t("Een oefening telt eenmaal per sessie met gespeelde tijd, ook bij meerdere fragmenten of herhalingen. Vrije training en gedeeltelijk gespeelde sessies tellen mee.")}</p><FrequencyChart exercises={data.exercises} /></section>
+    <section className="panel"><div className="round-heading"><div><h2>{t("Jouw oefenritme")}</h2><p data-testid="activity-range">{dayLabel(activity.from)} – {dayLabel(activity.end)}</p></div><div className="row-actions"><button className="secondary" disabled={!activity.canGoBack} onClick={() => setOffset(value => value + 1)}>{t("Vorige 30 dagen")}</button><button className="secondary" disabled={offset === 0} onClick={() => setOffset(value => Math.max(0, value - 1))}>{t("Volgende 30 dagen")}</button></div></div><p className="caption">{t("Dertig dagen oefentijd, onafhankelijk van de periode hierboven.")}</p><div className="activity-chart" role="img" aria-label={t("Oefentijd per dag, 30 dagen")}>
+      {activity.days.map(day => <div className="activity-day" key={day.day} title={t("{0}: {1} geoefend", dayLabel(day.day), durationLabel(day.seconds))}><div className="activity-track"><span style={{ height: `${day.seconds / maximum * 100}%` }} /></div><span>{Number(day.day.slice(-2))}</span></div>)}
+    </div><details><summary>{t("Oefentijd per dag bekijken")}</summary><div className="table-scroll"><table className="history-table"><thead><tr><th>{t("Datum")}</th><th>{t("Oefentijd")}</th></tr></thead><tbody>{activity.days.map(day => <tr key={day.day}><td>{dayLabel(day.day)}</td><td>{durationLabel(day.seconds)}</td></tr>)}</tbody></table></div></details></section>
   </div>;
 }

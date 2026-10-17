@@ -64,7 +64,7 @@ test('audio-free metronome creates offline, reopens, edits bars and plays mixed 
     await expect(page.getByRole('heading', { name: 'Sessie afgerond', exact: true })).toBeVisible();
     await expect.poll(() => page.evaluate(async () => (await window.hitthebeat!.listSessions())[0].status)).toBe('completed');
     await page.getByRole('button', { name: 'Voortgang', exact: true }).click();
-    await expect(page.getByLabel('Onderdeel tempo-ontwikkeling')).toContainText('Metronoom 6/8 · 2 maten');
+    await expect(page.locator('circle[aria-label]').filter({hasText:'Metronoom 6/8 · 2 maten'}).first()).toBeVisible();
     expect(errors).toEqual([]);
     const history = await page.evaluate(() => window.hitthebeat!.listSessions());
     expect(history[0].progress.passes).toBe(3); expect(history[0].progress.times.fragment).toBe(0); expect(history[0].evaluations).toHaveLength(2);

@@ -4,6 +4,7 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 
 ## Documenten
 
+- [Release 1.1.0: wijzigingen, testmatrix en eindcontrole](docs/RELEASE-1.1.0.md)
 - [CI, handmatige releasecontrole en installerautomatisering](docs/RELEASE-AUTOMATISERING.md)
 
 - [Windows-herstelkandidaat 1.0.0-rc.2 en controles](docs/RC2-WINDOWS.md)
@@ -42,7 +43,7 @@ Versie 1.0.0 biedt een **eigen bibliotheek**: MP3 of M4A met AAC importeren, BPM
 
 Onder **Mijn oefensessies** kun je eigen rondjes opslaan met geordende oefenblokken en per stap fragment, herhalingen en BPM. Kies per stap de volledige track, een benoemd fragment van de oefening of eigen A–B-grenzen. De geplande totale duur rekent direct mee. Met **Rondje starten** speelt de speler alle stappen en herhalingen, met evaluatie bij fragmentwissels en tussen oefeningen. Je kunt een passage vrij loopen en daarna dezelfde geplande herhaling opnieuw starten.
 
-Eigen rondjes evalueren nu na iedere fragmentserie. Hetzelfde/Sneller/Rustiger past de volgende sessie aan voor alleen het gekozen oefenblok. Voortgang toont oefentijd, oefendagen, sessies en tempo-ontwikkeling met beoordelingen en notities. Kies week, maand of alle tijd; volledige tracks, fragmenten en vrije training blijven herkenbaar gescheiden. Instellingen bevat Bibliotheekmap openen en uitleg over de ongewijzigde lokale kopieën. De losse Audioproef is verwijderd. Evalueren kan met toetsen: eerst een cijfer 1–5, daarna 1 langzamer / 2 gelijk / 3 sneller, eventueel een aantal BPM. Enter bewaart de huidige keuzes en gaat door; zonder invoer zijn dat 3/5 en gelijk houden. Alles is ook aanklikbaar.
+Eigen rondjes evalueren nu na iedere fragmentserie. Hetzelfde/Sneller/Rustiger past de volgende sessie aan voor alleen het gekozen oefenblok. Voortgang toont oefentijd, oefendagen en sessies voor week, maand, de laatste twaalf maanden of altijd. Gecombineerde tempo- en scoregrafieken bieden een gedeelde verbergkeuze per oefening; verschillende fragment-/sessiecontexten blijven gescheiden. Het staafdiagram telt per oefening het aantal gespeelde sessies. Blader door oefentijd in vensters van dertig dagen. De evaluatie bevat geen opmerkingenveld; bestaande notities blijven opgeslagen. Instellingen bevat Bibliotheekmap openen en uitleg over de ongewijzigde lokale kopieën. De losse Audioproef is verwijderd. Evalueren kan met toetsen: eerst een cijfer 1–5, daarna 1 langzamer / 2 gelijk / 3 sneller, eventueel een aantal BPM. Enter bewaart de huidige keuzes en gaat door; zonder invoer zijn dat 3/5 en gelijk houden. Alles is ook aanklikbaar.
 
 Nieuwe audiobestanden krijgen standaard volumenormalisatie zonder het bronbestand te wijzigen. Voor bestaande oefeningen: **Bewerken → Volume normaliseren → Oefening opslaan**. De echte spelers hebben een gedeelde volumeschuif en dempenknop; de instelling blijft op deze computer bewaard.
 
@@ -103,6 +104,6 @@ BPM wordt overal als geheel getal getoond; opgeslagen precisie blijft behouden. 
 
 Oefeningen delen: kies **Oefeningen → Exporteren** voor één `.htbexercise`-bestand met audio, tablatuur, opdracht, instellingen en fragmenten. Voeg eventueel je makernaam en een persoonlijke boodschap toe. **Oefening importeren** toont eerst een preview waarin je de naam kunt aanpassen; bij een bestaande naam verschijnt een waarschuwing. Import maakt altijd een nieuwe oefening aan. De maker blijft zichtbaar en wordt bij opnieuw exporteren ingevuld. Alles werkt offline. Zie [oefeningen delen en controles](docs/OEFENING-DELEN.md).
 
-Taal: de eerste start volgt de systeemtaal (nl → Nederlands, anders Engels). Kies **Instellingen → Taal** of de compacte keuze bovenaan voor Nederlands/English. De keuze blijft op deze computer bewaard en werkt direct, ook tijdens het spelen. Eigen inhoud blijft in de oorspronkelijke taal. Zie [taalkeuze en controles](docs/TAALKEUZE.md).
+Taal: de eerste start volgt de systeemtaal (nl → Nederlands, anders Engels). Kies **Instellingen → Taal** voor Nederlands/English. De keuze blijft op deze computer bewaard en werkt direct, ook tijdens het spelen. Eigen inhoud blijft in de oorspronkelijke taal. Zie [taalkeuze en controles](docs/TAALKEUZE.md).
 
 **Info over HITtheBeat** onderaan de zijbalk legt het concept uit en vat de functies puntsgewijs samen, in de gekozen taal. Het toont ook de appversie. Sluiten of Escape brengt je terug zonder de sessie of invoer te wijzigen. Zie [infovenster en controles](docs/INFO.md).

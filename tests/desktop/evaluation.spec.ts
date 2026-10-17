@@ -80,9 +80,8 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await page.getByRole('article', { name: 'Techniek', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await expect(page.getByLabel('BPM oefening 1 stap 1', { exact: true })).toHaveValue('80');
     await page.getByRole('button', { name: 'Voortgang', exact: true }).click();
-    await expect(page.getByText('8 speelbeurten afgerond', { exact: false })).toBeVisible();
-    await page.getByText('Fragmenten en evaluaties bekijken', { exact: true }).click();
-    await expect(page.getByText('Beoordeling: 4/5', { exact: true })).toBeVisible();
+    await expect(page.getByRole('img', { name: 'Beoordelingen van alle zichtbare oefeningen' })).toBeVisible();
+    expect(await page.evaluate(async () => (await window.hitthebeat!.listSessions())[0].progress.passes)).toBe(8);
     await page.locator('#main').focus();
     await page.screenshot({ path: 'test-results/phase6-history.png', fullPage: true });
     await app.close(); app = await launch(); page = await app.firstWindow();

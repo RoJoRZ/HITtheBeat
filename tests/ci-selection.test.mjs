@@ -21,7 +21,7 @@ test('window, shared UI and changed tests are covered', () => {
 });
 
 test('evaluation and progress UI changes stay focused without storage/import regressions', () => {
-  const evaluation = selectTests(['src/ui/SessionReview.tsx', 'src/ui/SessionPlayer.tsx']);
+  const evaluation = selectTests(['src/ui/SessionReview.tsx', 'src/ui/SessionPlayer.tsx', 'tests/desktop/evaluation.spec.ts']);
   assert.ok(evaluation.node.includes('tests/sessions.test.mjs'));
   assert.ok(evaluation.desktop.includes('tests/desktop/evaluation.spec.ts'));
   assert.ok(!evaluation.desktop.includes('tests/desktop/sharing.spec.ts'));

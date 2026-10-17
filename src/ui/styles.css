@@ -451,3 +451,19 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .about-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); }
 
 .library-toolbar, .library-toolbar > .row-actions { flex-wrap: wrap; }
+
+/* Release 1.1: shared exercise filters and combined historical charts. */
+.dashboard-chart { display: block; width: 100%; }
+.dashboard-chart text { fill: var(--muted); font-family: 'Source Sans 3', sans-serif; font-size: 13px; }
+.dashboard-chart line { stroke: var(--border); }
+.dashboard-chart polyline { fill: none; stroke-width: 2.5; }
+.dashboard-chart circle:focus, .dashboard-chart rect:focus { outline: 2px solid var(--text); stroke: #fff; stroke-width: 3; }
+.exercise-legend { min-width: 0; border: 1px solid var(--border); }
+.exercise-legend legend { padding: 0 8px; font-weight: 600; }
+.exercise-legend > div { display: flex; flex-wrap: wrap; gap: 12px 22px; }
+.exercise-legend label { display: flex; gap: 8px; align-items: center; cursor: pointer; overflow-wrap: anywhere; }
+.exercise-legend input { accent-color: var(--accent); width: 18px; height: 18px; }
+.legend-swatch { width: 20px; height: 4px; border-radius: 2px; flex-shrink: 0; }
+.progress-dashboard .panel { min-width: 0; }
+.progress-dashboard .activity-chart { gap: 4px; }
+@media (max-width: 700px) { .progress-dashboard .stats-grid { grid-template-columns: 1fr; } }

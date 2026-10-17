@@ -351,3 +351,10 @@ Versie 1.0.0 bevat Windows-RC2 en #21, met dezelfde appId/productName en schema 
 ## Evaluatie zonder notitie-invoer — #28
 
 SessionReview/SessionPlayer verwijderen de notitie-state en invoer. De bestaande reviewSession-route ontvangt note als lege string; schema 10, validatie en historische notities blijven intact. Geen migratie of nieuwe IPC.
+
+
+## Dashboard Release 1.1.0 — #27
+
+buildDashboard behoudt historische contextgroepering en voegt exerciseId, per-oefeningfrequentie en periode year toe. Frequency dedupliceert de bronidentiteit binnen elke sessie met werkelijk gespeelde tijd. buildActivity aggregeert los van het periodefilter 30 kalenderdagen met offsets; alle kalenderberekeningen gebruiken de bestaande lokale startdag plus UTC-middag voor datumrekenen (DST-veilig). Jaargrens gebruikt twaalf kalendermaanden met schrikkeldagbegrenzing.
+
+SessionHistory laadt uitsluitend historische sessies; gedetailleerde resultaatweergave vervalt. ProgressDashboard gebruikt eigen SVG-lijn-/staafdiagrammen, gedeelde checkboxstate en een aparte dagoffset. Geen chartdependency, IPC, schema- of audiowijziging. Punten blijven per context gescheiden en behouden bronprecisie; alleen BPM-presentatie rondt af. Catalogus bevat expliciete NL/EN-sleutels; eigen namen blijven gewone tekst. Wijzigingen in bestaande UI-regressies volgen het vervallen dashboard, terwijl BPM-precisie, metronoomcontext, evaluatiebewaring en taalwissel beschermd blijven.
