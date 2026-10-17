@@ -26,3 +26,12 @@ Alleen de publicatiejob krijgt contents:write; PR-/test-/buildjobs hebben conten
 - Automatische checks zijn geen muzikale luisterbeoordeling of interactieve SmartScreen/Gatekeeper-test. Mac blijft ad-hoc ondertekend/niet genotariseerd, Windows unsigned, projectlicentie onbeslist.
 
 Milestone 1 is op 17 oktober 2026 gesloten: tien gesloten issues, nul open issues. PR #26 is samengevoegd na de groene CI-run https://github.com/RoJoRZ/HITtheBeat/actions/runs/39016523327: per platform negen gerichte Node-tests, één starttest en vier installatieharnas-tests, inclusief Mac-DMG en Windows-installatie/deïnstallatie. De oorspronkelijke automatische retarget-weigering voor PR #25 is gevolgd door expliciete gebruikerstoestemming; ook PR #25 is nu samengevoegd en #24 is gesloten. De algemene werkwijze is actief. Geen releasegoedkeuring is gesimuleerd of omzeild.
+
+
+## Eerste gebruik bij 1.1.0
+
+De handmatige eindcontrole is expliciet door de gebruiker geaccepteerd, daarna zijn beide native installerjobs en vier geinstalleerde-pakkettests per platform geslaagd. De conceptrelease bevatte alle bestanden en juiste hashes, maar de tag bestaat pas bij publiceren: opvragen via releases/tags gaf 404. De gecontroleerde publicatie is voor 1.1.0 voltooid via dezelfde release-ID, zonder bestanden of bron te wijzigen. Het historische mislukte publicatiejobresultaat wordt niet als een groene workflow voorgesteld.
+
+Voor volgende runs selecteert publish-release het unieke zojuist gemaakte concept via de releasecollectie (de publish-job heeft contents:write), controleert draftstatus, bron, ID en de exacte uploadset/digests, en publiceert via PATCH releases/{id}. Na publicatie worden identiteit en digests opnieuw gecontroleerd. Bestaande gepubliceerde releases of afwijkende/ambigue concepten worden nooit overgenomen. API-contract: [GitHub Releases API](https://docs.github.com/en/rest/releases/releases). Negen gerichte Node-tests bewaken juist deze publicatiegrens; geen nieuwe appbuild of volledige regressie om dit herstel te onderbouwen, behalve de normale gerichte PR-bouw/startcontrole.
+
+De identity-preflight controleert na een tag-404 ook alle pagina’s van de releasecollectie op bestaande drafts. Een fout, ontbrekende permissie of ongeldige respons geldt nooit als bewezen afwezigheid; ook concepten zonder tag blokkeren een nieuwe run voor dezelfde versie.
