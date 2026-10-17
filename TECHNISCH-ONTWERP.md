@@ -346,3 +346,8 @@ LanguagePicker wordt alleen door SettingsScreen gerenderd; de compacte variant e
 ## Definitieve distributie — 1.0.0
 
 Versie 1.0.0 bevat Windows-RC2 en #21, met dezelfde appId/productName en schema 10. Mac arm64 DMG/ZIP via lokale electron-builder; Windows x64 NSIS/ZIP via native Windows-runner. Per-user NSIS bewaart appdata bij deïnstallatie. De gepinde Windows-workflow draait met contents:read en publiceert alleen via een aparte contents:write-draft-job op de expliciete releasebranch; PR's hebben geen release-publicatierechten. Geen signing-secret, notariseringsaccount, updater, nieuwe dependency of runtime-cloud. SHA-256-script verwacht voortaan ook de Windows-EXE. De definitieve GitHub-publicatie combineert de geteste platformassets bij exact dezelfde bronversie. Volledige Mac/tag-automatisering blijft open; zie docs/RELEASE.md.
+
+
+## Evaluatie zonder notitie-invoer — #28
+
+SessionReview/SessionPlayer verwijderen de notitie-state en invoer. De bestaande reviewSession-route ontvangt note als lege string; schema 10, validatie en historische notities blijven intact. Geen migratie of nieuwe IPC.

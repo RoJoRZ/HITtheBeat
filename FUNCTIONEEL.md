@@ -558,3 +558,10 @@ De gebruiker geeft op 17 oktober 2026 expliciet opdracht milestone 1 af te hande
 Het resterende werk van #8 wordt afgemaakt: gerichte PR-controles op Mac en Windows; bij een nieuwe release/tag volledige regressie, daarna verplichte handmatige goedkeuring vóór installerbuilds, beide native platforminstallers met pakket-/opslagcontrole en gezamenlijke publicatie met hashes. De GitHub-omgeving release-approval vereist RoJoRZ als reviewer en staat geen beheerdersbypass toe. Deze afronding creëert geen nieuwe release en verleent de agent geen bevoegdheid om zelf de handmatige eindcontrole goed te keuren.
 
 Milestone 1 is op 17 oktober 2026 gesloten: tien gesloten issues en nul open issues. De goedgekeurde app-/release-PR's en de resterende CI-afronding (#26) staan op main. De geaccepteerde appbron is gelijk aan v1.0.0; tag en downloads zijn ongewijzigd. De gerichte CI-run https://github.com/RoJoRZ/HITtheBeat/actions/runs/39016523327 slaagt op Mac en Windows (per platform negen Node-tests, één starttest en vier installatieharnas-tests). PR #25 werd aanvankelijk tegengehouden door automatische goedkeuringscontrole. De gebruiker heeft daarna expliciet bevestigd ook deze PR samen te voegen; daarmee wordt de goedgekeurde algemene werkwijze actief.
+
+
+## 40. Release 1.1.0 — eenvoudigere evaluatie (#28)
+
+Op 17 oktober 2026 start de gebruiker milestone Release 1.1.0 volgens hoofdstuk 38. De geselecteerde scope is #28 (evaluatie) en #27 (voortgang); geen aanvullende issues.
+
+De evaluatie biedt geen veld meer om een opmerking toe te voegen. Cijfer, tempo-aanpassing, herhalen en Enter/toetsenbediening blijven gelijk. Nieuwe evaluaties bewaren een lege notitie voor compatibiliteit. Bestaande opmerkingen blijven ongewijzigd in historische momentopnamen.

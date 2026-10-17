@@ -256,3 +256,8 @@ De gebruiker autoriseert samenvoegen van het goedgekeurde werk naar main en bijw
 ### Procedure voor volgende releases — na afronding milestone 1 (#24)
 
 De gebruiker bundelt maximaal tien GitHub-issues per nieuwe releasemilestone en geeft opdracht die te starten. Daarna zelfstandige issue-afhandeling en inhoudelijke goedkeuring met gerichte tests, zonder volledige regressie per issue. Binnen de gestarte milestone mogen geverifieerde PR's zelfstandig worden samengevoegd en afgeronde issues gesloten. Volledige gecureerde regressie uitsluitend in de releasefase; daarna verplicht handmatige eindcontrole door de gebruiker en expliciet akkoord vóór de automatische installerbuilds. Vervolgens gerichte pakketcontroles en publicatie zonder tweede routinematige toestemmingsvraag. De releasemilestone sluit pas na publicatie en administratieve controle. AGENTS.md beschrijft deze vastgestelde afspraken en testcuratie. Milestone 1 is inmiddels gesloten; PR #26 heeft de CI-scheiding en handmatige gate ingevoerd. De gebruiker heeft het samenvoegen van PR #25 expliciet bevestigd.
+
+
+## Release 1.1.0 — gestart 17 oktober 2026
+
+Scope: #28 evaluatie zonder opmerking, daarna #27 voortgangsoverzicht. Per issue gerichte tests, zelfreview, PR-merge en sluiten bij bewezen criteria. Vervolgens één volledige release-regressie op Mac/Windows en een testbare ontwikkelversie met vaste broncommit voor de handmatige eindcontrole. Nieuwe installers en publicatie wachten op expliciet gebruikersakkoord.

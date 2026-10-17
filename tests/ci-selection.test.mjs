@@ -19,3 +19,14 @@ test('window, shared UI and changed tests are covered', () => {
   const s = selectTests(['electron/notation-window.mjs', 'src/ui/App.tsx', 'tests/desktop/overview.spec.ts']);
   for (const n of ['notation', 'language', 'info', 'overview', 'shell']) assert.ok(s.desktop.includes(`tests/desktop/${n}.spec.ts`));
 });
+
+test('evaluation and progress UI changes stay focused without storage/import regressions', () => {
+  const evaluation = selectTests(['src/ui/SessionReview.tsx', 'src/ui/SessionPlayer.tsx']);
+  assert.ok(evaluation.node.includes('tests/sessions.test.mjs'));
+  assert.ok(evaluation.desktop.includes('tests/desktop/evaluation.spec.ts'));
+  assert.ok(!evaluation.desktop.includes('tests/desktop/sharing.spec.ts'));
+  const progress = selectTests(['src/library/progress.mjs', 'src/ui/SessionHistory.tsx']);
+  assert.ok(progress.node.includes('tests/progress.test.mjs'));
+  assert.ok(progress.desktop.includes('tests/desktop/progress.spec.ts'));
+  assert.ok(!progress.desktop.includes('tests/desktop/session.spec.ts'));
+});
