@@ -1,57 +1,49 @@
-# Eerste release — 1.0.0-rc.1
+# HITtheBeat 1.0.0 — installatie en releaseproces
 
-De gebruiker heeft v0.0.26 geaccepteerd en expliciet een eerste release gevraagd. Deze uitgave is een GitHub-pre-release omdat Windows-gebruikstest en muzikale platformbeoordeling nog openstaan. Publicatie is handmatig; #8 (releaseautomatisering) blijft gedeeltelijk en open. Geen PR's automatisch mergen.
+[Definitieve release v1.0.0](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.0.0). De gebruiker heeft publicatie expliciet opgedragen na acceptatie van Windows-herstel en de interfaceaanpassingen. Bron: `codex/issue-8-final-release`, inclusief Windows-RC2 en #21. Geen automatische PR-merge; de releasetag is het precieze bronpunt voor bouwen/testen, niet een willekeurige checkout van main.
 
-## Downloads en installatie
+## Downloads
 
-[Release v1.0.0-rc.1](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.0.0-rc.1)
-
-| Bestand | Gebruik |
+| Bestand | Platform / installatie |
 | --- | --- |
-| HITtheBeat-1.0.0-rc.1-mac-arm64.dmg | Mac Apple Silicon; open de schijfkopie, sleep HITtheBeat naar Programma's en koppel de schijfkopie los. |
-| HITtheBeat-1.0.0-rc.1-mac-arm64.zip | Alternatief voor Apple Silicon; volledig uitpakken, verplaats HITtheBeat.app naar Programma's. |
-| HITtheBeat-1.0.0-rc.1-win-x64.zip | Windows x64; volledige map uitpakken, daarna HITtheBeat.exe starten. Geen installer in deze RC. |
-| SHA256SUMS.txt | SHA-256-controlegetallen van de drie binaries. |
+| HITtheBeat-1.0.0-mac-arm64.dmg | Mac Apple Silicon: open de schijfkopie, sleep HITtheBeat naar Programma's, koppel de schijfkopie los. Geen Rosetta nodig. |
+| HITtheBeat-1.0.0-mac-arm64.zip | Mac-alternatief: volledig uitpakken en HITtheBeat.app naar Programma's verplaatsen. |
+| HITtheBeat-1.0.0-win-x64.exe | Windows x64: per gebruiker installeren, eigen installatiemap mogelijk. |
+| HITtheBeat-1.0.0-win-x64.zip | Windows-alternatief: volledige map uitpakken en HITtheBeat.exe daarin starten. |
+| SHA256SUMS.txt | SHA-256 van alle vier downloads. |
 
-Geen Intel Mac-/Windows ARM-build of gebruikstest. De Mac-app is arm64 en vereist geen Rosetta. Ze is ad-hoc ondertekend, niet met Developer ID ondertekend of genotariseerd. Windows is niet ondertekend. Het OS kan de download blokkeren/waarschuwen; beveiliging niet algemeen uitschakelen. Controleer herkomst/controlegetal en noteer blokkades voor de platformtest. Er is geen automatische updater.
+Mac is ad-hoc ondertekend/niet genotariseerd; Windows is niet ondertekend. OS-waarschuwingen kunnen voorkomen. Beveiliging niet algemeen uitschakelen. Geen Intel Mac-/Windows ARM-build. De ZIP is geen aparte draagbare bibliotheekmodus.
 
-Mac-controle: `shasum -a 256 <bestand>`; PowerShell: `Get-FileHash <bestand> -Algorithm SHA256`. Vergelijk met de regel voor precies dezelfde bestandsnaam in SHA256SUMS.txt. Deze hashes controleren de bytes, geen uitgeversidentiteit.
+Sluit een bestaande app vóór installatie/vervanging en maak vooraf een reservekopie van de eigen appdatamap. Mac: `~/Library/Application Support/HITtheBeat`; Windows: `%APPDATA%\HITtheBeat`. De bibliotheek staat daaronder in `library` en is geen onderdeel van de download/installatiemap. Instellingen bevat Bibliotheekmap openen. Zonder expliciet testargument blijft dezelfde appId/productName/userData in gebruik; geen nieuwe opslagmigratie. Deïnstallatie wist de bibliotheek niet. Oude apps openen op nieuwere gegevens is geen ondersteunde rollback: herstel zo nodig een vooraf gemaakte kopie.
 
-De bibliotheek staat apart van de app: Mac `~/Library/Application Support/HITtheBeat/library`, Windows `%APPDATA%\HITtheBeat\library`. De Windows-ZIP is geen opslag-op-USB-modus. Sluit een bestaande app vóór vervanging en bewaar een reservekopie van de eigen appdatamap. Een oudere versie openen na nieuwere data is geen ondersteunde rollback; herstel een vooraf gemaakte kopie indien nodig. Downloads bevatten geen persoonlijke media of database.
+Controle: `shasum -a 256 <bestand>` op Mac, `Get-FileHash <bestand> -Algorithm SHA256` in PowerShell. Vergelijk de exacte bestandsnaam met SHA256SUMS.txt. Hashes verifiëren de bytes, geen uitgeversidentiteit.
 
-## Inhoud
+## Bron en bouwen
 
-Eigen audio-oefeningen (MP3/AAC-M4A), opdracht/tablatuur, BPM-detectie/correctie, onafhankelijk tempo/toonhoogte, volume/normalisatie, benoemde fragmenten, waveform en looptraining, sessietabel en doorlopende sessies, metronoom/aftellen per oefening, toetsenbordbeoordelingen, voortgang, los tablatuurvenster, oefening delen met informele makerherkenning, Nederlands/Engels en Info. Zie FUNCTIONEEL.md voor de exacte afspraken/open keuzes.
-
-## Reproduceren
-
-Node 24, pnpm 11.25.0, lockbestand gebruiken. Geen secrets of signing-account nodig voor deze niet-genotariseerde testbuild.
+Gebruik voor de definitieve versie tag `v1.0.0`. De hoofdbranch kan achterlopen zolang PR's niet zijn samengevoegd. Node 24 en pnpm 11.25.0, frozen lockfile.
 
 ```sh
+git checkout v1.0.0
 pnpm install --frozen-lockfile
 pnpm setup:desktop
 pnpm build
 pnpm test
+# Op Mac Apple Silicon:
 pnpm package:mac
-# ZIP kan op de Mac worden gebouwd; NSIS later op Windows:
-pnpm exec electron-builder --win zip --x64 --publish never
+# Op Windows x64:
+pnpm package:win
+# Na verzamelen van alle vier definitieve bestanden:
 node scripts/release-checksums.mjs
 ```
 
-`pnpm package:win` vraagt NSIS + ZIP; voer dit op Windows uit voor de installercontrole. Op deze arm64-Mac faalt het gedownloade Intel-makensis met fout -86 zonder Rosetta. Er is geen Rosetta geïnstalleerd en geen geslaagde EXE geclaimd. NSIS-configuratie is voorbereid, nog niet gevalideerd.
+## Pipeline en publicatie
 
-Kopieer docs/WINDOWS-TEST.md en public/licenses/THIRD-PARTY-NOTICES.txt als tekstassets bij de release. Publiceer alleen de drie genoemde binaries, SHA256SUMS.txt en de documentassets; geen .blockmap, NSIS-tussenarchief, debugbestanden of appdata. De tag `v1.0.0-rc.1` verwijst naar `codex/issue-8-first-release`, met de geaccepteerde Info-commit als basis. Publiceer als Pre-release; verplaats een gepubliceerde tag niet bij een latere fix.
+`.github/workflows/windows-release.yml` bouwt op Windows bij PR's, tags en pushes naar de expliciete final-releasebranch. Pinned officiële checkout/setup-node/artifact-actions; standaard alleen contents:read. Node 24/pnpm 11.25.0, frozen install, typecheck/productiebouw, Node-tests, native NSIS/ZIP, gerichte tests tegen het daadwerkelijk uitgepakte ZIP-pakket, stille installatie in pad met spaties, starten via pakkettest en deïnstallatie. Tests gebruiken tijdelijke geïsoleerde appdata. Windows-downloads krijgen hashes en worden als runartifact bewaard. Alleen de aparte draft-job op de expliciete releasebranch krijgt contents:write om de door gebruiker gevraagde 1.0.0 als concept met Windows-assets klaar te zetten. PR's publiceren niets. Geen persoonlijke signing-credentials of updater.
+
+Mac wordt voor deze uitgave lokaal gebouwd/getest, de DMG read-only aangekoppeld en de gekopieerde app gecontroleerd. Voeg Mac-assets, vier-bestanden-SHA256SUMS.txt, deze handleiding en THIRD-PARTY-NOTICES.txt toe aan het concept. Controleer alle upload-digests en broncommit; publiceer pas daarna als definitieve release. Verplaats een gepubliceerde tag niet; gebruik een nieuwe versie voor latere fixes. Het toevoegen van Mac-CI en een volledige tag-publicatieketen blijft onderdeel van #8. Deze Windows-pipeline is geen voltooiing van alle automatiseringscriteria.
+
+Exacte laatste uitslagen staan in de release-PR/Actions-run en releasebeschrijving. Historisch RC1-bewijs: RELEASE-RC1.md en WINDOWS-RC1-RESULTATEN.md. Fysieke Windows-RC2-controles, inclusief upgrade RC1 → RC2 en gegevensbehoud: RC2-WINDOWS.md. Die historie bewijst niet automatisch iedere toekomstige installer. Muzikale luisterbeoordeling op diverse echte muziek en interactieve SmartScreen/Gatekeeper-bediening blijven afzonderlijke grenzen.
 
 ## Licenties
 
-De eigen projectlicentie is nog niet gekozen (`UNLICENSED`); deze stap verleent geen algemene open-sourcelicentie. Dependencyvermeldingen staan mee in Resources/licenses (Mac) of resources/licenses (Windows), waaronder THIRD-PARTY-NOTICES.txt en Signalsmith. Electron/Chromium-licentieteksten horen bij het runtimepakket. Voor verdere publieke herdistributie blijft de eigen licentiekeuze een expliciete open afspraak.
-
-## Controle en vervolg
-
-- Typecheck/productiebouw en 103 Node-tests geslaagd.
-- Mac arm64 DMG en ZIP gebouwd; DMG-checksumstructuur geverifieerd, read-only aangekoppeld en app gekopieerd naar geïsoleerde testmap.
-- 12 verpakte-appcontroles geslaagd (shell, import/herstart, Info, taal, tablatuur, sessies en delen), uitsluitend met geïsoleerde testgegevens. ASAR-inspectie vond geen SQLite-/env-/bibliotheek-/bijlagepaden. Runtime- en dependencyvermeldingen worden expliciet meegeleverd.
-- Windows x64 ZIP gebouwd; Windows-opstarten/audio/import/opslag/installer nog niet uitgevoerd.
-- PR-/tag-CI, geteste Windows-installer, Windows-gebruikstest, muzikale luisterbeoordeling en projectlicentiekeuze blijven open. Geen voltooiing van #8 claimen.
-
-Vervolg op de door gebruiker beschikbaar te stellen Windows-machine: docs/WINDOWS-TEST.md. Daarna bevindingen herstellen in een nieuwe versie en pas bij acceptatie een definitieve 1.0 uitgeven.
+Eigen projectlicentie nog onbeslist (`UNLICENSED`); deze publicatie kiest geen open-sourcelicentie. Dependencyvermeldingen staan in Resources/licenses (Mac) of resources/licenses (Windows), inclusief Electron/Chromium en Signalsmith. Geen nieuwe runtime-afhankelijkheden. De app blijft offline bruikbaar zonder account, telemetry of automatische updates.

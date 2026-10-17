@@ -1,0 +1,95 @@
+name: Windows installer
+on:
+  push:
+    branches: [codex/issue-8-final-release]
+    tags: ['v*']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm install --global pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm setup:desktop
+      - run: pnpm build
+      - run: pnpm test
+      - name: Build installer and ZIP
+        run: pnpm exec electron-builder --win nsis zip --x64 --publish never
+      - name: Extract actual ZIP and test changed screens
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $archive = "release/HITtheBeat-$version-win-x64.zip"
+          Expand-Archive -Path $archive -DestinationPath release/validated-zip
+          $env:HITTHEBEAT_TEST_EXECUTABLE = (Resolve-Path release/validated-zip/HITtheBeat.exe).Path
+          pnpm test:desktop tests/desktop/language.spec.ts tests/desktop/library.spec.ts tests/desktop/sharing.spec.ts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install as current user into a path with spaces and verify startup
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $installer = (Resolve-Path "release/HITtheBeat-$version-win-x64.exe").Path
+          $installPath = Join-Path $env:RUNNER_TEMP 'HITtheBeat final install'
+          $process = Start-Process -FilePath $installer -ArgumentList @('/S', "/D=$installPath") -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Installer failed: $($process.ExitCode)" }
+          $env:HITTHEBEAT_TEST_EXECUTABLE = Join-Path $installPath 'HITtheBeat.exe'
+          if (!(Test-Path $env:HITTHEBEAT_TEST_EXECUTABLE)) { throw 'Installed executable missing' }
+          pnpm test:desktop tests/desktop/shell.spec.ts
+          $testExit = $LASTEXITCODE
+          $uninstaller = Join-Path $installPath 'Uninstall HITtheBeat.exe'
+          if (!(Test-Path $uninstaller)) { throw 'Uninstaller missing' }
+          $process = Start-Process -FilePath $uninstaller -ArgumentList '/S' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Uninstaller failed: $($process.ExitCode)" }
+          if ($testExit -ne 0) { exit $testExit }
+      - name: Hash Windows downloads
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          @('exe', 'zip') | ForEach-Object {
+            $name = "HITtheBeat-$version-win-x64.$_"
+            $hash = (Get-FileHash "release/$name" -Algorithm SHA256).Hash.ToLower()
+            "$hash  $name"
+          } | Set-Content release/SHA256SUMS-WINDOWS.txt -Encoding utf8
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-release
+          path: |
+            release/HITtheBeat-*-win-x64.exe
+            release/HITtheBeat-*-win-x64.zip
+            release/SHA256SUMS-WINDOWS.txt
+          if-no-files-found: error
+      - name: Keep failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-failure-diagnostics
+          path: test-results/
+  draft:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/codex/issue-8-final-release'
+    needs: windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: windows-release
+          path: windows-release
+      - name: Prepare draft for the explicitly requested final release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v1.0.0 windows-release/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --title 'HITtheBeat 1.0.0' --notes-file docs/RELEASE-1.0.0-NOTES.md

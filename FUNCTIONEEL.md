@@ -531,3 +531,10 @@ Vervolg op 16 oktober 2026: de gebruiker geeft na de Windows-controle opdracht d
 Vastgesteld op 16 oktober 2026: taalkeuze is alleen zichtbaar in Instellingen, zonder extra keuze in de algemene interface. De bewaarde voorkeur en directe vertaling blijven werken. Deze plaatsingsafspraak vervangt de eerdere compacte taalkeuze bovenaan.
 
 In Oefeningen staat Oefening verwijderen direct naast Oefening importeren in de bovenste actiebalk. De actie verwijdert de geselecteerde oefening na de bestaande bevestiging en verwijzingscontrole. Zonder selectie, tijdens een bewerk-/toevoegformulier of tijdens verwijderen is de knop uitgeschakeld. De actiebalk mag omslaan bij een smal venster. Geen wijziging aan opslag, audio of Windows-fullscreenherstel.
+
+
+## 37. Definitieve release 1.0.0
+
+De gebruiker accepteert de interfacewijzigingen van #21 en geeft expliciet opdracht versie 1.0.0 met installers voor Mac en Windows te publiceren. Gebruik dezelfde bronversie inclusief Windows-RC2-herstel en #21: Mac Apple Silicon DMG en Windows x64 per-user NSIS-installer, met ZIP-alternatieven en SHA-256-controlegetallen. Dit vervangt voor deze uitgave de eerdere afspraak uitsluitend testreleases uit te geven. Geen zelfstandige PR-merge of verplaatsing van RC1-tag.
+
+De app blijft offline, zonder automatische updates, met dezelfde lokale appdata en schema 10. De installers bevatten geen persoonlijke media. Mac is ad-hoc ondertekend/niet genotariseerd; Windows is niet ondertekend. Windows-runner bouwt de definitieve installer; eerdere fysieke Windows-RC2-installatie-/upgradetests blijven herkenbaar afzonderlijk. Muzikale luisterkwaliteit, interactieve OS-waarschuwingen en projectlicentiekeuze blijven open; UNLICENSED wordt niet stilzwijgend gewijzigd. Publiceer als definitieve GitHub-release, niet als pre-release, na geslaagde pakketcontroles.
