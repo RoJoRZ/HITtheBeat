@@ -43,6 +43,14 @@ export function estimateTempo(samples: Float32Array, sampleRate: number): TempoE
     if (score > bestScore) { bestScore = score; bestLag = lag; }
   }
   if (bestScore < .28 || !bestLag) return unavailable;
+  // Alternating strong/weak onsets often represent subdivisions. Correct the
+  // octave only when the longer period has materially stronger repeatability;
+  // equal pulses do not justify halving a genuinely fast track.
+  const center = bestLag * 2;
+  let longer = 0;
+  for (let lag = Math.max(minLag, center - 2); lag <= Math.min(maxLag, center + 2); lag++) if (!longer || smooth[lag] > smooth[longer]) longer = lag;
+  const support = (lag: number) => { let score = 0; for (let offset = -2; offset <= 2; offset++) score += correlations[lag + offset] || 0; return score; };
+  if (longer && support(longer) > support(bestLag) * 1.1) bestLag = longer;
   const left = smooth[bestLag - 1] || 0, middle = smooth[bestLag], right = smooth[bestLag + 1] || 0;
   const offset = Math.max(-.5, Math.min(.5, .5 * (left - right) / (left - 2 * middle + right || 1)));
   const bpm = Math.round(fps * 60 / (bestLag + offset) * 10) / 10;

@@ -28,7 +28,7 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 
 ## Eerste proefversie
 
-Versie 0.0.22 biedt een **eigen bibliotheek**: MP3 of M4A met AAC importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. De app opent op Mijn oefensessies met maximaal tien recente sessie-opbouwen. Kies Starten of Bewerken; bij meer dan tien opent Alle oefensessies het volledige overzicht met zoeken. Kies ‘Oefeningen’ om MP3 of M4A met AAC toe te voegen; een lege bibliotheek wijst je hierheen. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
+Versie 0.0.23 biedt een **eigen bibliotheek**: MP3 of M4A met AAC importeren, BPM schatten en corrigeren, optionele afbeelding en opdracht toevoegen, bewaren en opnieuw openen. De app opent op Mijn oefensessies met maximaal tien recente sessie-opbouwen. Kies Starten of Bewerken; bij meer dan tien opent Alle oefensessies het volledige overzicht met zoeken. Kies ‘Oefeningen’ om MP3 of M4A met AAC toe te voegen; een lege bibliotheek wijst je hierheen. Media worden gekopieerd naar de lokale appbibliotheek. De speler ondersteunt onafhankelijk tempo (25–300%) en toonhoogte, zoeken, pauzeren en A/B-loopen.
 
 Onder **Mijn oefensessies** kun je eigen rondjes opslaan met geordende oefenblokken en per stap fragment, herhalingen en BPM. Kies per stap de volledige track, een benoemd fragment van de oefening of eigen A–B-grenzen. De geplande totale duur rekent direct mee. Met **Rondje starten** speelt de speler alle stappen en herhalingen, met evaluatie bij fragmentwissels en tussen oefeningen. Je kunt een passage vrij loopen en daarna dezelfde geplande herhaling opnieuw starten.
 
@@ -87,3 +87,6 @@ Tablatuur vergroten opent een los verplaatsbaar venster dat de actieve oefening 
 
 
 Sleep in de waveform om een audiopassage te kiezen of versleep A/B. Gebruik zoom, Toon selectie en de horizontale schuif om nauwkeurig te werken. Fragment beluisteren speelt de selectie als loop. In een sessie onderbreekt dit de geplande herhaling; Terug naar sessie hervat de bestaande opbouw. Zie [waveform en controles](docs/WAVEFORM.md).
+
+
+BPM wordt overal als geheel getal getoond; opgeslagen precisie blijft behouden. De detector beperkt bepaalde dubbele-tempo-missers bij geaccentueerde onderverdelingen. In Oefeningen → Bewerken helpen Halveer BPM en Verdubbel BPM bij een andere bedoelde tel; handmatig corrigeren en Gebruik schatting blijven beschikbaar. Zie [BPM-onderzoek en controles](docs/BPM.md).

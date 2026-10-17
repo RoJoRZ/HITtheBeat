@@ -30,7 +30,7 @@ test('audio controls load MP3 offline, validate loops, and respect keyboard focu
     expect(Number(await page.getByRole('slider', { name: 'Afspeelpositie', exact: true }).inputValue())).toBeCloseTo(stopped, 1);
     await page.getByLabel('Speeltempo BPM', { exact: true }).fill('22.5');
     await page.keyboard.press('Enter');
-    await expect(page.getByLabel('Speeltempo BPM', { exact: true })).toHaveValue('22.5');
+    await expect(page.getByLabel('Speeltempo BPM', { exact: true })).toHaveValue('23'); // New manual BPM is whole; the DSP probe still checks exact 25% playback.
     await page.getByLabel('Speeltempo BPM', { exact: true }).fill('270');
     await page.keyboard.press('Enter');
     await expect(page.getByLabel('Speeltempo BPM', { exact: true })).toHaveValue('270');

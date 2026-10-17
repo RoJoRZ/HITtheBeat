@@ -210,3 +210,8 @@ Na gebruiksgoedkeuring van v0.0.20 volgt het zelfstandige tablatuurvenster: verp
 ### Issue #4 — Waveformselectie (v0.0.22)
 
 Na gebruiksgoedkeuring van het tablatuurvenster volgt de interactieve audio-waveform: muisselectie, sleepbare A/B, horizontaal zoom/pan en looppreview met bestaande fragmentopslag/hervatting. Basis is de geaccepteerde issue-3-commit; niet zelfstandig mergen. Zie docs/WAVEFORM.md voor impact en controles. Geef ruimte voor gebruiksfeedback vóór #5 (BPM-detectie en gehele weergave).
+
+
+### Issue #5 — BPM-herkenning en gehele weergave (v0.0.23)
+
+Na gebruiksgoedkeuring van de waveformselectie: onderzoek/benchmark van halve/dubbele missers, beperkte detectorcorrectie, snelle handmatige halve/dubbele keuze en interfacebrede gehele BPM-weergave met behoud van interne precisie. Zie docs/BPM.md voor meetresultaten en controles. Basis is de geaccepteerde issue-4-commit; niet zelfstandig mergen. Geef ruimte voor feedback vóór #7 (offline oefening export/import), daarna #6 en #8.

@@ -1,0 +1,266 @@
+[
+  {
+    "name": "geaccentueerde achtsten 55",
+    "reference": 55,
+    "ambiguous": false,
+    "before": 110.1,
+    "after": 55,
+    "correct": true
+  },
+  {
+    "name": "geaccentueerde achtsten 65",
+    "reference": 65,
+    "ambiguous": false,
+    "before": 130,
+    "after": 65,
+    "correct": true
+  },
+  {
+    "name": "geaccentueerde achtsten 85",
+    "reference": 85,
+    "ambiguous": false,
+    "before": 170.2,
+    "after": 85,
+    "correct": true
+  },
+  {
+    "name": "geaccentueerde achtsten 100",
+    "reference": 100,
+    "ambiguous": false,
+    "before": 199.9,
+    "after": 100,
+    "correct": true
+  },
+  {
+    "name": "geaccentueerde achtsten 115",
+    "reference": 115,
+    "ambiguous": false,
+    "before": 230,
+    "after": 115,
+    "correct": true
+  },
+  {
+    "name": "puls 40",
+    "reference": 40,
+    "ambiguous": false,
+    "before": 40,
+    "after": 40,
+    "correct": true
+  },
+  {
+    "name": "puls 45",
+    "reference": 45,
+    "ambiguous": false,
+    "before": 45,
+    "after": 45,
+    "correct": true
+  },
+  {
+    "name": "puls 60",
+    "reference": 60,
+    "ambiguous": false,
+    "before": 60,
+    "after": 60,
+    "correct": true
+  },
+  {
+    "name": "puls 75",
+    "reference": 75,
+    "ambiguous": false,
+    "before": 75,
+    "after": 75,
+    "correct": true
+  },
+  {
+    "name": "puls 90",
+    "reference": 90,
+    "ambiguous": false,
+    "before": 90,
+    "after": 90,
+    "correct": true
+  },
+  {
+    "name": "puls 95",
+    "reference": 95,
+    "ambiguous": false,
+    "before": 95,
+    "after": 95,
+    "correct": true
+  },
+  {
+    "name": "puls 120",
+    "reference": 120,
+    "ambiguous": false,
+    "before": 119.9,
+    "after": 119.9,
+    "correct": true
+  },
+  {
+    "name": "puls 180",
+    "reference": 180,
+    "ambiguous": false,
+    "before": 180.4,
+    "after": 180.4,
+    "correct": true
+  },
+  {
+    "name": "puls 220",
+    "reference": 220,
+    "ambiguous": false,
+    "before": 220.5,
+    "after": 220.5,
+    "correct": true
+  },
+  {
+    "name": "puls 240",
+    "reference": 240,
+    "ambiguous": false,
+    "before": 239.8,
+    "after": 239.8,
+    "correct": true
+  },
+  {
+    "name": "achtsten 60",
+    "reference": 60,
+    "ambiguous": false,
+    "before": 60,
+    "after": 60,
+    "correct": true
+  },
+  {
+    "name": "achtsten 72",
+    "reference": 72,
+    "ambiguous": false,
+    "before": 72,
+    "after": 72,
+    "correct": true
+  },
+  {
+    "name": "achtsten 96",
+    "reference": 96,
+    "ambiguous": false,
+    "before": 96.1,
+    "after": 96.1,
+    "correct": true
+  },
+  {
+    "name": "achtsten 120",
+    "reference": 120,
+    "ambiguous": false,
+    "before": 119.9,
+    "after": 119.9,
+    "correct": true
+  },
+  {
+    "name": "zestienden 75",
+    "reference": 75,
+    "ambiguous": false,
+    "before": 75,
+    "after": 75,
+    "correct": true
+  },
+  {
+    "name": "zestienden 96",
+    "reference": 96,
+    "ambiguous": false,
+    "before": 96,
+    "after": 96,
+    "correct": true
+  },
+  {
+    "name": "zestienden 120",
+    "reference": 120,
+    "ambiguous": false,
+    "before": 119.9,
+    "after": 119.9,
+    "correct": true
+  },
+  {
+    "name": "swing 80",
+    "reference": 80,
+    "ambiguous": false,
+    "before": 80,
+    "after": 80,
+    "correct": true
+  },
+  {
+    "name": "swing 110",
+    "reference": 110,
+    "ambiguous": false,
+    "before": 110.1,
+    "after": 110.1,
+    "correct": true
+  },
+  {
+    "name": "swing 145",
+    "reference": 145,
+    "ambiguous": false,
+    "before": 145.1,
+    "after": 145.1,
+    "correct": true
+  },
+  {
+    "name": "muziekfrase 70",
+    "reference": 70,
+    "ambiguous": false,
+    "before": 70,
+    "after": 70,
+    "correct": true
+  },
+  {
+    "name": "muziekfrase 105",
+    "reference": 105,
+    "ambiguous": false,
+    "before": 105,
+    "after": 105,
+    "correct": true
+  },
+  {
+    "name": "muziekfrase 160",
+    "reference": 160,
+    "ambiguous": false,
+    "before": 160.1,
+    "after": 160.1,
+    "correct": true
+  },
+  {
+    "name": "muziekfrase 210",
+    "reference": 210,
+    "ambiguous": false,
+    "before": 210.1,
+    "after": 210.1,
+    "correct": true
+  },
+  {
+    "name": "accented quarter notes at 180",
+    "reference": 180,
+    "ambiguous": true,
+    "before": 180.4,
+    "after": 90,
+    "correct": false
+  },
+  {
+    "name": "same accents as eighths at 90",
+    "reference": 90,
+    "ambiguous": true,
+    "before": 180.4,
+    "after": 90,
+    "correct": true
+  },
+  {
+    "name": "sparse 180",
+    "reference": 180,
+    "ambiguous": true,
+    "before": 90,
+    "after": 90,
+    "correct": false
+  },
+  {
+    "name": "same audible pulse at 90",
+    "reference": 90,
+    "ambiguous": true,
+    "before": 90,
+    "after": 90,
+    "correct": true
+  }
+]

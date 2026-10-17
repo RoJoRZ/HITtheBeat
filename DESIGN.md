@@ -237,3 +237,10 @@ Lege/fouttoestanden benoemen Geen tablatuur bij deze oefening of Geen oefening a
 De bestaande donkere waveform krijgt een transparante Mandarijn-selectie en zichtbare A/B-labels met ruime sleepvlakken. Een lichte afspeelstreep blijft zichtbaar. Een compacte omslaande werkbalk biedt −/zoomfactor/+, Hele track, Toon selectie, Verschuiven en Fragment beluisteren. Onder het beeld staan de horizontale schuif met pijlen, zichtbare bronseconden en A/B-grenzen. De bestaande secondenvelden blijven staan. Een tekstregel benoemt slepen, verschuiven en looppreview; de onderbreek-/hervatroute blijft herkenbaar bij de speler.
 
 De selectie wordt tijdens slepen getoond en bij loslaten toegepast. Zoomen/pannen is beeldbediening en wijzigt A/B niet. Markeringen zijn afzonderlijke focusbare sliders met tijdwaarden en toetsenbediening; de waveformafbeelding blijft apart gelabeld. Focus is zichtbaar. Handmatige invoer buiten het zichtbare tijdvenster verplaatst het beeld niet onverwacht: Toon selectie brengt die grenzen terug in beeld. Metronoomweergave blijft vrij van deze audiobediening.
+
+
+## Gehele BPM-weergave en correctie — issue #5, v0.0.23
+
+Alle tempo's en BPM-aanpassingen tonen hele getallen, ook in grafiektooltip/aria, historie, schattingsknop en validatieteksten. De displayformatter verandert geen rekenwaarden of opgeslagen historie. Getalvelden tonen de afgeronde waarde; alleen bevestigde gebruikersinvoer wijzigt het tempo. Tijd, toonhoogte, dB en gebruikersinhoud behouden hun eigen notatie.
+
+Het audio-oefenformulier biedt naast de bestaande schatting/handmatige invoer twee herkenbare acties Halveer BPM en Verdubbel BPM. De uitleg noemt een mogelijke halve/dubbele tel en laat de muzikant kiezen wat bij de oefening hoort. Dit wijzigt het veld; opslaan blijft expliciet. De bestaande donker/Mandarijn-stijl en schattingswaarschuwing blijven leidend.

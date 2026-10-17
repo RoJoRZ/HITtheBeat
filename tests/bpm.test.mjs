@@ -27,3 +27,21 @@ test('silence, constant tone and insufficient audio do not fabricate a tempo', (
   assert.equal(estimateTempo(Float32Array.from({length:22050*10}, (_,i)=>.3*Math.sin(2*Math.PI*440*i/22050)), 22050).bpm, null);
   assert.equal(estimateTempo(fixture(120, { duration: 2 }), 22050).bpm, null);
 });
+
+const { rhythm, tempoCases } = await import('./tempo-fixtures.mjs');
+for(const { name, bpm, options } of tempoCases) test(`metrical regression: ${name}`,()=>{
+  const { samples,sampleRate }=rhythm(bpm,options), result=estimateTempo(samples,sampleRate);
+  assert.ok(result.bpm && Math.abs(result.bpm-bpm)<2,JSON.stringify({name,bpm,result}));
+});
+test('equal subdivisions are ambiguous: no rule may blindly halve every fast pulse',()=>{
+  for(const bpm of [160,180,210,230]) {
+    const {samples,sampleRate}=rhythm(bpm), result=estimateTempo(samples,sampleRate);
+    assert.ok(result.bpm&&Math.abs(result.bpm-bpm)<2,JSON.stringify({bpm,result}));
+  }
+});
+
+test('missing beats cannot reveal the intended meter: correction must remain available', async()=>{
+ const {ambiguousTempoCases}=await import('./tempo-fixtures.mjs');
+ const results=ambiguousTempoCases.map(({bpm,options})=>{const {samples,sampleRate}=rhythm(bpm,options);return estimateTempo(samples,sampleRate).bpm;});
+ assert.equal(results[0],results[1]); assert.equal(results[2],results[3]); assert.ok(results.every(bpm=>bpm&&Math.abs(bpm-90)<2));
+});
