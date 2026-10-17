@@ -67,7 +67,9 @@ test('session count-in persists, counts each pass at its BPM, pauses/restarts, r
     expect(session.progress.played.reduce((sum,item)=>sum+item.seconds,0)).toBeCloseTo(session.progress.times.planned,3);
     expect(session.evaluations).toHaveLength(2);expect(errors).toEqual([]);
     await page.getByRole('button',{name:'Voortgang',exact:true}).click();
-    await expect(page.getByText(/Aftellen 0:/).first()).toBeVisible();
+    // The per-session detail was removed in #27; preserve the actual time-exclusion check in the new summary.
+    const practiced = Math.round(session.progress.times.planned + session.progress.times.fragment);
+    await expect(page.getByTestId('dashboard-time')).toHaveText(`${Math.floor(practiced / 60)}:${String(practiced % 60).padStart(2, '0')}`);
   } finally {await app.close();await rm(root,{recursive:true,force:true});}
 });
 
