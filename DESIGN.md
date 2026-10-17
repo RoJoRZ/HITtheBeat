@@ -265,3 +265,8 @@ Een bescheiden Info-knop met omcirkeld i-icoon staat onderaan de zijbalk, boven 
 ## Actieplaatsing — issue #21
 
 Oefening verwijderen staat direct rechts van Oefening importeren in de bovenste bibliotheekactiebalk, vóór Oefening toevoegen. Zonder actieve selectie of tijdens formulierinvoer is verwijderen uitgeschakeld. De actiebalk kan omslaan in smalle vensters. De eerdere verwijderknop boven de oefeningdetails vervalt; bevestiging en vormgeving blijven gelijk.
+
+
+## Evaluatie vereenvoudigen — #28
+
+Het optionele notitieveld vervalt. Cijfer, tempokeuze, BPM-invoer en acties blijven in dezelfde volgorde met bestaande focus- en toetsenbediening.

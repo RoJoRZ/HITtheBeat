@@ -41,7 +41,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     const after = await page.evaluate(async () => (await window.hitthebeat!.listSessions())[0]);
     expect(after.progress.times.planned).toBeCloseTo(before.progress.times.planned, 2);
     expect(after.progress.times.pause).toBeCloseTo(before.progress.times.pause, 2);
-    await page.getByLabel('Notitie (optioneel)').fill('Eerst nog eens ontspannen.');
+    await expect(page.getByRole('textbox', { name: 'Notitie (optioneel)' })).toHaveCount(0);
     await page.getByRole('button', { name: 'Deze serie opnieuw', exact: true }).click();
     await expect(page.getByTestId('session-bpm')).toHaveText('75 BPM');
     await expect(page.getByRole('heading', { name: 'Fragmentserie afgerond', exact: true })).toBeVisible();
@@ -56,10 +56,10 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await expect(page.getByRole('heading', { name: 'Fragmentserie afgerond', exact: true })).toBeVisible();
     await page.getByLabel('Aanpassing in BPM').fill('5');
     await expect(page.getByTestId('tempo-preview')).toHaveText('75 → 80 · 95 → 100 · 85 → 90 BPM');
-    await page.getByLabel('Notitie (optioneel)').fill('Fragment A ging soepel.');
+
     await page.locator('#main').focus();
     await page.screenshot({ path: 'test-results/phase6-evaluation.png', fullPage: true });
-    await page.getByLabel('Notitie (optioneel)').press('Enter');
+    await page.getByLabel('Aanpassing in BPM').press('Enter');
     await expect(page.getByTestId('session-bpm')).toHaveText('85 BPM');
     const routines = await page.evaluate(async () => window.hitthebeat!.listRoutines());
     expect(routines.find(item => item.id === routineId)!.blocks[0].steps.map(step => step.bpm)).toEqual([80,100,90]);
@@ -82,7 +82,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await page.getByRole('button', { name: 'Voortgang', exact: true }).click();
     await expect(page.getByText('8 speelbeurten afgerond', { exact: false })).toBeVisible();
     await page.getByText('Fragmenten en evaluaties bekijken', { exact: true }).click();
-    await expect(page.getByText('Fragment A ging soepel.', { exact: true })).toBeVisible();
+    await expect(page.getByText('Beoordeling: 4/5', { exact: true })).toBeVisible();
     await page.locator('#main').focus();
     await page.screenshot({ path: 'test-results/phase6-history.png', fullPage: true });
     await app.close(); app = await launch(); page = await app.firstWindow();
@@ -92,6 +92,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     expect(saved.status).toBe('completed'); expect(saved.progress.passes).toBe(8);
     expect(saved.routine.blocks[0].steps.map(item => item.bpm)).toEqual([75,95,85]);
     expect(saved.evaluations).toHaveLength(4);
+    expect(saved.evaluations.every(item => item.note === '')).toBe(true);
     expect(saved.evaluations.map(item => item.rating)).toEqual([3,4,3,2]);
     expect(saved.evaluations.map(item => item.delta)).toEqual([0,5,0,-7]);
     expect((await page.evaluate(async () => window.hitthebeat!.listRoutines())).find(item => item.id === routineId)!.blocks[1].steps[0].bpm).toBe(113);
