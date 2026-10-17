@@ -7,5 +7,7 @@ if (process.env.GITHUB_REF_TYPE === 'tag' && process.env.GITHUB_REF_NAME !== tag
 const response = spawnSync('gh', ['api', `repos/${process.env.GITHUB_REPOSITORY}/releases/tags/${tag}`], { encoding: 'utf8' });
 if (response.status === 0) throw new Error('Release already exists; never replace a published version or reuse a draft');
 if (!/HTTP 404/.test(response.stderr)) throw new Error('Cannot verify absence of release: ' + response.stderr);
-appendFileSync(process.env.GITHUB_OUTPUT, `tag=${tag}\n`);
+const output = process.env.GITHUB_OUTPUT;
+if (!output) throw new Error('GITHUB_OUTPUT is required');
+appendFileSync(output, `tag=${tag}\n`);
 console.log(`Release candidate ${tag}, source ${process.env.GITHUB_SHA}. Full tests precede manual approval; no installers before approval.`);

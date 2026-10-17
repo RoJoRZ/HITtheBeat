@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
 const root = mkdtempSync(path.join(tmpdir(), 'hitthebeat-install-'));
+/** @param {string} command @param {string[]} args */
 const run = (command, args, env = process.env) => {
   const r = spawnSync(command, args, { stdio: 'inherit', env, windowsVerbatimArguments: process.platform === 'win32' && /\.exe$/i.test(command) });
   if (r.status !== 0) throw new Error(`${command} failed (${r.status})`);

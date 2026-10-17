@@ -2,8 +2,10 @@ import { spawnSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
+/** @param {string[]} files */
 export function selectTests(files) {
   const node = new Set(), desktop = new Set();
+  /** @param {string[]} unit @param {string[]} gui */
   const add = (unit, gui) => { unit.forEach(x => node.add(`tests/${x}.test.mjs`)); gui.forEach(x => desktop.add(`tests/desktop/${x}.spec.ts`)); };
   const executable = files.filter(f => !/\.md$|^design\//.test(f));
   if (!executable.length) return { node: [], desktop: [], build: false };
@@ -20,10 +22,13 @@ export function selectTests(files) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const result = spawnSync('git', ['diff', '--name-only', process.env.CI_BASE_SHA, 'HEAD'], { encoding: 'utf8' });
+  const base = process.env.CI_BASE_SHA;
+  if (!base) throw new Error('CI_BASE_SHA is required');
+  const result = spawnSync('git', ['diff', '--name-only', base, 'HEAD'], { encoding: 'utf8' });
   if (result.status !== 0) throw new Error(result.stderr || 'Cannot determine changed files');
   const selection = selectTests(result.stdout.trim().split(/\r?\n/).filter(Boolean));
   console.log('Risk-based selection:', JSON.stringify(selection));
+  /** @param {string[]} args */
   const run = (args) => { const p = spawnSync(process.execPath, args, { stdio: 'inherit' }); if (p.status !== 0) process.exit(p.status ?? 1); };
   if (selection.build) {
     // Direct Node entrypoints also work on Windows without shell-dependent .cmd handling.
