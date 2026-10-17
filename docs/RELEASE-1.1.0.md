@@ -38,3 +38,10 @@ Testbare Mac-ontwikkelversie (geen DMG/ZIP-installer): `release/review-1.1.0/mac
 Handmatig te bekijken: evaluatie zonder notitie, cijfer/tempo/Enter; vier dashboardperiodes, beide lijngrafieken en oefeningfilters; frequentie en 30-dagenknoppen. Oude bibliotheek/sessies blijven behouden. Automatische checks zijn geen muzikale luisteracceptatie of interactieve OS-installatiecontrole; signing/notariserings- en licentiegrenzen blijven gelijk.
 
 PR #31 is na zelfreview en groene CI op beide platformen samengevoegd; #27 en #28 zijn gesloten. Run 39019236877: per platform build/typecheck, 20 gerichte Node-tests en 14 desktoptests. De Mac-ontwikkelapp 1.1.0 is gebouwd als appdirectory, lokaal ad-hoc ondertekend en met de geisoleerde shell/start/herstarttest gecontroleerd. Geen nieuwe DMG/EXE/ZIP gebouwd of gepubliceerd. Volledige regressie en handmatige eindcontrole volgen op de vaste releasebron.
+
+
+### Herstel bij releasecontrole: live contextvertaling (#27)
+
+De eerste regressierun 39019598374 op e1dd190 is geannuleerd voor een gevonden taalwisselrandgeval: memoized contextlabels bleven in de oude taal. De gerichte dashboardtest reproduceert dit (Full track ontbrak na NL/EN-wissel). Aggregatiecache neemt nu de taal mee als dependency; periode en filters blijven behouden. #27 is voor dit herstel tijdelijk heropend; een afzonderlijke PR sluit het na gerichte controle opnieuw. Geen test verwijderd of fout genegeerd. De gewijzigde releasebron vereist opnieuw de volledige native regressie en daarna menselijke eindcontrole. De eerder gebouwde ontwikkelapp wordt vervangen door dezelfde versie met deze correctie; er is nog geen release of installer gepubliceerd.
+
+Gericht herstelbewijs op Mac: build/typecheck, 13 progress/language Node-tests en de dashboardtest geslaagd, inclusief toetsenbordfilter en live contextvertaling zonder periode-/filterverlies. De test faalde aantoonbaar op de oorspronkelijke bron en slaagt na de cachecorrectie.
