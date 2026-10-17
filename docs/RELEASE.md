@@ -1,40 +1,28 @@
-# HITtheBeat 1.0.0 — installatie en releaseproces
+# HITtheBeat - installatie en releaseproces
 
-[Definitieve release v1.0.0](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.0.0). De gebruiker heeft publicatie expliciet opgedragen na acceptatie van Windows-herstel en de interfaceaanpassingen. Bron: `codex/issue-8-final-release`, inclusief Windows-RC2 en #21. De goedgekeurde wijzigingen zijn naar main samengevoegd; de releasetag blijft het precieze bronpunt van de gepubliceerde downloads.
+Kies de gewenste uitgave op [GitHub Releases](https://github.com/RoJoRZ/HITtheBeat/releases). Gebruik de tag en downloadbestanden van dezelfde versie. De releasetag legt de precieze bron vast; main kan al latere ontwikkeling bevatten. De oorspronkelijke [1.0.0](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.0.0) blijft ongewijzigd; het historische verslag staat in RELEASE-1.0.0-NOTES.md. Voor wijzigingen en controles van 1.1.0: RELEASE-1.1.0.md.
 
 ## Downloads
 
+Vervang `<versie>` door de versie van de gekozen GitHub-release.
+
 | Bestand | Platform / installatie |
 | --- | --- |
-| HITtheBeat-1.0.0-mac-arm64.dmg | Mac Apple Silicon: open de schijfkopie, sleep HITtheBeat naar Programma's, koppel de schijfkopie los. Geen Rosetta nodig. |
-| HITtheBeat-1.0.0-mac-arm64.zip | Mac-alternatief: volledig uitpakken en HITtheBeat.app naar Programma's verplaatsen. |
-| HITtheBeat-1.0.0-win-x64.exe | Windows x64: per gebruiker installeren, eigen installatiemap mogelijk. |
-| HITtheBeat-1.0.0-win-x64.zip | Windows-alternatief: volledige map uitpakken en HITtheBeat.exe daarin starten. |
+| HITtheBeat-<versie>-mac-arm64.dmg | Mac Apple Silicon: open de schijfkopie, sleep HITtheBeat naar Programma's, koppel de schijfkopie los. Geen Rosetta nodig. |
+| HITtheBeat-<versie>-mac-arm64.zip | Mac-alternatief: volledig uitpakken en HITtheBeat.app naar Programma's verplaatsen. |
+| HITtheBeat-<versie>-win-x64.exe | Windows x64: per gebruiker installeren, eigen installatiemap mogelijk. |
+| HITtheBeat-<versie>-win-x64.zip | Windows-alternatief: volledige map uitpakken en HITtheBeat.exe daarin starten. |
 | SHA256SUMS.txt | SHA-256 van alle vier downloads. |
 
 Mac is ad-hoc ondertekend/niet genotariseerd; Windows is niet ondertekend. OS-waarschuwingen kunnen voorkomen. Beveiliging niet algemeen uitschakelen. Geen Intel Mac-/Windows ARM-build. De ZIP is geen aparte draagbare bibliotheekmodus.
 
-Sluit een bestaande app vóór installatie/vervanging en maak vooraf een reservekopie van de eigen appdatamap. Mac: `~/Library/Application Support/HITtheBeat`; Windows: `%APPDATA%\HITtheBeat`. De bibliotheek staat daaronder in `library` en is geen onderdeel van de download/installatiemap. Instellingen bevat Bibliotheekmap openen. Zonder expliciet testargument blijft dezelfde appId/productName/userData in gebruik; geen nieuwe opslagmigratie. Deïnstallatie wist de bibliotheek niet. Oude apps openen op nieuwere gegevens is geen ondersteunde rollback: herstel zo nodig een vooraf gemaakte kopie.
+Sluit een bestaande app voor installatie/vervanging en maak vooraf een reservekopie van de eigen appdatamap. Mac: `~/Library/Application Support/HITtheBeat`; Windows: `%APPDATA%\HITtheBeat`. De bibliotheek staat daaronder in `library` en is geen onderdeel van de download/installatiemap. Instellingen bevat Bibliotheekmap openen. Dezelfde appId/productName/userData blijft in gebruik. Deinstallatie wist de bibliotheek niet. Oude apps openen op nieuwere gegevens is geen ondersteunde rollback: herstel zo nodig een vooraf gemaakte kopie.
 
-Controle: `shasum -a 256 <bestand>` op Mac, `Get-FileHash <bestand> -Algorithm SHA256` in PowerShell. Vergelijk de exacte bestandsnaam met SHA256SUMS.txt. Hashes verifiëren de bytes, geen uitgeversidentiteit.
+Controle: `shasum -a 256 <bestand>` op Mac, `Get-FileHash <bestand> -Algorithm SHA256` in PowerShell. Vergelijk de exacte bestandsnaam met SHA256SUMS.txt. Hashes verifieren de bytes, geen uitgeversidentiteit.
 
 ## Bron en bouwen
 
-Gebruik voor de definitieve versie tag `v1.0.0`. De hoofdbranch bevat de geaccepteerde appbron en latere workflow-/documentatieafronding. Node 24 en pnpm 11.25.0, frozen lockfile.
-
-```sh
-git checkout v1.0.0
-pnpm install --frozen-lockfile
-pnpm setup:desktop
-pnpm build
-pnpm test
-# Op Mac Apple Silicon:
-pnpm package:mac
-# Op Windows x64:
-pnpm package:win
-# Na verzamelen van alle vier definitieve bestanden:
-node scripts/release-checksums.mjs
-```
+Gebruik voor een gepubliceerde versie de bijbehorende `v<versie>`-tag. Node 24 en pnpm 11.25.0, frozen lockfile. Voor lokale ontwikkeling: `pnpm install --frozen-lockfile`, `pnpm setup:desktop`, `pnpm build`, daarna `pnpm start`. Gerichte tests volgen de geraakte functie; de volledige regressie hoort bij de releaseketen hieronder. Nieuwe release-installers niet lokaal vooruit bouwen voordat de gebruiker de vaste bron heeft goedgekeurd.
 
 ## Pipeline en publicatie
 

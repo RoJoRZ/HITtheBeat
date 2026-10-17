@@ -124,3 +124,8 @@ De gebruiker heeft de werkwijze inclusief zelfstandige PR-merges en testcuratie 
 Wacht op expliciet akkoord van de gebruiker. Stilte of tijdsverloop is geen akkoord. Laat een push, tag, merge of automatisch proces deze stap niet omzeilen; de toekomstige CI moet het handmatige akkoord tussen regressie en installerjobs afdwingen. Na akkoord mag de agent de goedgekeurde bron automatisch verpakken, de pakketten gericht controleren en de release publiceren zonder een tweede routinematige toestemmingsvraag. Sluit de releasemilestone pas na geslaagde publicatie en administratieve controle.
 
 Bij een relevante codewijziging na eindcontrole: valideer de gewijzigde bron opnieuw en leg die opnieuw ter handmatige eindcontrole voor vóór de nieuwe installerbuilds. Bij een ongewijzigde bron is een technische herhaling van een mislukte packagingjob toegestaan; dat vraagt geen nieuwe goedkeuring of volledige regressie. Een mislukte pakketcontrole blokkeert publicatie. Milestone 1 is afgerond; PR #26 heeft de beschreven CI-scheiding en verplichte handmatige gate inmiddels geïmplementeerd.
+
+
+## Release 1.1.0 - gestart op 17 oktober 2026
+
+De gebruiker heeft opdracht gegeven milestone Release 1.1.0 met de actieve werkwijze te verwerken. Scope is #28 en #27. Beide zijn na gerichte tests en zelfreview samengevoegd (PR #30/#31) en gesloten; CI is groen op Mac en Windows. packageversie 1.1.0 is de voorgestelde releasebron. Zie docs/RELEASE-1.1.0.md voor de testmatrix, resultaten en Mac-ontwikkelapp. Start de volledige release-regressie op de vaste bron en wacht daarna op de verplichte menselijke eindcontrole in release-approval; bouw/publiceer nog geen nieuwe installers en keur die gate niet namens de gebruiker goed. Sluit milestone 2 pas na geslaagde publicatie.
