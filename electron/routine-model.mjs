@@ -1,11 +1,12 @@
-/** @typedef {{id:string, repetitions:number, bpm:number, start:number|null, end:number|null,fragmentId?:string,fragmentName?:string}} RoutineStep */
+import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
+/** @typedef {{id:string, repetitions:number, bpm:number, start:number|null, end:number|null,fragmentId?:string,fragmentName?:string,bars?:number}} RoutineStep */
 /** @typedef {{id:string, exerciseId:string, steps:RoutineStep[]}} RoutineBlock */
 /** @typedef {{id?:string, title:string, blocks:RoutineBlock[]}} RoutineInput */
-/** @typedef {{id:string, bpm:number, duration:number}} SourceExercise */
+/** @typedef {{id:string, bpm:number, duration:number,kind?:string,meter?:string,bars?:number}} SourceExercise */
 
 /** @param {RoutineStep} step @param {SourceExercise} exercise */
 export function plannedSeconds(step, exercise) {
-  return ((step.start === null ? exercise.duration : (step.end ?? exercise.duration) - step.start) * step.repetitions * exercise.bpm / step.bpm);
+  return ((step.start === null ? sourceSeconds(step, exercise) : (step.end ?? exercise.duration) - step.start) * step.repetitions * exercise.bpm / step.bpm);
 }
 
 /** Validate on both sides of IPC. No renderer-supplied duration is trusted.
@@ -27,12 +28,16 @@ export function validateRoutine(input, exercises) {
     const steps = block.steps.map(step => {
       const stepId = identity(step.id);
       if (!Number.isInteger(step.repetitions) || step.repetitions < 1 || step.repetitions > 99) throw new Error('Kies 1 tot 99 herhalingen per stap.');
-      if (!Number.isFinite(step.bpm) || step.bpm < exercise.bpm * .25 - 1e-9 || step.bpm > exercise.bpm * 3 + 1e-9) throw new Error(`Kies een tempo van 25–300% van het originele BPM (${exercise.bpm}).`);
+      if (!validTempo(step.bpm, exercise)) throw new Error(isMetronome(exercise) ? 'Kies een tempo van 20–300 BPM.' : `Kies een tempo van 25–300% van het originele BPM (${exercise.bpm}).`);
+      if (isMetronome(exercise)) {
+        sourceSeconds(step, exercise);
+        if (step.start !== null || step.end !== null || step.fragmentId !== undefined) throw new Error('Een metronoomstap gebruikt maten, geen audiofragment.');
+      } else if (step.bars !== undefined) throw new Error('Maten zijn alleen voor metronoom-oefeningen.');
       if (step.start !== null || step.end !== null) {
         if (typeof step.start !== 'number' || typeof step.end !== 'number' || !Number.isFinite(step.start) || !Number.isFinite(step.end) || step.start < 0 || step.end > exercise.duration || step.end - step.start < .1 - 1e-9) throw new Error('Kies een fragment binnen de track, met A vóór B en minstens 0,1 seconde duur.');
       }
       if (step.fragmentId !== undefined && (typeof step.fragmentId !== 'string' || !uuid.test(step.fragmentId) || typeof step.fragmentName !== 'string' || !step.fragmentName.trim() || step.fragmentName.length > 160 || step.fragmentName.includes('\0') || step.start === null)) throw new Error('Controleer het benoemde fragment.');
-      return { ...(step.fragmentId ? { fragmentId: step.fragmentId, fragmentName: step.fragmentName } : {}), id: stepId, repetitions: step.repetitions, bpm: step.bpm, start: step.start, end: step.end };
+      return { ...(isMetronome(exercise) && step.bars !== undefined ? { bars: step.bars } : {}), ...(step.fragmentId ? { fragmentId: step.fragmentId, fragmentName: step.fragmentName } : {}), id: stepId, repetitions: step.repetitions, bpm: step.bpm, start: step.start, end: step.end };
     });
     return { id, exerciseId: exercise.id, steps };
   });

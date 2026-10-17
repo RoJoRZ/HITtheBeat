@@ -1,3 +1,4 @@
+import { isMetronome, exerciseBars, sourceSeconds } from '../../electron/exercise-model.mjs';
 /** @typedef {import('./types').SessionRecord} Session */
 /** @typedef {'week'|'month'|'all'} Period */
 /** @param {Date|string} value @param {string} timeZone */
@@ -24,7 +25,7 @@ export function buildDashboard(sessions, { period = 'week', now = new Date(), ti
   const activityFrom = period === 'all' ? shiftDay(today, -27) : from;
   const days = [];
   for (let day = activityFrom; day <= today; day = shiftDay(day, 1)) days.push({ day, seconds: dayTotals.get(day) ?? 0 });
-  /** @type {Map<string, {key:string,routine:string,exercise:string,part:string,mode:string,pitch:number,originalBpm:number,sourceDuration:number,block:number,points:{sessionId:string,date:string,day:string,bpm:number,completed:number,seconds:number,status:Session['status'],rating:number|undefined,note:string,action:string,delta:number}[]}>} */
+  /** @type {Map<string, {key:string,routine:string,exercise:string,part:string,kind:string,mode:string,pitch:number,originalBpm:number,sourceDuration:number,block:number,points:{sessionId:string,date:string,day:string,bpm:number,completed:number,seconds:number,status:Session['status'],rating:number|undefined,note:string,action:string,delta:number}[]}>} */
   const groups = new Map();
   for (const session of [...practiced].reverse()) {
     /** @type {Map<string, {bpm:number,completed:number,seconds:number,steps:Set<number>}>} */
@@ -36,11 +37,11 @@ export function buildDashboard(sessions, { period = 'week', now = new Date(), ti
       const step = block.steps[played.step];
       // Planned boundaries come from the immutable selection, avoiding decoder-duration drift.
       const a = played.mode === 'planned' ? step.start ?? 0 : played.a;
-      const b = played.mode === 'planned' ? step.end ?? source.duration : played.b;
-      const full = a === 0 && b === source.duration;
-      const key = JSON.stringify([session.routine.id, block.id, source.id, source.bpm, source.duration, full ? 'full' : [a, b], played.mode, played.pitch]);
-      const part = full ? 'Volledige track' : `${played.mode === 'planned' && step.fragmentName ? `${step.fragmentName} · ` : 'Fragment '}${a}–${b} s`;
-      const group = groups.get(key) ?? { key, routine: session.routine.title, exercise: source.title, part, mode: played.mode, pitch: played.pitch, originalBpm: source.bpm, sourceDuration: source.duration, block: played.block + 1, points: [] };
+      const b = played.mode === 'planned' ? step.end ?? sourceSeconds(step, source) : played.b;
+      const full = a === 0 && b === sourceSeconds(step, source);
+      const key = JSON.stringify([session.routine.id, block.id, source.id, source.bpm, source.duration, isMetronome(source) ? [source.kind, source.meter, exerciseBars(step, source)] : full ? 'full' : [a, b], played.mode, played.pitch]);
+      const part = isMetronome(source) ? `Metronoom ${source.meter} · ${exerciseBars(step, source)} maten` : full ? 'Volledige track' : `${played.mode === 'planned' && step.fragmentName ? `${step.fragmentName} · ` : 'Fragment '}${a}–${b} s`;
+      const group = groups.get(key) ?? { key, routine: session.routine.title, exercise: source.title, part, kind: source.kind ?? 'audio', mode: played.mode, pitch: played.pitch, originalBpm: source.bpm, sourceDuration: source.duration, block: played.block + 1, points: [] };
       group.routine = session.routine.title; group.exercise = source.title; group.part = part;
       groups.set(key, group);
       // An unfinished planned pass contributes practice time, but no completed-pass BPM point.

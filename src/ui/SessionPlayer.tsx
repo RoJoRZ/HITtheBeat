@@ -1,3 +1,6 @@
+import { isMetronome, exerciseBars, validTempo, meterBeats } from '../../electron/exercise-model.mjs';
+import { MetronomeEngine } from '../audio/metronome';
+type PlayerEngine = AudioEngine | MetronomeEngine;
 import { outputVolume, useOutput } from '../audio/output-volume';
 import { SessionReview } from './SessionReview';
 import { SaveCurrentFragment } from './FragmentControls';
@@ -33,7 +36,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   const { routine, exercises } = session;
   const output = useOutput();
   const [run, setRun] = useState(() => createRun(routine, exercises));
-  const state = useRef(run), audioRef = useRef<AudioEngine | null>(null), assetId = useRef('');
+  const state = useRef(run), audioRef = useRef<PlayerEngine | null>(null), assetId = useRef('');
   const activeRef = useRef(active); activeRef.current = active;
   const generation = useRef(0), locked = useRef(true), alive = useRef(true);
   const [busy, setBusy] = useState(true), [error, setError] = useState(''), [loaded, setLoaded] = useState(false);
@@ -41,7 +44,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   const [free, setFree] = useState<Free>({ a: 0, b: 1, bpm: 90, pitch: 0, loop: true });
   const freeRef = useRef(free), [freePlaying, setFreePlaying] = useState(false);
   const totals = useRef<Totals>({ planned: 0, fragment: 0, pause: 0 }), [times, setTimes] = useState(totals.current);
-  const last = useRef<{ audio: AudioEngine; clock: number; bucket: keyof Totals | null; remaining: number; settings: Omit<Played, 'seconds'|'completed'> } | null>(null);
+  const last = useRef<{ audio: PlayerEngine; clock: number; bucket: keyof Totals | null; remaining: number; settings: Omit<Played, 'seconds'|'completed'> } | null>(null);
   const played = useRef<Played[]>([]), sequence = useRef(0), saving = useRef<Promise<unknown>>(Promise.resolve());
   const [reviewError, setReviewError] = useState('');
   const [saveError, setSaveError] = useState(''), [evaluations, setEvaluations] = useState<Evaluation[]>([]);
@@ -56,7 +59,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
     if (!item) { item = { ...settings, seconds: 0, completed: 0 }; played.current.push(item); }
     return item;
   }
-  function settings(snapshot: Run, audio: AudioEngine): Omit<Played, 'seconds'|'completed'> {
+  function settings(snapshot: Run, audio: PlayerEngine): Omit<Played, 'seconds'|'completed'> {
     const selection = current(snapshot), isFree = snapshot.phase === 'fragment';
     return { mode: isFree ? 'fragment' : 'planned', block: snapshot.block, step: snapshot.step, a: isFree ? freeRef.current.loop ? freeRef.current.a : 0 : selection.step.start ?? 0, b: isFree ? freeRef.current.loop ? freeRef.current.b : selection.exercise.duration : selection.step.end ?? selection.exercise.duration, bpm: isFree ? freeRef.current.bpm : selection.step.bpm, pitch: isFree ? freeRef.current.pitch : 0 };
   }
@@ -112,16 +115,20 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
       measure(); await audioRef.current?.pause(); measure();
       if (!alive.current || token !== generation.current) return;
       let audio = audioRef.current;
-      if (!audio || assetId.current !== selected.block.id || !loaded) {
-        audio?.dispose(); audio = new AudioEngine(); audio.setVolume(outputVolume()); audioRef.current = audio; assetId.current = ''; setLoaded(false); setWave([]);
-        const bytes = await window.hitthebeat!.readAudio(selected.exercise.id);
-        if (!alive.current || token !== generation.current) return;
-        const buffer = await audio.load(new Uint8Array(bytes.bytes).buffer, selected.exercise.normalizeAudio !== false ? selected.exercise.normalizationDb ?? null : null);
-        if (!alive.current || token !== generation.current) return;
-        const data = buffer.getChannelData(0);
-        const peaks = Array.from({ length: 220 }, (_, index) => { let peak = 0; for (let i = Math.floor(index * data.length / 220); i < Math.floor((index + 1) * data.length / 220); i++) peak = Math.max(peak, Math.abs(data[i])); return peak; });
-        const maximum = Math.max(.001, ...peaks); setWave(peaks.map(value => value / maximum));
-        assetId.current = selected.block.id; setLoaded(true);
+      if (!audio || assetId.current !== `${selected.block.id}:${isMetronome(selected.exercise) ? selected.exercise.duration : ''}` || !loaded) {
+        if (isMetronome(selected.exercise)) {
+          audio?.dispose(); audio = new MetronomeEngine(selected.exercise.duration, selected.exercise.meter ?? '4/4', selected.exercise.bpm); audio.setVolume(outputVolume()); audioRef.current = audio; setWave([]);
+        } else {
+          audio?.dispose(); audio = new AudioEngine(); audio.setVolume(outputVolume()); audioRef.current = audio; assetId.current = ''; setLoaded(false); setWave([]);
+          const bytes = await window.hitthebeat!.readAudio(selected.exercise.id);
+          if (!alive.current || token !== generation.current) return;
+          const buffer = await audio.load(new Uint8Array(bytes.bytes).buffer, selected.exercise.normalizeAudio !== false ? selected.exercise.normalizationDb ?? null : null);
+          if (!alive.current || token !== generation.current) return;
+          const data = buffer.getChannelData(0);
+          const peaks = Array.from({ length: 220 }, (_, index) => { let peak = 0; for (let i = Math.floor(index * data.length / 220); i < Math.floor((index + 1) * data.length / 220); i++) peak = Math.max(peak, Math.abs(data[i])); return peak; });
+          const maximum = Math.max(.001, ...peaks); setWave(peaks.map(value => value / maximum));
+        }
+        assetId.current = `${selected.block.id}:${isMetronome(selected.exercise) ? selected.exercise.duration : ''}`; setLoaded(true);
       }
       await audio.playSegment(selected.step.start ?? 0, selected.step.end ?? audio.duration, selected.step.bpm / selected.exercise.bpm, 0, snapshot.phase === 'playing');
       if (!alive.current || token !== generation.current) return;
@@ -133,7 +140,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
     }).finally(() => { if (alive.current && token === generation.current) { locked.current = false; setBusy(false); } });
   }, [run.revision]);
 
-  async function operate(task: (audio: AudioEngine) => Promise<void>) {
+  async function operate(task: (audio: PlayerEngine) => Promise<void>) {
     const audio = audioRef.current; if (locked.current || !audio || !loaded) return;
     const token = generation.current, revision = state.current.revision;
     locked.current = true; setBusy(true); setError('');
@@ -204,7 +211,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   const previousDelta = evaluations.filter(item => item.block === run.block).reduce((sum, item) => sum + item.delta, 0);
   const adjustment = choice === 'faster' ? delta : choice === 'slower' ? -delta : 0;
   const preview = block.steps.map(item => ({ before: item.bpm + previousDelta, after: item.bpm + previousDelta + adjustment }));
-  const invalidAdjustment = choice !== 'same' && (!Number.isFinite(delta) || delta <= 0 || delta > 1000 || preview.some(item => item.after < exercise.bpm * .25 || item.after > exercise.bpm * 3));
+  const invalidAdjustment = choice !== 'same' && (!Number.isFinite(delta) || delta <= 0 || delta > 1000 || preview.some(item => !validTempo(item.after, exercise)));
   const a = isFree ? free.a : step.start ?? 0, b = isFree ? free.b : step.end ?? exercise.duration;
   const field = (label: string, value: number, change: (value: number) => void, increment = 1) => <NumberField label={label} value={value} change={change} step={increment} disabled={busy || !active} />;
   return <div className="screen-stack session-player">
@@ -214,13 +221,13 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
     {saveError && <div role="alert" className="error"><p>Bewaren is niet gelukt: {saveError}</p><button className="secondary" disabled={busy} onClick={() => { void persist(complete ? run.statuses.includes('skipped') ? 'partial' : 'completed' : 'running').then(() => { if (complete) finished(); }).catch(() => {}); }}>Opnieuw bewaren</button></div>}
     {error && <div role="alert" className="error"><p>{error}</p><button className="secondary" onClick={() => commit({ ...state.current, phase: 'paused', revision: state.current.revision + 1 })}>Audio opnieuw laden</button><button className="text-button" onClick={leave}>Terug naar sessies</button></div>}
     {complete ? <section className="panel"><h2>{run.statuses.includes('skipped') ? 'Sessie beëindigd' : 'Sessie afgerond'}</h2><p>{run.passes} speelbeurten afgerond. {run.statuses.filter(value => value === 'skipped').length} oefeningen overgeslagen.</p><p>{busy ? 'Resultaten bewaren…' : saveError ? 'Bewaar je resultaten voordat je dit scherm verlaat.' : 'Je resultaten zijn bewaard bij Voortgang.'}</p><button className="primary" disabled={busy || Boolean(saveError)} onClick={leave}>Terug naar mijn sessies</button></section> : <><h2 className="session-exercise-title">{exercise.title}</h2><Notation item={exercise} />
-    {review ? <section className="panel session-review"><h2>{lastSeries ? 'Oefening afgerond' : 'Fragmentserie afgerond'}</h2><p>{exercise.title} · Stappen {range.start + 1}–{range.end + 1} · {step.start === null ? 'Volledige track' : `${step.fragmentName ? `${step.fragmentName} · ` : 'Fragment '}${step.start}–${step.end} seconden`}</p><SessionReview disabled={busy || !active} choice={choice} setChoice={setChoice} delta={delta} setDelta={setDelta} rating={rating} setRating={setRating} note={note} setNote={setNote} preview={preview.map(item => `${item.before} → ${Number.isFinite(item.after) ? item.after : '—'}`).join(' · ')} invalid={invalidAdjustment} submit={action => void evaluate(action)} nextLabel={!lastSeries ? 'Verder met volgende fragment' : run.block + 1 === routine.blocks.length ? 'Sessie afronden' : 'Verder met volgende oefening'} /></section> : <section className="audio-lab audio-embedded" aria-label="Sessiespeler"><div className="player-card" aria-busy={busy}>
+    {review ? <section className="panel session-review"><h2>{lastSeries ? 'Oefening afgerond' : 'Fragmentserie afgerond'}</h2><p>{exercise.title} · Stappen {range.start + 1}–{range.end + 1} · {isMetronome(exercise) ? `Metronoom ${exercise.meter} · ${exerciseBars(step, exercise)} maten` : step.start === null ? 'Volledige track' : `${step.fragmentName ? `${step.fragmentName} · ` : 'Fragment '}${step.start}–${step.end} seconden`}</p><SessionReview tempoRule={isMetronome(exercise) ? '20–300 BPM' : undefined} disabled={busy || !active} choice={choice} setChoice={setChoice} delta={delta} setDelta={setDelta} rating={rating} setRating={setRating} note={note} setNote={setNote} preview={preview.map(item => `${item.before} → ${Number.isFinite(item.after) ? item.after : '—'}`).join(' · ')} invalid={invalidAdjustment} submit={action => void evaluate(action)} nextLabel={!lastSeries ? 'Verder met volgende fragment' : run.block + 1 === routine.blocks.length ? 'Sessie afronden' : 'Verder met volgende oefening'} /></section> : <section className="audio-lab audio-embedded" aria-label="Sessiespeler"><div className="player-card" aria-busy={busy}>
       <div className="session-pass"><strong>{isFree ? 'Vrij fragment oefenen' : `Stap ${run.step + 1} van ${block.steps.length} · Herhaling ${run.repetition + 1} van ${step.repetitions}`}</strong><span data-testid="session-bpm">{isFree ? free.bpm : step.bpm} BPM</span></div>
-      {!isFree && <p className="caption" data-testid="planned-settings">{step.start === null ? 'Volledige track' : `${step.fragmentName ? `${step.fragmentName} · ` : 'Fragment '}${step.start}–${step.end} seconden`} · Toonhoogte origineel</p>}
+      {!isFree && <p className="caption" data-testid="planned-settings">{isMetronome(exercise) ? `Metronoom ${exercise.meter} · ${exerciseBars(step, exercise)} maten` : step.start === null ? 'Volledige track' : `${step.fragmentName ? `${step.fragmentName} · ` : 'Fragment '}${step.start}–${step.end} seconden`}{!isMetronome(exercise) && ' · Toonhoogte origineel'}</p>}
       <p className="caption">{busy ? 'Audio voorbereiden…' : isFree ? 'Je plek in de sessie blijft bewaard. Vrije loops tellen niet mee als herhalingen.' : 'De volgende herhaling en stap beginnen automatisch.'}</p>
-      <svg className="waveform" viewBox="0 0 880 140" role="img" aria-label="Golfvorm van de oefening" preserveAspectRatio="none"><rect x={a / exercise.duration * 880} y="0" width={(b - a) / exercise.duration * 880} height="140" fill="currentColor" opacity=".12" />{wave.map((peak, index) => <line key={index} x1={index * 4 + 2} x2={index * 4 + 2} y1={70 - Math.max(2, peak * 60)} y2={70 + Math.max(2, peak * 60)} stroke="currentColor" strokeWidth="2" opacity={index / 220 * exercise.duration <= position ? 1 : .38} />)}<line x1={position / exercise.duration * 880} x2={position / exercise.duration * 880} y1="0" y2="140" stroke="#f2f4f6" /></svg>
-      <div className="time-row"><span>{durationLabel(position)} / {durationLabel(exercise.duration)}</span><span>Resterend sessie: <strong data-testid="session-remaining">{durationLabel(remainingSeconds(run, position))}</strong></span></div>
-      <div className="session-transport"><button className="secondary" aria-label="Terug naar begin van de herhaling" disabled={busy || !loaded || !active} onClick={() => void restart()}><RotateCcw size={20} /></button><button className="primary play-button" disabled={busy || !loaded || !active} onClick={() => void toggle()}>{(isFree ? freePlaying : run.phase === 'playing') ? <Pause size={22} /> : <Play size={22} />}{(isFree ? freePlaying : run.phase === 'playing') ? 'Pauzeren' : 'Afspelen'}</button>{isFree ? <button className="secondary" disabled={busy || !active} onClick={() => void returnToRound()}>Terug naar sessie</button> : <><button className="secondary" disabled={busy || !loaded || !active} onClick={() => void enterFragment()}>Fragment oefenen</button><button className="text-button" disabled={busy || !active} onClick={() => move('skip')}>Oefening overslaan</button></>}</div>
+      {isMetronome(exercise) ? <p className="metronome-display" role="status">Metronoom · {exercise.meter} · {exerciseBars(step, exercise)} maten · BPM per kwartnoot · Tel {Math.min(meterBeats(exercise.meter ?? '4/4'), Math.floor(position / (60 / exercise.bpm * (exercise.meter === '6/8' ? .5 : 1))) % meterBeats(exercise.meter ?? '4/4') + 1)}</p> : <svg className="waveform" viewBox="0 0 880 140" role="img" aria-label="Golfvorm van de oefening" preserveAspectRatio="none"><rect x={a / exercise.duration * 880} y="0" width={(b - a) / exercise.duration * 880} height="140" fill="currentColor" opacity=".12" />{wave.map((peak, index) => <line key={index} x1={index * 4 + 2} x2={index * 4 + 2} y1={70 - Math.max(2, peak * 60)} y2={70 + Math.max(2, peak * 60)} stroke="currentColor" strokeWidth="2" opacity={index / 220 * exercise.duration <= position ? 1 : .38} />)}<line x1={position / exercise.duration * 880} x2={position / exercise.duration * 880} y1="0" y2="140" stroke="#f2f4f6" /></svg>}
+      <div className="time-row"><span>{durationLabel(position * (isMetronome(exercise) ? exercise.bpm / step.bpm : 1))} / {durationLabel(exercise.duration * (isMetronome(exercise) ? exercise.bpm / step.bpm : 1))}</span><span>Resterend sessie: <strong data-testid="session-remaining">{durationLabel(remainingSeconds(run, position))}</strong></span></div>
+      <div className="session-transport"><button className="secondary" aria-label="Terug naar begin van de herhaling" disabled={busy || !loaded || !active} onClick={() => void restart()}><RotateCcw size={20} /></button><button className="primary play-button" disabled={busy || !loaded || !active} onClick={() => void toggle()}>{(isFree ? freePlaying : run.phase === 'playing') ? <Pause size={22} /> : <Play size={22} />}{(isFree ? freePlaying : run.phase === 'playing') ? 'Pauzeren' : 'Afspelen'}</button>{isFree ? <button className="secondary" disabled={busy || !active} onClick={() => void returnToRound()}>Terug naar sessie</button> : <><button className="secondary" disabled={busy || !loaded || !active || isMetronome(exercise)} onClick={() => { if (!isMetronome(exercise)) void enterFragment(); }}>Fragment oefenen</button><button className="text-button" disabled={busy || !active} onClick={() => move('skip')}>Oefening overslaan</button></>}</div>
       <VolumeControl />
       {isFree && <><div className="audio-settings">{field('Speeltempo BPM', free.bpm, bpm => freeSettings({ bpm }))}{field('Toonhoogte (halve tonen)', free.pitch, pitch => freeSettings({ pitch }))}<button className="secondary" aria-pressed={free.loop} onClick={() => freeSettings({ loop: !free.loop })} disabled={busy}>Loop</button></div><div className="loop-settings">{field('Begin A (seconden)', free.a, a => freeSettings({ a }), .1)}<button className="secondary" disabled={busy} onClick={() => freeSettings({ a: position })}>A hier</button>{field('Einde B (seconden)', free.b, b => freeSettings({ b }), .1)}<button className="secondary" disabled={busy} onClick={() => freeSettings({ b: position })}>B hier</button></div><SaveCurrentFragment exerciseId={exercise.id} start={free.a} end={Math.min(free.b, exercise.duration)} disabled={busy || !active} /></>}
     </div></section>}</>}

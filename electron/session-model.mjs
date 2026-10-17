@@ -1,3 +1,4 @@
+import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
 /** @typedef {{mode:'planned'|'fragment', block:number, step:number, a:number, b:number, bpm:number, pitch:number, seconds:number, completed:number}} Played */
 /** @typedef {{seq:number, block:number, step:number, repetition:number, phase:string, passes:number, statuses:string[], times:{planned:number,fragment:number,pause:number}, played:Played[]}} Progress */
 /** @typedef {{id:string,block:number,fromStep:number,toStep:number,action:'repeat'|'same'|'faster'|'slower',delta:number,note:string,rating?:number}} Evaluation */
@@ -21,9 +22,10 @@ export function validateProgress(input, snapshot) {
   const played = input.played.map(item => {
     if (!item || !['planned','fragment'].includes(item.mode) || !integer(item.block, snapshot.routine.blocks.length - 1)) return fail();
     const sourceBlock = snapshot.routine.blocks[item.block], source = snapshot.exercises.find(exercise => exercise.id === sourceBlock.exerciseId);
-    if (!source || !integer(item.step, sourceBlock.steps.length - 1) || !seconds(item.seconds) || !integer(item.completed, 1000000) || !Number.isFinite(item.a) || !Number.isFinite(item.b) || item.a < 0 || item.b > source.duration + .1 || item.b - item.a < .1 - 1e-9 || !Number.isFinite(item.bpm) || item.bpm < source.bpm * .25 - 1e-9 || item.bpm > source.bpm * 3 + 1e-9 || !Number.isFinite(item.pitch) || Math.abs(item.pitch) > 12) return fail();
+    if (!source || !integer(item.step, sourceBlock.steps.length - 1) || !seconds(item.seconds) || !integer(item.completed, 1000000) || !Number.isFinite(item.a) || !Number.isFinite(item.b) || item.a < 0 || item.b > sourceSeconds(sourceBlock.steps[item.step], source) + .1 || item.b - item.a < .1 - 1e-9 || !validTempo(item.bpm, source) || !Number.isFinite(item.pitch) || Math.abs(item.pitch) > 12) return fail();
     const step = sourceBlock.steps[item.step];
-    if (item.mode === 'planned' && (item.bpm !== step.bpm || item.pitch !== 0 || item.a !== (step.start ?? 0) || Math.abs(item.b - (step.end ?? source.duration)) > .1)) return fail();
+    if (isMetronome(source) && (item.mode !== 'planned' || item.pitch !== 0)) return fail();
+    if (item.mode === 'planned' && (item.bpm !== step.bpm || item.pitch !== 0 || item.a !== (step.start ?? 0) || Math.abs(item.b - (step.end ?? sourceSeconds(step, source))) > .1)) return fail();
     if (item.mode === 'fragment' && item.completed !== 0) return fail();
     passes += item.completed; if (item.mode === 'planned') planned += item.seconds; else fragment += item.seconds;
     return { mode: item.mode, block: item.block, step: item.step, a: item.a, b: item.b, bpm: item.bpm, pitch: item.pitch, seconds: item.seconds, completed: item.completed };

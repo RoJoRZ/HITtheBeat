@@ -392,3 +392,22 @@ Op 15 oktober 2026 vraagt de gebruiker de acht open GitHub-issues in milestone R
 Bestaand werkend gedrag en persoonlijke gegevens blijven tijdens deze analyse ongewijzigd. De voorgestelde bouwvolgorde is #1 → #2 → #3 → #4 → #5 → #7 → #6 → #8; dit is ter goedkeuring en sluit de bestaande afrondingsfase aan op de milestone. Nieuwe diensten of een grote architectuurvervanging zijn niet voorgesteld.
 
 Goedkeuring 15 oktober 2026: gebruiker geeft akkoord op de voorgestelde volgorde en werkwijze en opdracht te starten met #1. Een metronoomherhaling duurt standaard 8 maten, instelbaar per sessiestap. BPM is kwartnoten per minuut, ook bij 6/8. Afteltijd wordt afzonderlijk getoond en telt niet mee als gespeelde oefentijd (#2). De nieuwe functies zijn hiermee geautoriseerd, maar pas na hun afzonderlijke implementatie beschikbaar.
+
+## 27. Metronoom-oefeningen — issue #1, v0.0.17
+
+Geïmplementeerd op basis van het akkoord van 15 oktober 2026, ter acceptatie in een afzonderlijke PR. Bij Oefeningen kiest de muzikant Audiotrack of Metronoom zonder audiobestand. Een metronoom heeft een naam, BPM en maatsoort 3/4, 4/4 of 6/8; opdracht en afbeelding blijven optioneel. Audio-upload, BPM-detectie en volumenormalisatie horen alleen bij audiotracks. Het oefentype staat na opslaan vast; een andere soort maak je als nieuwe oefening.
+
+Een metronoomherhaling bestaat standaard uit 8 maten. In de sessietabel is dit per stap aanpasbaar (1–128 maten), naast herhalingen en BPM. Maatsoort hoort bij de oefening. BPM is kwartnoten per minuut: bij 6/8 klinken zes achtstetellen per maat, dus twee klikken per kwartnoot. De eerste tel heeft een hoger geluid; bij 6/8 krijgt tel vier een tweede, lichtere klankaccentuering. De metronoom werkt van 20 tot 300 BPM; de bestaande 25–300%-grens blijft voor audiotracks gelden. Een 6/8-maat op 120 BPM duurt 1,5 seconde.
+
+De sessie kan metronoom- en audio-oefeningen combineren. Maten, tempo en herhalingen bepalen meteen de geplande duur. Pauze, spatie, terug naar start met 1, overslaan en evaluaties werken via dezelfde sessieroute. Er is een zichtbare telindicatie; metronoom heeft geen track-waveform, toonhoogte of vrij audiofragment. Een tempo-opbouw binnen hetzelfde oefenblok wordt als één serie geëvalueerd; daarna volgt de volgende oefening. De tempo-aanpassing na evalueren geldt nog steeds voor dat ene oefenblok. Metronoomtijd telt als gespeelde oefentijd; pauze en evaluatie niet.
+
+Bij de losse oefening staat een metronoomspeler voor standaard 8 maten, met lokaal instelbaar speeltempo en aantal maten. Deze bediening verandert opgeslagen sessies niet. De gedeelde volume- en dempeninstelling werkt in beide spelers. Los spelen telt, net als de losse audioplayer, niet mee in sessiehistorie.
+
+Bestaande audio, afbeeldingen, fragmenten, sessies en resultaten blijven behouden. Nieuwe resultaten bewaren ook maatsoort en maten in hun historische context, zodat andere metronoomopbouwen niet in één voortgangsreeks worden gemengd. Een opgeslagen metronoom heeft geen audiobestand in de mediamap. Aftellen vóór herhalingen is nog niet gebouwd; dat blijft issue #2.
+
+
+### Correctie na gebruikstest — maten per oefening (v0.0.18)
+
+De gebruiker verduidelijkt dat het aantal maten bij het instellen van de metronoom hoort, dus **per oefening**. Dit vervangt de eerdere keuze voor maten per sessiestap. Bij aanmaken én bewerken van een metronoom staat Maten per herhaling (standaard 8, 1–128). Het aantal wordt opgeslagen bij de oefening en gebruikt door de losse speler en alle sessies. De sessietabel toont het aantal alleen; herhalingen en BPM blijven daar per stap instelbaar. De losse speler wijzigt het aantal niet tijdelijk.
+
+Opslaan van de metronoom-oefening past bestaande sessie-opbouwen aan dat aantal aan. Geplande duur wordt opnieuw berekend. Een lopende of historische sessie houdt haar eigen momentopname. Om gegevens bij de upgrade te behouden wordt een gemeenschappelijk oud aantal maten overgenomen als oefeninstelling. Verschillende bestaande stapinstellingen blijven herkenbaar als oude stapinstelling staan totdat de oefening expliciet wordt opgeslagen; dan gebruiken ze allemaal het gekozen aantal van de oefening. Historische resultaten worden niet herschreven.

@@ -1,3 +1,4 @@
+import { isMetronome, sourceSeconds } from '../../electron/exercise-model.mjs';
 import type { Exercise, Routine } from '../library/types.ts';
 import { plannedSeconds, validateRoutine } from '../../electron/routine-model.mjs';
 export type Phase = 'ready' | 'playing' | 'paused' | 'fragment' | 'review' | 'complete';
@@ -12,7 +13,8 @@ export function createRun(routine: Routine, exercises: Exercise[]): Run {
 }
 export function current(run: Run) {
   const block = run.routine.blocks[run.block], step = block.steps[run.step];
-  return { block, step, exercise: run.exercises.find(item => item.id === block.exerciseId)! };
+  const source = run.exercises.find(item => item.id === block.exerciseId)!;
+  return { block, step, exercise: isMetronome(source) ? { ...source, duration: sourceSeconds(step, source) } : source };
 }
 export function sameFragment(run: Run, a: number, b: number) {
   const { block, exercise } = current(run), first = block.steps[a], second = block.steps[b];
@@ -57,7 +59,7 @@ export function remainingSeconds(run: Run, position = 0) {
       const step = block.steps[s];
       if (b === run.block && s === run.step) {
         total += plannedSeconds({ ...step, repetitions: step.repetitions - run.repetition }, exercise);
-        if (run.phase !== 'fragment') total -= Math.max(0, Math.min((step.end ?? exercise.duration) - (step.start ?? 0), position - (step.start ?? 0))) * exercise.bpm / step.bpm;
+        if (run.phase !== 'fragment') total -= Math.max(0, Math.min((step.end ?? sourceSeconds(step, exercise)) - (step.start ?? 0), position - (step.start ?? 0))) * exercise.bpm / step.bpm;
       } else total += plannedSeconds(step, exercise);
     }
   }
