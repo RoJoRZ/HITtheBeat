@@ -246,3 +246,8 @@ Op basis van Windows-RC2: taalkeuze uitsluitend in Instellingen en verwijderen n
 ### Definitieve release — 1.0.0 (#8 gedeeltelijk)
 
 Na acceptatie van #21 vraagt de gebruiker definitieve Mac- en Windows-installers. Basis is #21 inclusief Windows-RC2, versie 1.0.0. Mac arm64 DMG/ZIP lokaal bouwen en controleren; Windows x64 NSIS/ZIP native op Actions bouwen met gerichte pakket-/installatiecontrole. Publicatie van definitieve release expliciet geautoriseerd, zonder autonome PR-merge of vervanging van RC1. Windows-PR/tag-builds worden toegevoegd; volledige Mac-/tag-publicatieautomatisering blijft open onder #8. Zie docs/RELEASE.md en docs/RELEASE-1.0.0-NOTES.md; release-PR/Actions-run bevat de laatste uitslagen.
+
+
+### Afsluiten milestone 1 — expliciete opdracht 17 oktober 2026
+
+De gebruiker autoriseert samenvoegen van het goedgekeurde werk naar main en bijwerken van issues/milestone. Dertien app-/release-PR's zijn in afhankelijkheidsvolgorde samengevoegd; de appbron op main is gelijk aan v1.0.0. #8 krijgt de ontbrekende Mac-/gezamenlijke releaseautomatisering en gerichte PR-controles, met handmatige gate vóór installerjobs. Zie docs/RELEASE-AUTOMATISERING.md voor proces en controles. Geen nieuwe release of tagverplaatsing. PR #25 blijft apart wegens automatische goedkeuringsweigering voor retargeten; die blokkade verandert de inhoudelijke gebruikersgoedkeuring niet. Sluit milestone 1 pas nadat #8 en de issueadministratie aantoonbaar zijn afgerond.
