@@ -4,10 +4,12 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 
 ## Documenten
 
+- [CI, handmatige releasecontrole en installerautomatisering](docs/RELEASE-AUTOMATISERING.md)
+
 - [Windows-herstelkandidaat 1.0.0-rc.2 en controles](docs/RC2-WINDOWS.md)
 - [Historische Windows-bevindingen van RC1](docs/WINDOWS-RC1-RESULTATEN.md)
-- [Release 1.0: analyse en implementatievoorstel (ter goedkeuring)](docs/RELEASE-1.0-ANALYSE.md)
-- [Voorgestelde permanente ontwikkelwerkwijze](docs/AGENTS-VOORSTEL.md)
+- [Release 1.0: geaccepteerde analyse en implementatievolgorde](docs/RELEASE-1.0-ANALYSE.md)
+- [Historisch voorstel ontwikkelwerkwijze](docs/AGENTS-VOORSTEL.md)
 
 - [Functionele afspraken](FUNCTIONEEL.md)
 - [Goedgekeurde designrichting](DESIGN.md)
@@ -32,7 +34,7 @@ Een desktop-oefenmaatje voor muzikanten. Ontwikkeling gebeurt in kleine, afzonde
 
 [HITtheBeat 1.0.0 downloaden](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.0.0): Mac Apple Silicon (DMG of ZIP) en Windows x64 (installer of ZIP). Open op Mac de DMG en sleep HITtheBeat naar Programma's. Gebruik op Windows de .exe-installer; het ZIP-alternatief moet volledig worden uitgepakt. De Mac-app is niet genotariseerd en Windows is niet ondertekend; het besturingssysteem kan een waarschuwing tonen. Geen Rosetta nodig voor de Mac-app.
 
-Zie [installatie, bouwstappen en beperkingen](docs/RELEASE.md) en [Windows-testoverdracht](docs/WINDOWS-TEST.md). Er zijn geen automatische updates. Bouw voor deze versie vanaf tag `v1.0.0`; `main` kan achterlopen zolang PR's niet zijn samengevoegd. De projectlicentie is nog niet gekozen (`UNLICENSED`).
+Zie [installatie, bouwstappen en beperkingen](docs/RELEASE.md) en [Windows-testoverdracht](docs/WINDOWS-TEST.md). Er zijn geen automatische updates. Bouw de gepubliceerde versie vanaf tag `v1.0.0`; de goedgekeurde appwijzigingen zijn ook in `main` samengevoegd. De projectlicentie is nog niet gekozen (`UNLICENSED`).
 
 ## Functionaliteit
 

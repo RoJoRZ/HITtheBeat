@@ -1,6 +1,6 @@
 # HITtheBeat 1.0.0 — installatie en releaseproces
 
-[Definitieve release v1.0.0](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.0.0). De gebruiker heeft publicatie expliciet opgedragen na acceptatie van Windows-herstel en de interfaceaanpassingen. Bron: `codex/issue-8-final-release`, inclusief Windows-RC2 en #21. Geen automatische PR-merge; de releasetag is het precieze bronpunt voor bouwen/testen, niet een willekeurige checkout van main.
+[Definitieve release v1.0.0](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.0.0). De gebruiker heeft publicatie expliciet opgedragen na acceptatie van Windows-herstel en de interfaceaanpassingen. Bron: `codex/issue-8-final-release`, inclusief Windows-RC2 en #21. De goedgekeurde wijzigingen zijn naar main samengevoegd; de releasetag blijft het precieze bronpunt van de gepubliceerde downloads.
 
 ## Downloads
 
@@ -20,7 +20,7 @@ Controle: `shasum -a 256 <bestand>` op Mac, `Get-FileHash <bestand> -Algorithm S
 
 ## Bron en bouwen
 
-Gebruik voor de definitieve versie tag `v1.0.0`. De hoofdbranch kan achterlopen zolang PR's niet zijn samengevoegd. Node 24 en pnpm 11.25.0, frozen lockfile.
+Gebruik voor de definitieve versie tag `v1.0.0`. De hoofdbranch bevat de geaccepteerde appbron en latere workflow-/documentatieafronding. Node 24 en pnpm 11.25.0, frozen lockfile.
 
 ```sh
 git checkout v1.0.0
@@ -38,11 +38,11 @@ node scripts/release-checksums.mjs
 
 ## Pipeline en publicatie
 
-`.github/workflows/windows-release.yml` bouwt op Windows bij PR's, tags en pushes naar de expliciete final-releasebranch. Pinned officiële checkout/setup-node/artifact-actions; standaard alleen contents:read. Node 24/pnpm 11.25.0, frozen install, typecheck/productiebouw, Node-tests, native NSIS/ZIP, gerichte tests tegen het daadwerkelijk uitgepakte ZIP-pakket, stille installatie in pad met spaties, starten via pakkettest en deïnstallatie. Tests gebruiken tijdelijke geïsoleerde appdata. Windows-downloads krijgen hashes en worden als runartifact bewaard. Alleen de aparte draft-job op de expliciete releasebranch krijgt contents:write om de door gebruiker gevraagde 1.0.0 als concept met Windows-assets klaar te zetten. PR's publiceren niets. Geen persoonlijke signing-credentials of updater.
+De eerste 1.0.0 is met een native Windows-runner en lokale Mac-build gepubliceerd; de bron en assets blijven behouden. Het resterende #8-werk levert nu een gezamenlijke releaseworkflow voor volgende versies: [RELEASE-AUTOMATISERING.md](RELEASE-AUTOMATISERING.md). De oude eenmalige Windows-workflow is vervangen, zodat zij niet naast de nieuwe workflow alsnog installers zonder handmatige gate bouwt.
 
-Mac wordt voor deze uitgave lokaal gebouwd/getest, de DMG read-only aangekoppeld en de gekopieerde app gecontroleerd. Voeg Mac-assets, vier-bestanden-SHA256SUMS.txt, deze handleiding en THIRD-PARTY-NOTICES.txt toe aan het concept. Controleer alle upload-digests en broncommit; publiceer pas daarna als definitieve release. Verplaats een gepubliceerde tag niet; gebruik een nieuwe versie voor latere fixes. Het toevoegen van Mac-CI en een volledige tag-publicatieketen blijft onderdeel van #8. Deze Windows-pipeline is geen voltooiing van alle automatiseringscriteria.
+PR's krijgen gerichte controles; de volledige regressie hoort in de releaseworkflow. Na geslaagde regressie wacht de workflow op menselijke goedkeuring via release-approval. Pas daarna bouwen beide platformen installers en controleren ze de werkelijk geïnstalleerde app met geïsoleerde testgegevens. Gezamenlijke publicatie verifieert upload-digests en vervangt nooit een bestaande release of tag.
 
-Exacte laatste uitslagen staan in de release-PR/Actions-run en releasebeschrijving. Historisch RC1-bewijs: RELEASE-RC1.md en WINDOWS-RC1-RESULTATEN.md. Fysieke Windows-RC2-controles, inclusief upgrade RC1 → RC2 en gegevensbehoud: RC2-WINDOWS.md. Die historie bewijst niet automatisch iedere toekomstige installer. Muzikale luisterbeoordeling op diverse echte muziek en interactieve SmartScreen/Gatekeeper-bediening blijven afzonderlijke grenzen.
+Historisch RC1-bewijs: RELEASE-RC1.md en WINDOWS-RC1-RESULTATEN.md. Fysieke Windows-RC2-controles, inclusief upgrade RC1 → RC2 en gegevensbehoud: RC2-WINDOWS.md. Die historie bewijst niet automatisch iedere toekomstige installer. Muzikale luisterbeoordeling op diverse echte muziek en interactieve SmartScreen/Gatekeeper-bediening blijven afzonderlijke grenzen.
 
 ## Licenties
 

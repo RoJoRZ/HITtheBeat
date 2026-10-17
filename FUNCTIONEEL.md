@@ -538,3 +538,12 @@ In Oefeningen staat Oefening verwijderen direct naast Oefening importeren in de 
 De gebruiker accepteert de interfacewijzigingen van #21 en geeft expliciet opdracht versie 1.0.0 met installers voor Mac en Windows te publiceren. Gebruik dezelfde bronversie inclusief Windows-RC2-herstel en #21: Mac Apple Silicon DMG en Windows x64 per-user NSIS-installer, met ZIP-alternatieven en SHA-256-controlegetallen. Dit vervangt voor deze uitgave de eerdere afspraak uitsluitend testreleases uit te geven. Geen zelfstandige PR-merge of verplaatsing van RC1-tag.
 
 De app blijft offline, zonder automatische updates, met dezelfde lokale appdata en schema 10. De installers bevatten geen persoonlijke media. Mac is ad-hoc ondertekend/niet genotariseerd; Windows is niet ondertekend. Windows-runner bouwt de definitieve installer; eerdere fysieke Windows-RC2-installatie-/upgradetests blijven herkenbaar afzonderlijk. Muzikale luisterkwaliteit, interactieve OS-waarschuwingen en projectlicentiekeuze blijven open; UNLICENSED wordt niet stilzwijgend gewijzigd. Publiceer als definitieve GitHub-release, niet als pre-release, na geslaagde pakketcontroles.
+
+
+## 39. Afronding milestone 1 en bijwerken GitHub
+
+De gebruiker geeft op 17 oktober 2026 expliciet opdracht milestone 1 af te handelen en GitHub actueel te maken. Daarmee is samenvoegen van het goedgekeurde milestone-1-werk naar main en sluiten van aantoonbaar afgeronde issues geautoriseerd. De gepubliceerde tag v1.0.0 en haar downloads blijven ongewijzigd.
+
+Het resterende werk van #8 wordt afgemaakt: gerichte PR-controles op Mac en Windows; bij een nieuwe release/tag volledige regressie, daarna verplichte handmatige goedkeuring vóór installerbuilds, beide native platforminstallers met pakket-/opslagcontrole en gezamenlijke publicatie met hashes. De GitHub-omgeving release-approval vereist RoJoRZ als reviewer en staat geen beheerdersbypass toe. Deze afronding creëert geen nieuwe release en verleent de agent geen bevoegdheid om zelf de handmatige eindcontrole goed te keuren.
+
+PR #25 met de toekomstige algemene werkwijze blijft afzonderlijk: automatische goedkeuringscontrole heeft retargeten naar main geweigerd omdat dit buiten de huidige milestone-afhandeling zou vallen. Die weigering wordt niet omzeild door haar inhoud hier alsnog samen te voegen. De algemene procedure uit die PR is inhoudelijk door de gebruiker goedgekeurd maar nog niet in main opgenomen; deze sectie legt uitsluitend de huidige afsluitopdracht en concrete releaseautomatisering vast.

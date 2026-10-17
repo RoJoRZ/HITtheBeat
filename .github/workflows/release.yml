@@ -1,0 +1,126 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.identity.outputs.tag }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Validate version and refuse an existing published release
+        id: identity
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release-identity.mjs
+  regression:
+    needs: identity
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm install --global pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm setup:desktop
+      - run: pnpm build
+      - run: pnpm test
+      - run: pnpm test:desktop
+      - name: Keep failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: regression-diagnostics-${{ matrix.os }}
+          path: test-results/
+  approval:
+    needs: [identity, regression]
+    runs-on: ubuntu-latest
+    environment: release-approval
+    steps:
+      - name: Record approved source
+        run: echo 'Approved source ${{ github.sha }} for ${{ needs.identity.outputs.tag }}'
+  installers:
+    needs: [identity, approval]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            platform: mac-arm64
+          - os: windows-latest
+            platform: win-x64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm install --global pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm setup:desktop
+      - run: pnpm build
+      - if: runner.os == 'macOS'
+        run: pnpm exec electron-builder --mac dmg zip --arm64 --publish never
+      - if: runner.os == 'Windows'
+        run: pnpm exec electron-builder --win nsis zip --x64 --publish never
+      - name: Check actual installer and isolated app persistence
+        run: node scripts/check-installer.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: |
+            release/HITtheBeat-*.dmg
+            release/HITtheBeat-*.exe
+            release/HITtheBeat-*.zip
+          if-no-files-found: error
+      - name: Keep package failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: package-diagnostics-${{ matrix.platform }}
+          path: test-results/
+  publish:
+    needs: [identity, installers]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: release
+      - run: node scripts/release-checksums.mjs
+      - name: Publish exact tested downloads without replacing existing assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/publish-release.mjs
