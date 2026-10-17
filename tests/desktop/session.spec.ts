@@ -57,8 +57,10 @@ test('real routine restores interrupted pass, plays repeats in order and advance
     await page.locator('#main').focus(); await page.keyboard.press('1');
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
     await expect(page.getByRole('img', { name: 'Tablatuur bij Wisselslag', exact: true })).toBeVisible();
+    const notationOpened = app.waitForEvent('window');
     await page.getByRole('button', { name: 'Tablatuur vergroten', exact: true }).click();
-    await expect(page.getByRole('dialog')).toBeVisible(); await page.keyboard.press('Escape');
+    const notation = await notationOpened;
+    await expect(notation.getByRole('img')).toBeVisible(); await notation.close();
     await page.locator('#main').focus();
     await page.screenshot({ path: 'test-results/phase5-player.png', fullPage: true });
     await page.setViewportSize({ width: 960, height: 700 });

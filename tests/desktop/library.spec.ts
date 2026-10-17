@@ -46,8 +46,10 @@ test('own library imports, estimates, corrects, edits and reopens copied media o
     await expect(page.getByRole('definition').filter({ hasText: /^Genormaliseerd/ })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
     await expect(page.getByRole('img', { name: 'Tablatuur bij Mijn warming-up' })).toBeVisible();
-    await page.getByRole('button', { name: 'Vergroten', exact: true }).click();
-    await expect(page.getByRole('dialog')).toBeVisible(); await page.keyboard.press('Escape');
+    const notationOpened = desktop.waitForEvent('window');
+    await page.getByRole('button', { name: 'Tablatuur vergroten', exact: true }).click();
+    const notation = await notationOpened;
+    await expect(notation.getByRole('img')).toBeVisible(); await notation.close();
     await page.getByRole('button', { name: 'Bewerken', exact: true }).click();
     await page.getByRole('button', { name: 'BPM opnieuw analyseren' }).click();
     await expect(page.getByRole('status')).toContainText('Geschat tempo:');
