@@ -216,3 +216,7 @@ De gebruiker accepteert v0.0.23 en vraagt bij #7 optionele informele makerherken
 ### Voortgang na acceptatie van #7
 
 De gebruiker accepteert v0.0.24 en geeft opdracht voor #6. V0.0.25 levert Nederlands/Engels met systeemtaalfallback, bewaarde handmatige voorkeur en directe wisseling zonder speler-/invoerverlies, ook in het losse tablatuurvenster. Instellingen en de paginakop sturen dezelfde keuze; eigen inhoud en historie blijven behouden. Zie docs/TAALKEUZE.md voor impact en testbewijs. Gebruiksfeedback volgt vóór #8; Windows-runtimegebruik en distributiekeuzes blijven open. Geen zelfstandige merges.
+
+### Aanvulling na acceptatie van #6
+
+De gebruiker accepteert v0.0.25 en vraagt een Info-/About-knop met concept en puntsgewijze functiesamenvatting. Dit wordt als afzonderlijk issue #17 geleverd in v0.0.26, vóór de nog open distributiestap #8. Geen wijziging aan audio/opslag; behoud van spelen/invoer en NL/EN inbegrepen. Zie docs/INFO.md voor impact en controles. Niet zelfstandig mergen of releasen.

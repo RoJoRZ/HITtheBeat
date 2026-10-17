@@ -18,7 +18,8 @@ test('desktop loads offline, exposes only its narrow bridge, navigates and reope
         await page.context().setOffline(true);
         await page.reload();
         await expect(page.getByRole('heading', { name: 'Mijn oefensessies', exact: true })).toBeVisible();
-        await expect(page.getByText(`HITtheBeat · v${version}`)).toBeVisible();
+        await expect(page.locator('.sidebar-bottom .version')).toHaveText(`HITtheBeat · v${version}`);
+        await expect(page.locator('.sidebar-bottom .version')).toBeVisible();
         await expect(page.getByRole('button', { name: /Eigen bibliotheek bekijken|Voorbeeldschermen bekijken/ })).toHaveCount(0);
         await expect(page.getByRole('heading', { name: 'Begin met jouw oefeningen' })).toBeVisible();
         await page.getByRole('button', { name: 'Naar oefeningen', exact: true }).click();

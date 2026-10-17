@@ -223,3 +223,7 @@ Na gebruiksgoedkeuring van v0.0.23 volgt één offline deelbestand per oefening,
 ### Issue #6 — Nederlands en Engels (v0.0.25)
 
 Na acceptatie van v0.0.24 volgt volledige lokalisatie met systeemtaalfallback, expliciete bewaarde keuze in Instellingen en directe wisseling zonder verlies van speler-/formulierstatus. De paginakop biedt dezelfde keuze tijdens het spelen. Eigen inhoud en historie blijven ongewijzigd. Zie docs/TAALKEUZE.md voor impact en controles. Basis is de geaccepteerde issue-7-commit; niet zelfstandig mergen. Geef ruimte voor gebruiksfeedback vóór #8 (afronden/distributie).
+
+### Tussenstap — Info over HITtheBeat (#17, v0.0.26)
+
+Na goedkeuring van de taalkeuze vraagt de gebruiker een Info-knop met concept en puntsgewijs functieoverzicht. Afzonderlijke, testbare verbetering op de geaccepteerde issue-6-commit: NL/EN-infovenster, appversie, toetsenbediening en behoud van sessie/invoer. Dit rondt distributie (#8) niet af. Zie docs/INFO.md voor impact en controles; niet zelfstandig mergen.
