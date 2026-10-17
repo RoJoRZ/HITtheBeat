@@ -253,10 +253,15 @@ Gemaakt door … staat als bescheiden apart vak met Mandarijn-rand boven tablatu
 
 ## Taalkeuze — issue #6, v0.0.25
 
-Instellingen krijgt een blok Taal met de eigen taalnamen Nederlands en English. Dezelfde keuze staat compact in de paginakop, ook bij een actieve sessie. Daardoor is geen navigatie nodig om tijdens het spelen te wisselen. Beide keuzes sturen dezelfde lokaal opgeslagen voorkeur. Geen vlaggen: de opties benoemen talen, geen landen.
+Instellingen krijgt een blok Taal met de eigen taalnamen Nederlands en English. Op gebruikersverzoek (#21) staat de keuze uitsluitend in Instellingen; de compacte keuze in de paginakop vervalt. De lokaal opgeslagen voorkeur blijft gelijk. Geen vlaggen: de opties benoemen talen, geen landen.
 
 Scherm, meldingen, toegankelijke namen, menu en tablatuurvenster wisselen direct. De componentboom en bestaande bediening blijven staan: geen taal als React-key, geen herladen en geen verlies van invoer, afspeelpositie of beeldzoom. Eigen inhoud wordt niet vertaald. Lange Engelse teksten mogen omslaan binnen bestaande panelen en knoppen; Studio donker, Mandarijn en Source Sans 3 blijven leidend.
 
 ## Info over HITtheBeat — issue #17, v0.0.26
 
 Een bescheiden Info-knop met omcirkeld i-icoon staat onderaan de zijbalk, boven de lokale bibliotheek-/versietekst. Het informatievenster gebruikt Studio donker, Source Sans 3 en Mandarijn, maximaal 820px breed en verticaal scrollbaar. Een korte concepttekst gaat vooraf aan negen bullets met een duidelijke Mandarijn-kop per functie. De actuele versie staat onderaan. Sluiten bovenaan krijgt beginfocus; onderaan staat een terugknop. Native modal focusafbakening en Escape blijven beschikbaar. De onderliggende sessie en invoer blijven staan.
+
+
+## Actieplaatsing — issue #21
+
+Oefening verwijderen staat direct rechts van Oefening importeren in de bovenste bibliotheekactiebalk, vóór Oefening toevoegen. Zonder actieve selectie of tijdens formulierinvoer is verwijderen uitgeschakeld. De actiebalk kan omslaan in smalle vensters. De eerdere verwijderknop boven de oefeningdetails vervalt; bevestiging en vormgeving blijven gelijk.

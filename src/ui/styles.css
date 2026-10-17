@@ -436,10 +436,8 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .maker-credit p { margin: 6px 0 0; }
 .import-warning { border: 1px solid var(--accent); border-radius: 6px; padding: 12px; }
 
-.header-preferences { display: flex; gap: 16px; align-items: center; }
 .language-picker label { display: grid; gap: 6px; }
 .language-picker select { max-width: 230px; min-width: 145px; }
-.language-picker.compact { flex-shrink: 0; }
 
 .info-button { display: flex; align-items: center; gap: 9px; width: 100%; padding: 10px 8px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--muted); text-align: left; margin-bottom: 12px; }
 .info-button:hover { color: var(--accent); background: var(--raised); }
@@ -451,3 +449,5 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .about-features li::marker { color: var(--accent); }
 .about-features strong { color: var(--accent); }
 .about-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); }
+
+.library-toolbar, .library-toolbar > .row-actions { flex-wrap: wrap; }

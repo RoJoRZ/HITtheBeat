@@ -336,3 +336,8 @@ De bestaande appId/productName en userData blijven gelijk. Alleen dist/electron/
 ### Windows-herstel — 1.0.0-rc.2
 
 Op Windows kan `enter-full-screen` worden verstuurd voordat `isFullScreen()` de nieuwe waarde teruggeeft. De notation-state gebruikt daarom expliciet true/false uit de enter-/leave-events en verhoogt bij iedere publicatie het versienummer. `notation:state` retourneert dezelfde gepubliceerde momentopname; een getter verandert geen velden buiten het versieprotocol. Sluiten reset fullscreen naar false. Hierdoor ontvangen knoplabel en Escape dezelfde toestand. Geen nieuwe IPC-rechten, schema- of audiowijziging. De desktopregressie controleert zowel knopstatus als de native vensterstatus, Escape, F en opnieuw omschakelen met de knop. Zie docs/RC2-WINDOWS.md voor platformbewijs en open Mac-regressie.
+
+
+## Interfaceplaatsing — issue #21
+
+LanguagePicker wordt alleen door SettingsScreen gerenderd; de compacte variant en headerwrapper vervallen. Dezelfde preference-/IPC-route blijft behouden. LibraryScreen plaatst de bestaande verwijderactie in de import-/toevoegtoolbar, met blokkering zonder selectie en tijdens formulierinvoer/verwijderen. De bestaande dialog en deleteExercise-validatie blijven gelijk. Alleen presentatiewijzigingen, geen schema-/audio-/vensterwijziging.
