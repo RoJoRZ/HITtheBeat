@@ -1,6 +1,6 @@
-## Ontwikkelwerkwijze voor milestone 1
+## Historische werkwijze voor milestone 1 (afgerond)
 
-De volgende tien onderdelen gelden voor de lopende afronding van milestone 1. Voor latere milestones vervangt de sectie **Werkwijze na afronding van milestone 1** de afwijkende afspraken over tussentijdse acceptatie en testomvang. Milestone 1 is niet door het publiceren van 1.0.0 automatisch administratief afgerond.
+Milestone 1 is op 17 oktober 2026 gesloten. De onderstaande tien onderdelen beschrijven de historische werkwijze; voor nieuwe gestarte milestones gelden de afwijkende afspraken onder Werkwijze na afronding van milestone 1. Vooral de zelfstandige merges/issuegoedkeuring, gerichte testomvang en handmatige eindcontrole volgen die nieuwe sectie.
 
 ### 1. Werk vanuit GitHub Issues
 
@@ -96,12 +96,14 @@ Lever één testbaar issue tegelijk op zodat de gebruiker kan bijsturen. Begin a
 
 - De gebruiker accepteert #21 en vraagt expliciet de definitieve release 1.0.0 met Mac- en Windows-installers. Publicatie is geautoriseerd; geen autonome PR-merge. Gebruik bron inclusief Windows-RC2 en #21, Mac arm64 DMG en Windows x64 NSIS. Native Windows-runner bouwt/test de installer; Mac-regressie uitvoeren. RC1 blijft behouden. FUNCTIONEEL hoofdstuk 37 en docs/RELEASE-1.0.0-NOTES.md zijn leidend; geen licentiekeuze, notariseringsclaim of muzikale luisteracceptatie verzinnen.
 
+- Op 17 oktober 2026 geeft de gebruiker expliciet opdracht milestone 1 af te handelen en GitHub bij te werken. Samenvoegen van goedgekeurde milestone-1-PR's en sluiten van aantoonbaar voltooide issues is voor deze afsluiting geautoriseerd. Maak het resterende #8-werk af en controleer de GitHub-status vóór de milestone sluit. PR #25 werd aanvankelijk door automatische goedkeuringscontrole tegengehouden; de gebruiker heeft daarna expliciet bevestigd ook die PR naar main te mogen samenvoegen. De bestaande v1.0.0-tag/assets blijven gelijk. Zie FUNCTIONEEL hoofdstuk 39 en docs/RELEASE-AUTOMATISERING.md.
+
 
 ## Werkwijze na afronding van milestone 1 — issue #24
 
 ### Vastgesteld door de gebruiker op 17 oktober 2026
 
-Deze procedure wordt pas actief nadat milestone 1 is afgerond. De huidige open PR's/issues worden hierdoor niet automatisch samengevoegd of gesloten. De gebruiker maakt GitHub-issues en bundelt maximaal tien issues in een nieuwe releasemilestone. Pas na opdracht die milestone te starten werkt de agent de geselecteerde scope zelfstandig af; toevoegen aan de backlog is geen opdracht om alvast te bouwen. Voeg niet stilzwijgend extra issues aan een lopende milestone toe.
+Deze procedure is actief vanaf 17 oktober 2026: milestone 1 is gesloten met tien gesloten issues en nul open issues. De gebruiker heeft het samenvoegen van PR #25 expliciet bevestigd. De gebruiker maakt GitHub-issues en bundelt maximaal tien issues in een nieuwe releasemilestone. Pas na opdracht die milestone te starten werkt de agent de geselecteerde scope zelfstandig af; toevoegen aan de backlog is geen opdracht om alvast te bouwen. Voeg niet stilzwijgend extra issues aan een lopende milestone toe.
 
 Werk de issues in afhankelijkheidsvolgorde af, met per issue analyse, implementatie, relevante documentatie, gerichte noodzakelijke controles, review en inhoudelijke goedkeuring op de acceptatiecriteria. Vraag niet na ieder afgerond issue opnieuw om toestemming om het volgende geselecteerde issue uit te voeren. Onvoldoende bewijs of een onopgeloste fout is geen goedkeuring. Zelfreview is geen onafhankelijke menselijke review. Belangrijke onbesliste functionele keuzes blijven bij de gebruiker. Commit/push voortgang en houd issues en milestone herleidbaar bij. Binnen de gestarte milestone mag de agent na geslaagde gerichte controles en review zelfstandig PR's samenvoegen en de betreffende issues sluiten zodra alle criteria aantoonbaar zijn afgehandeld; onvolledige implementatie blijft open. Werk zo de gedeelde hoofdbranch bij, zonder een nieuwe onbeoordeelde PR-stapel. Deze bevoegdheid geldt pas na afronding van milestone 1.
 
@@ -109,11 +111,11 @@ Per issue alleen passende gerichte tests; geen volledige Node-/desktopregressie 
 
 De volledige gecureerde regressie hoort uitsluitend bij de releasefase en de automatische installerbuilds. Plan één releaseketen: vaste broncommit → volledige regressie op relevante platformen → handmatige eindcontrole en expliciet akkoord van de gebruiker → automatische installerbuilds → gerichte controles van de daadwerkelijk gebouwde pakketten/installatie → publicatie. Draai de volledige reeks niet opnieuw als afzonderlijke stap vóór én na dezelfde ongewijzigde build. Bij een relevante codefix na een fout moet de gewijzigde releasebron opnieuw worden gevalideerd. Een mislukte releasecontrole blokkeert publicatie, niet het registreren van reeds afgerond issuewerk.
 
-### Vastgestelde testcuratie, nog geen uitgevoerde CI-wijziging
+### Vastgestelde testcuratie
 
 Houd per issue kort bij: geraakt gedrag, risico, geselecteerde tests met reden, resultaat en uitgestelde platform-/luistercontrole. Onderhoud een testmatrix per gebruikersfunctie/platform, met snelle gerichte suites voor issuewerk en een volledige releasegroep. Behoud tests die echte regressies ontdekken of kritieke gegevens, timing of procesgrenzen beschermen; voeg geen test toe die uitsluitend de implementatie herhaalt.
 
-Bekijk bij de release de gaten, overlap, looptijd en instabiele tests. Verwijder/vervang een test alleen met een concrete reden en aantoonbaar behouden dekking; een fout of instabiele test is geen reden om bescherming stilzwijgend weg te laten. Gebruik geen dekkingspercentage of aantal tests als zelfstandig kwaliteitsdoel. CI moet na activering dezelfde scheiding toepassen; de bestaande workflow is door dit document nog niet gewijzigd.
+Bekijk bij de release de gaten, overlap, looptijd en instabiele tests. Verwijder/vervang een test alleen met een concrete reden en aantoonbaar behouden dekking; een fout of instabiele test is geen reden om bescherming stilzwijgend weg te laten. Gebruik geen dekkingspercentage of aantal tests als zelfstandig kwaliteitsdoel. CI past deze scheiding sinds PR #26 toe: gerichte PR-tests en volledige regressie met handmatige gate in de releaseworkflow.
 
 ### Handmatige eindcontrole vóór installerbuilds
 
@@ -121,4 +123,4 @@ De gebruiker heeft de werkwijze inclusief zelfstandige PR-merges en testcuratie 
 
 Wacht op expliciet akkoord van de gebruiker. Stilte of tijdsverloop is geen akkoord. Laat een push, tag, merge of automatisch proces deze stap niet omzeilen; de toekomstige CI moet het handmatige akkoord tussen regressie en installerjobs afdwingen. Na akkoord mag de agent de goedgekeurde bron automatisch verpakken, de pakketten gericht controleren en de release publiceren zonder een tweede routinematige toestemmingsvraag. Sluit de releasemilestone pas na geslaagde publicatie en administratieve controle.
 
-Bij een relevante codewijziging na eindcontrole: valideer de gewijzigde bron opnieuw en leg die opnieuw ter handmatige eindcontrole voor vóór de nieuwe installerbuilds. Bij een ongewijzigde bron is een technische herhaling van een mislukte packagingjob toegestaan; dat vraagt geen nieuwe goedkeuring of volledige regressie. Een mislukte pakketcontrole blokkeert publicatie. Deze afspraken activeren de procedure niet alvast voor de nog open milestone 1 en wijzigen de huidige CI niet automatisch.
+Bij een relevante codewijziging na eindcontrole: valideer de gewijzigde bron opnieuw en leg die opnieuw ter handmatige eindcontrole voor vóór de nieuwe installerbuilds. Bij een ongewijzigde bron is een technische herhaling van een mislukte packagingjob toegestaan; dat vraagt geen nieuwe goedkeuring of volledige regressie. Een mislukte pakketcontrole blokkeert publicatie. Milestone 1 is afgerond; PR #26 heeft de beschreven CI-scheiding en verplichte handmatige gate inmiddels geïmplementeerd.

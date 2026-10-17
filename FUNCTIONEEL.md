@@ -548,4 +548,13 @@ De volledige gecureerde testreeks wordt uitsluitend in de releasefase uitgevoerd
 
 Aanvullend vastgesteld op 17 oktober 2026: na afronding van de geselecteerde issues en de volledige regressie volgt een handmatige eindcontrole door de gebruiker, vóór het bouwen van de nieuwe release-installers. De agent levert wijzigingsoverzicht, testresultaten, beperkingen en een testbare ontwikkelversie met exacte broncommit/voorgestelde versie. Pas na expliciet akkoord starten de automatische installerbuilds. Daarna volgen gerichte pakket-/installatiecontroles en publicatie; daarvoor is geen tweede routinematig akkoord nodig. Bij relevante codewijziging na akkoord moet de gewijzigde bron opnieuw gevalideerd en voorgelegd worden. De releasemilestone sluit na geslaagde publicatie en administratieve controle.
 
-De procedure geldt pas na afronding van milestone 1. De huidige milestone-1-afronding en bestaande CI worden door deze documentatiestap niet gewijzigd. AGENTS.md bevat de uitvoeringsafspraken; geen wijziging van appgedrag.
+De procedure is actief na de gecontroleerde afsluiting van milestone 1 op 17 oktober 2026. De gebruiker heeft het samenvoegen van deze afspraken in PR #25 expliciet bevestigd; PR #26 implementeert de CI-scheiding en handmatige gate. AGENTS.md bevat de uitvoeringsafspraken; geen wijziging van appgedrag.
+
+
+## 39. Afronding milestone 1 en bijwerken GitHub
+
+De gebruiker geeft op 17 oktober 2026 expliciet opdracht milestone 1 af te handelen en GitHub actueel te maken. Daarmee is samenvoegen van het goedgekeurde milestone-1-werk naar main en sluiten van aantoonbaar afgeronde issues geautoriseerd. De gepubliceerde tag v1.0.0 en haar downloads blijven ongewijzigd.
+
+Het resterende werk van #8 wordt afgemaakt: gerichte PR-controles op Mac en Windows; bij een nieuwe release/tag volledige regressie, daarna verplichte handmatige goedkeuring vóór installerbuilds, beide native platforminstallers met pakket-/opslagcontrole en gezamenlijke publicatie met hashes. De GitHub-omgeving release-approval vereist RoJoRZ als reviewer en staat geen beheerdersbypass toe. Deze afronding creëert geen nieuwe release en verleent de agent geen bevoegdheid om zelf de handmatige eindcontrole goed te keuren.
+
+Milestone 1 is op 17 oktober 2026 gesloten: tien gesloten issues en nul open issues. De goedgekeurde app-/release-PR's en de resterende CI-afronding (#26) staan op main. De geaccepteerde appbron is gelijk aan v1.0.0; tag en downloads zijn ongewijzigd. De gerichte CI-run https://github.com/RoJoRZ/HITtheBeat/actions/runs/39016523327 slaagt op Mac en Windows (per platform negen Node-tests, één starttest en vier installatieharnas-tests). PR #25 werd aanvankelijk tegengehouden door automatische goedkeuringscontrole. De gebruiker heeft daarna expliciet bevestigd ook deze PR samen te voegen; daarmee wordt de goedgekeurde algemene werkwijze actief.
