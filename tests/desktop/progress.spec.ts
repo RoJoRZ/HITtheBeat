@@ -2,6 +2,7 @@ import { test, expect, _electron as electron } from '@playwright/test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 
 test('dashboard reflects real time, separate fragment contexts, ratings and immutable history offline', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-progress-'));
@@ -29,43 +30,80 @@ test('dashboard reflects real time, separate fragment contexts, ratings and immu
       const stopped = await window.hitthebeat!.startSession(routine.id);
       await window.hitthebeat!.saveSession(stopped.id, { ...stopped.progress, seq: 1, phase: 'paused', times: { planned: 1, fragment: 0, pause: 50 }, played: [{ ...first, seconds: 1, completed: 0 }] }, 'stopped');
     });
+    const oldId = await page.evaluate(async () => {
+      const e = await window.hitthebeat!.saveExercise({ kind: 'metronome', title: 'Ritme', description: '', bpm: 120, detectedBpm: null, analysisStatus: 'unavailable', duration: 0, meter: '4/4', bars: 1 });
+      const r = await window.hitthebeat!.saveRoutine({ title: 'Ritmesessie', blocks: [{ id: crypto.randomUUID(), exerciseId: e.id, steps: [{ id: crypto.randomUUID(), start: null, end: null, bpm: 120, repetitions: 1 }] }] });
+      let id = '';
+      for (let i = 0; i < 2; i++) {
+        const run = await window.hitthebeat!.startSession(r.id); id = run.id;
+        await window.hitthebeat!.saveSession(run.id, { ...run.progress, seq: 1, phase: 'complete', passes: 1, statuses: ['completed'], times: { planned: 2, fragment: 0, pause: 30 }, played: [{ mode: 'planned', block: 0, step: 0, a: 0, b: 2, bpm: 120, pitch: 0, seconds: 2, completed: 1 }] }, 'completed');
+      }
+      return id;
+    });
+    // Only the temporary fixture database is changed: put one run outside this month.
+    await app.close();
+    const db = new DatabaseSync(path.join(root, 'library', 'library.sqlite'));
+    const date = new Date(); date.setDate(date.getDate() - 45);
+    try { db.prepare('UPDATE sessions SET started_at=? WHERE id=?').run(date.toISOString(), oldId); } finally { db.close(); }
+    app = await launch(); page = await app.firstWindow();
+    page.on('pageerror', error => errors.push(error.message));
+
     await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click();
     await page.getByRole('button', { name: 'Voortgang', exact: true }).click();
-    await expect(page.getByTestId('dashboard-time')).toHaveText('0:26');
+    await expect(page.getByTestId('dashboard-time')).toHaveText('0:28');
     await expect(page.getByTestId('dashboard-days')).toHaveText('1');
-    await expect(page.getByTestId('dashboard-sessions')).toHaveText('2');
-    await expect(page.getByText('1 volledig afgerond', { exact: true })).toBeVisible();
-    const select = page.getByLabel('Onderdeel tempo-ontwikkeling');
-    const choices = await select.locator('option').allTextContents();
-    expect(choices).toHaveLength(3);
-    await select.selectOption({ label: choices.find(choice => choice.includes('Volledige track') && choice.includes('Sessie'))! });
-    await expect(page.getByRole('img', { name: /Gespeeld tempo/ })).toHaveAccessibleName(/1 meetpunten; laatst 90 BPM/);
-    await expect(page.getByText('Jouw beoordeling: 3/5', { exact: true })).toBeVisible();
-    await select.selectOption({ label: choices.find(choice => choice.includes('Fragment 2–4 s'))! });
-    await expect(page.getByRole('img', { name: /Gespeeld tempo/ })).toHaveAccessibleName(/laatst 110 BPM/);
-    await expect(page.getByText('Jouw beoordeling: 4/5', { exact: true })).toBeVisible();
-    await page.getByText('Meetpunten bekijken', { exact: true }).click();
-    await expect(page.getByRole('table').filter({ has: page.getByText('Werkelijk gespeelde resultaten voor dit onderdeel', { exact: true }) })).toContainText('4/5');
+    await expect(page.getByTestId('dashboard-sessions')).toHaveText('3');
+    await expect(page.getByLabel('Periode voortgang').locator('option')).toHaveCount(4);
+    const tempos = page.getByRole('img', { name: 'Gespeelde tempo’s van alle zichtbare oefeningen', exact: true });
+    const ratings = page.getByRole('img', { name: 'Beoordelingen van alle zichtbare oefeningen', exact: true });
+    await expect(tempos.locator('circle')).toHaveCount(4);
+    await expect(ratings.locator('circle')).toHaveCount(2);
+    await expect(tempos.locator('circle').filter({ hasText: '90 BPM' })).toHaveCount(1);
+    await expect(tempos.locator('circle').filter({ hasText: '110 BPM' })).toHaveCount(1);
+    await expect(tempos.locator('circle').filter({ hasText: '60 BPM' })).toHaveCount(1);
+    await expect(ratings.locator('circle').filter({ hasText: '3/5' })).toHaveCount(1);
+    await expect(ratings.locator('circle').filter({ hasText: '4/5' })).toHaveCount(1);
+    await expect(page.getByTestId('exercise-frequency')).toHaveCount(2);
+    const firstFrequency = await page.getByTestId('exercise-frequency').allTextContents();
+    await expect(page.getByRole('heading', { name: 'Laatste resultaat voor dit onderdeel' })).toHaveCount(0);
+    await expect(page.getByText('Fragmenten en evaluaties bekijken', { exact: true })).toHaveCount(0);
+    await expect(page.locator('.activity-day')).toHaveCount(30);
+    const latestRange = await page.getByTestId('activity-range').innerText();
+    await expect(page.getByRole('button', { name: 'Volgende 30 dagen', exact: true })).toBeDisabled();
+    await page.getByRole('button', { name: 'Vorige 30 dagen', exact: true }).click();
+    await expect(page.getByTestId('activity-range')).not.toHaveText(latestRange);
+    await expect(page.getByRole('button', { name: 'Vorige 30 dagen', exact: true })).toBeDisabled();
+    await expect(page.getByTestId('dashboard-time')).toHaveText('0:28');
+    await page.getByText('Oefentijd per dag bekijken', { exact: true }).click();
+    await expect(page.getByRole('table')).toContainText('0:02');
+    await page.getByRole('button', { name: 'Volgende 30 dagen', exact: true }).click();
+    await expect(page.getByTestId('activity-range')).toHaveText(latestRange);
+    await page.getByRole('checkbox', { name: 'Wisselslag', exact: true }).uncheck();
+    await expect(tempos.locator('circle')).toHaveCount(1);
+    await expect(ratings).toHaveCount(0);
+    await expect(page.getByTestId('dashboard-time')).toHaveText('0:28');
+    expect(await page.getByTestId('exercise-frequency').allTextContents()).toEqual(firstFrequency);
+    await page.getByRole('checkbox', { name: 'Ritme', exact: true }).uncheck();
+    await expect(tempos).toHaveCount(0);
+    await expect(page.getByText('Geen zichtbare meetpunten in deze periode.', { exact: true })).toHaveCount(2);
+    await page.getByRole('checkbox', { name: 'Wisselslag', exact: true }).check();
+    await page.getByRole('checkbox', { name: 'Ritme', exact: true }).check();
+    for (const period of ['month', 'year', 'all']) {
+      await page.getByLabel('Periode voortgang').selectOption(period);
+      await expect(page.getByTestId('dashboard-time')).toHaveText(period === 'month' ? '0:28' : '0:30');
+    }
+    await page.getByText('Oefentijd per dag bekijken', { exact: true }).click();
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.screenshot({ path: 'test-results/phase7-dashboard.png', fullPage: true });
-    await select.selectOption({ label: choices.find(choice => choice.includes('Vrije training'))! });
-    await expect(page.getByRole('img', { name: /Gespeeld tempo/ })).toHaveAccessibleName(/laatst 60 BPM/);
-    await expect(page.getByText('Geen cijfer bewaard.', { exact: true })).toBeVisible();
-    await expect(page.getByText(/Hoogste werkelijk afgespeelde BPM per sessie in vrije fragmenttraining/)).toBeVisible();
-    await page.getByLabel('Periode voortgang').selectOption('month');
-    await expect(page.getByTestId('dashboard-time')).toHaveText('0:26');
-    await page.getByLabel('Periode voortgang').selectOption('all');
-    await expect(page.getByTestId('dashboard-time')).toHaveText('0:26');
-    await page.evaluate(async () => { const routine = (await window.hitthebeat!.listRoutines())[0]; await window.hitthebeat!.saveRoutine({ ...routine, title: 'Gewijzigde training', blocks: routine.blocks.map(block => ({ ...block, steps: block.steps.map(step => ({ ...step, bpm: 130 })) })) }); });
+    await page.screenshot({ path: 'test-results/release-1.1-dashboard.png', fullPage: true });
+    const original = await page.evaluate(() => window.hitthebeat!.listSessions());
+    await page.evaluate(async () => { const routine = (await window.hitthebeat!.listRoutines()).find(item => item.title === 'Dagelijkse techniek')!; await window.hitthebeat!.saveRoutine({ ...routine, title: 'Gewijzigde training', blocks: routine.blocks.map(block => ({ ...block, steps: block.steps.map(step => ({ ...step, bpm: 130 })) })) }); });
     await app.close(); app = await launch(); page = await app.firstWindow();
     await page.context().setOffline(true);
     await page.getByRole('button', { name: 'Voortgang', exact: true }).click();
-    await expect(page.getByTestId('dashboard-time')).toHaveText('0:26');
-    const savedSelect = page.getByLabel('Onderdeel tempo-ontwikkeling');
-    await expect(savedSelect.locator('option')).toHaveCount(3);
-    expect(await savedSelect.locator('option').allTextContents()).toEqual(choices);
-    await savedSelect.selectOption({ label: choices.find(choice => choice.includes('Volledige track') && choice.includes('Sessie'))! });
-    await expect(page.getByRole('img', { name: /Gespeeld tempo/ })).toHaveAccessibleName(/laatst 90 BPM/);
+    await page.getByLabel('Periode voortgang').selectOption('all');
+    await expect(page.getByTestId('dashboard-time')).toHaveText('0:30');
+    await expect(page.locator('circle').filter({ hasText: 'Dagelijkse techniek' })).toHaveCount(5);
+    expect(await page.evaluate(() => window.hitthebeat!.listSessions())).toEqual(original);
     await page.setViewportSize({ width: 960, height: 700 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect(errors).toEqual([]);

@@ -565,3 +565,16 @@ Milestone 1 is op 17 oktober 2026 gesloten: tien gesloten issues en nul open iss
 Op 17 oktober 2026 start de gebruiker milestone Release 1.1.0 volgens hoofdstuk 38. De geselecteerde scope is #28 (evaluatie) en #27 (voortgang); geen aanvullende issues.
 
 De evaluatie biedt geen veld meer om een opmerking toe te voegen. Cijfer, tempo-aanpassing, herhalen en Enter/toetsenbediening blijven gelijk. Nieuwe evaluaties bewaren een lege notitie voor compatibiliteit. Bestaande opmerkingen blijven ongewijzigd in historische momentopnamen.
+
+
+## 41. Voortgang in één overzicht — Release 1.1.0 (#27)
+
+De gebruiker heeft op 17 oktober 2026 opdracht gegeven dit geselecteerde milestone-issue te verwerken. Het dashboard krijgt vier periodes: Week (maandag tot vandaag), Maand (kalendermaand tot vandaag), Jaar (twaalf kalendermaanden terug tot vandaag, schrikkeldag begrensd op 28 februari) en Altijd. De drie samenvattingen tonen werkelijk gespeelde oefentijd, oefendagen en oefensessies in die periode. Pauzes, evaluaties en aftellen tellen niet mee; gestopte/onderbroken sessies tellen mee voor hun gespeelde tijd. De bestaande toerekening aan de lokale startdag blijft gelden.
+
+Eén tempografiek toont alle geoefende oefeningen; één scoregrafiek toont alle bewaarde beoordelingen. De oefening-checkboxen verbergen een oefening in beide lijngrafieken, zonder totalen of staafdiagram te veranderen. Contexten (sessie-opbouw, oefenblok, fragment, originele broninstellingen, toonhoogte en geplande/vrije training) blijven afzonderlijke lijnen met de oefeningkleur. Er wordt geen tempoverbetering tussen verschillende contexten verzonnen. Per context/sessie geldt de hoogste BPM uit afgeronde geplande herhalingen of werkelijk gespeelde vrije training; de score is de laatste bijpassende eigen beoordeling. Geen ontbrekend cijfer invullen. Puntlabels vermelden datum, oefening en context; hele BPM-getallen zijn weergave, geen opslagafronding.
+
+Het staafdiagram toont hoe vaak elke oefening is geoefend in de gekozen periode, met namen onder 45 graden. Tel eenmaal per oefening-identiteit per gespeelde sessie, ook als meerdere blokken/fragmenten/herhalingen voorkomen. Vrije training en gedeeltelijke uitvoering tellen bij gespeelde tijd mee. Deze telwijze staat zichtbaar in het dashboard. Gelijknamige oefeningen blijven verschillende identiteiten.
+
+Oefentijd per dag heeft een eigen, aaneengesloten venster van 30 dagen: aanvankelijk de laatste 30 inclusief vandaag; Vorige/Volgende bladeren telkens 30 dagen zonder gaten of overlap. Dit staat los van de periode bovenaan. Geen bladeren naar de toekomst; terug stopt zodra er geen oudere gespeelde historie is. Exacte dagtijden blijven via de dagtabel toegankelijk.
+
+Het vak Laatste resultaat en de gedetailleerde sessie-/oefeninginformatie verdwijnen uit dit scherm. Opgeslagen sessies, evaluaties, oorspronkelijke notities en bronmomentopnamen blijven intact. De UI toont uitsluitend eigen geschiedenis en werkt offline, in Nederlands en Engels. Geen schemawijziging of nieuwe bibliotheekafhankelijkheid.

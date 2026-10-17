@@ -1,21 +1,12 @@
-import { barsLabel, t, m, locale, messageText } from '../../electron/i18n.mjs';
-import { bpmText } from '../../electron/tempo-display.mjs';
-import { hasCountIn } from '../../electron/count-in-model.mjs';
-import { isMetronome, exerciseBars } from '../../electron/exercise-model.mjs';
+import { t, m, messageText } from '../../electron/i18n.mjs';
 import { useEffect, useState } from 'react';
 import type { SessionRecord } from '../library/types';
-import { durationLabel } from './controls';
 import { ProgressDashboard } from './ProgressDashboard';
-import { buildDashboard } from '../library/progress.mjs';
-const labels = { get running() { return t("Bezig"); }, get completed() { return t("Afgerond"); }, get partial() { return t("Doorlopen · oefeningen overgeslagen"); }, get stopped() { return t("Gestopt"); }, get interrupted() { return t("Onderbroken bij afsluiten"); } };
-const actions = { get repeat() { return t("Serie opnieuw"); }, get same() { return t("Volgende keer hetzelfde"); }, get faster() { return t("Volgende keer sneller"); }, get slower() { return t("Volgende keer rustiger"); } };
+import type { Period } from '../library/progress.mjs';
+
 export function SessionHistory() {
-  const [period, setPeriod] = useState<'week' | 'month' | 'all'>('week');
+  const [period, setPeriod] = useState<Period>('week');
   const [sessions, setSessions] = useState<SessionRecord[]>([]), [loading, setLoading] = useState(true), [error, setError] = useState('');
   useEffect(() => { let alive = true; window.hitthebeat?.listSessions().then(items => { if (alive) setSessions(items); }).catch(() => { if (alive) setError(m("De sessiehistorie kon niet worden geladen. Open dit scherm opnieuw om het te proberen.")); }).finally(() => { if (alive) setLoading(false); }); return () => { alive = false; }; }, []);
-  const visibleSessions = buildDashboard(sessions, { period }).sessions;
-  return <div className="screen-stack session-history" aria-busy={loading}>{!loading && !error && <ProgressDashboard sessions={sessions} period={period} changePeriod={setPeriod} />}<section className="panel"><h2>{t("Recente sessies en resultaten")}</h2><p>{t("Je bewaarde uitvoeringen in de gekozen periode, inclusief gestopte en onderbroken sessies.")}</p></section>{error && <p role="alert" className="error">{messageText(error)}</p>}{visibleSessions.map(session => <section className="panel history-session" key={session.id}><div className="panel-heading"><div><h2>{session.routine.title}</h2><p>{new Date(session.startedAt).toLocaleString(locale())} · <strong>{labels[session.status]}</strong></p></div><strong>{durationLabel(session.progress.times.planned + session.progress.times.fragment)}{t(" geoefend")}</strong></div><p className="caption">{t("Sessie ")}{durationLabel(session.progress.times.planned)}{t(" · Fragmenttraining ")}{durationLabel(session.progress.times.fragment)}{hasCountIn(session.routine) && <>{t(" · Aftellen ")}{durationLabel(session.progress.times.preparation ?? 0)}</>}{t(" · Pauze ")}{durationLabel(session.progress.times.pause)} · {session.progress.passes}{t(" speelbeurten afgerond")}</p><details><summary>{t("Fragmenten en evaluaties bekijken")}</summary>{session.routine.blocks.map((block, index) => {
-    const exercise = session.exercises.find(item => item.id === block.exerciseId)!;
-    return <div className="history-exercise" key={block.id}><h3>{index + 1}. {exercise.title}</h3><p className="caption">{session.progress.statuses[index] === 'completed' ? t("Afgerond") : session.progress.statuses[index] === 'skipped' ? t("Overgeslagen") : t("Niet afgerond")}</p><ul>{session.progress.played.filter(item => item.block === index).map((item, i) => <li key={i}>{item.mode === 'fragment' ? t("Vrij fragment") : t("Sessie")} · {isMetronome(exercise) ? `${exercise.meter} · ${barsLabel(exerciseBars(block.steps[item.step], exercise))}` : t("{0}–{1} s", item.a.toFixed(2), item.b.toFixed(2))} · {bpmText(item.bpm)}{t(" BPM · ")}{isMetronome(exercise) ? t('metronoom') : item.pitch === 0 ? t("originele toonhoogte") : t("{0}{1} halve tonen", item.pitch > 0 ? '+' : '', item.pitch)} · {durationLabel(item.seconds)}{item.mode === 'planned' ? t(" · {0} speelbeurten afgerond", item.completed) : ''}</li>)}</ul>{session.evaluations.filter(item => item.block === index).map(item => <div className="history-evaluation" key={item.id}><strong>{t("Stappen ")}{item.fromStep + 1}–{item.toStep + 1}: {actions[item.action]}{item.delta ? t(" ({0}{1} BPM voor de hele oefening)", item.delta > 0 ? '+' : '', bpmText(item.delta)) : ''}</strong>{item.rating !== undefined && <p>{t("Beoordeling: ")}{item.rating}/5</p>}{item.note && <p>{item.note}</p>}</div>)}</div>;
-  })}</details></section>)}</div>;
+  return <div className="screen-stack session-history" aria-busy={loading}>{loading && <p role="status">{t("Voortgang laden…")}</p>}{!loading && !error && <ProgressDashboard sessions={sessions} period={period} changePeriod={setPeriod} />}{error && <p role="alert" className="error">{messageText(error)}</p>}</div>;
 }

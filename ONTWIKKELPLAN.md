@@ -261,3 +261,5 @@ De gebruiker bundelt maximaal tien GitHub-issues per nieuwe releasemilestone en 
 ## Release 1.1.0 — gestart 17 oktober 2026
 
 Scope: #28 evaluatie zonder opmerking, daarna #27 voortgangsoverzicht. Per issue gerichte tests, zelfreview, PR-merge en sluiten bij bewezen criteria. Vervolgens één volledige release-regressie op Mac/Windows en een testbare ontwikkelversie met vaste broncommit voor de handmatige eindcontrole. Nieuwe installers en publicatie wachten op expliciet gebruikersakkoord.
+
+De twee issues zijn geïmplementeerd: #28 via PR #30 samengevoegd en gesloten na Mac/Windows-CI; #27 heeft alle negen criteria met gerichte data-/UI-controles afgehandeld en gaat naar PR-CI. Zie docs/RELEASE-1.1.0.md voor testmatrix en resultaten. De releasemilestone blijft open tot na de handmatige eindcontrole, installercontroles en publicatie.

@@ -38,7 +38,7 @@ test('whole BPM presentation preserves fractional exercises, plans and historica
   await page.getByRole('button',{name:'Mijn oefensessies',exact:true}).click();await page.getByRole('button',{name:'Stoppen en terug',exact:true}).click();
   const records=await page.evaluate(()=>window.hitthebeat!.listSessions());expect(records.find(s=>s.id===original.history.id)).toEqual(original.history);
   await page.getByRole('button',{name:'Voortgang',exact:true}).click();await expect(page.getByRole('heading',{name:'Tempo-ontwikkeling'})).toBeVisible();await wholeBpm(page);
-  await expect(page.getByRole('img',{name:/laatst 96 BPM/})).toBeVisible();await page.getByText('Meetpunten bekijken',{exact:true}).click();await page.getByText('Fragmenten en evaluaties bekijken',{exact:true}).first().click();await wholeBpm(page);
+  await expect(page.locator('circle[aria-label]').filter({hasText:'96 BPM'}).first()).toBeVisible();await wholeBpm(page);
   await page.screenshot({path:'test-results/bpm-progress.png',fullPage:true});
   await page.getByRole('button',{name:'Oefeningen',exact:true}).click();await page.getByRole('button',{name:'Bewerken',exact:true}).click();
   await page.getByRole('button',{name:'Halveer BPM',exact:true}).click();await expect(page.getByLabel('Origineel BPM',{exact:true})).toHaveValue('60');
