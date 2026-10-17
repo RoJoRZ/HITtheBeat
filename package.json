@@ -1,6 +1,6 @@
 {
   "name": "hitthebeat",
-  "version": "0.0.26",
+  "version": "1.0.0-rc.1",
   "private": true,
   "packageManager": "pnpm@11.25.0",
   "description": "Een persoonlijk oefenmaatje voor muzikanten.",
@@ -17,8 +17,8 @@
     "start": "electron .",
     "test": "node --test tests/*.test.mjs",
     "test:desktop": "playwright test",
-    "package:mac": "pnpm build && electron-builder --mac zip --publish never",
-    "package:win": "pnpm build && electron-builder --win zip --x64 --publish never"
+    "package:mac": "pnpm build && electron-builder --mac dmg zip --arm64 --publish never",
+    "package:win": "pnpm build && electron-builder --win nsis zip --x64 --publish never"
   },
   "build": {
     "appId": "nl.rojorz.hitthebeat",
@@ -38,16 +38,43 @@
       "category": "public.app-category.music",
       "identity": "-",
       "target": [
+        "dmg",
         "zip"
       ],
       "icon": "build/icon.icns"
     },
     "win": {
       "target": [
+        "nsis",
         "zip"
       ],
       "icon": "build/icon.ico"
-    }
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": false,
+      "deleteAppDataOnUninstall": false,
+      "installerLanguages": [
+        "en_US",
+        "nl_NL"
+      ]
+    },
+    "extraResources": [
+      {
+        "from": "public/licenses",
+        "to": "licenses"
+      },
+      {
+        "from": "node_modules/electron/dist/LICENSE",
+        "to": "licenses/LICENSE.electron.txt"
+      },
+      {
+        "from": "node_modules/electron/dist/LICENSES.chromium.html",
+        "to": "licenses/LICENSES.chromium.html"
+      }
+    ]
   },
   "dependencies": {
     "@fontsource/source-sans-3": "5.3.0",

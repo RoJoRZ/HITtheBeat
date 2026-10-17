@@ -513,3 +513,12 @@ Onderaan de zijbalk staat Info over HITtheBeat. De knop opent een leesbaar infor
 Een puntsgewijze samenvatting beschrijft de gerealiseerde functies: eigen audio met opdracht/tablatuur en volumenormalisatie; BPM-schatting en onafhankelijke tempo-/toonhoogtebediening; opgeslagen oefensessies met fragmenten/herhalingen/BPM en totale duur; metronoom en aftellen; A–B-looptraining met bewaren en hervatten; evaluaties en volgende-tempo-keuze; voortgang/historie; offline delen met makererkenning; lokale opslag, taalkeuze en toetsen-/muisbediening. De tekst presenteert geen open voorstellen als beschikbare functies en noemt geen onbewezen detectienauwkeurigheid. De actuele appversie staat erbij.
 
 De informatie volgt Nederlands/Engels. Het venster is te scrollen op kleinere schermen en sluit met Sluiten, de onderste terugknop of Escape. De focus keert terug naar de Info-knop. Openen/sluiten navigeert niet weg, wijzigt geen opgeslagen gegevens en onderbreekt geen spelende sessie; bestaande formulierinvoer blijft staan. Sneltoetsen in het informatievenster bedienen de onderliggende speler niet.
+
+
+## 35. Eerste downloadbare release
+
+Vastgesteld op 16 oktober 2026: de gebruiker accepteert het infovenster en geeft opdracht een eerste release te maken. Een echte Windows-gebruikstest volgt zodra de gebruiker een Windows-machine met Codex beschikbaar maakt.
+
+De eerste uitgave is daarom `1.0.0-rc.1`, gemarkeerd als pre-release: macOS Apple Silicon (DMG en ZIP) en Windows x64 (ZIP, volledig uitpakken). De Windows-installer is nog niet geleverd; de Mac-cross-build van NSIS vereist een Intel-hulpprogramma/Rosetta. De app werkt zelfstandig en offline, met bestaande lokale opslag en zonder account, telemetry of automatische updates. Downloads bevatten geen persoonlijke bibliotheek of oefenmedia.
+
+Dit is een handmatig gepubliceerde testrelease, geen afgeronde Windows-acceptatie of voltooiing van releaseautomatisering (#8). Windows-installer, native Windows-controles, muzikale luisterbeoordeling en CI/tag-automatisering blijven expliciet open. De Mac-app is ad-hoc ondertekend en niet genotariseerd; Windows is niet ondertekend. De projectlicentie blijft onbeslist (`UNLICENSED`); meegeleverde dependencyvermeldingen kiezen geen projectlicentie. Zie docs/RELEASE.md en docs/WINDOWS-TEST.md.
