@@ -45,3 +45,10 @@ PR #31 is na zelfreview en groene CI op beide platformen samengevoegd; #27 en #2
 De eerste regressierun 39019598374 op e1dd190 is geannuleerd voor een gevonden taalwisselrandgeval: memoized contextlabels bleven in de oude taal. De gerichte dashboardtest reproduceert dit (Full track ontbrak na NL/EN-wissel). Aggregatiecache neemt nu de taal mee als dependency; periode en filters blijven behouden. #27 is voor dit herstel tijdelijk heropend; een afzonderlijke PR sluit het na gerichte controle opnieuw. Geen test verwijderd of fout genegeerd. De gewijzigde releasebron vereist opnieuw de volledige native regressie en daarna menselijke eindcontrole. De eerder gebouwde ontwikkelapp wordt vervangen door dezelfde versie met deze correctie; er is nog geen release of installer gepubliceerd.
 
 Gericht herstelbewijs op Mac: build/typecheck, 13 progress/language Node-tests en de dashboardtest geslaagd, inclusief toetsenbordfilter en live contextvertaling zonder periode-/filterverlies. De test faalde aantoonbaar op de oorspronkelijke bron en slaagt na de cachecorrectie.
+
+
+### Testcuratie na volledige run 39020035447
+
+Op beide platformen slagen alle 111 Node-tests en 30 van 31 desktoptests. De enige fout is de verouderde verwachting in count-in.spec.ts:70 voor Aftellen in het op verzoek verwijderde sessiedetailpaneel. De productcode werkte; de test wordt niet geschrapt maar controleert nu de dashboard-samenvatting tegen gespeelde tijd zonder aftellen/pauzes. Alle oorspronkelijke checks op aftelmaten, BPM, pauze/herstart, vrije training, vier speelbeurten en afzonderlijk opgeslagen voorbereidingstijd blijven behouden. Alleen deze getroffen test wordt lokaal herhaald. Geen productcode of ontwikkelapp veranderd; de releaseworkflow moet de gecorrigeerde volledige testgroep groen uitvoeren voordat de menselijke gate wordt bereikt. Installers/publicatie zijn in de mislukte run overgeslagen.
+
+De gerichte afteltest slaagt op Mac (16 seconden), inclusief de nieuwe dashboardcontrole. De PR-CI controleert deze testgroep native op beide platformen. Dit is testonderhoud voor #27, geen extra functioneel milestone-issue.
