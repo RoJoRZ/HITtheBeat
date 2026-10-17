@@ -580,3 +580,14 @@ Oefentijd per dag heeft een eigen, aaneengesloten venster van 30 dagen: aanvanke
 Het vak Laatste resultaat en de gedetailleerde sessie-/oefeninginformatie verdwijnen uit dit scherm. Opgeslagen sessies, evaluaties, oorspronkelijke notities en bronmomentopnamen blijven intact. De UI toont uitsluitend eigen geschiedenis en werkt offline, in Nederlands en Engels. Geen schemawijziging of nieuwe bibliotheekafhankelijkheid.
 
 Bij direct wisselen van taal vertalen ook de historische contextlabels in de grafieken. De gekozen periode, verborgen oefeningen en dagvenster blijven daarbij staan; eigen namen en opgeslagen historie worden niet vertaald.
+
+
+## 42. Definitieve release 1.1.0
+
+Op 17 oktober 2026 heeft de gebruiker de ontwikkelapp na handmatige eindcontrole geaccepteerd en expliciet akkoord gegeven voor de release. Dit akkoord betreft versie 1.1.0 op bron 7ac4d8a115bfe9f6d4da19f2e3c05ae087add266: de eenvoudigere evaluatie (#28) en het vernieuwde dashboard (#27), inclusief live contextvertaling. De volledige native regressie is op beide platformen geslaagd: elk 111 Node-tests en 31 desktop-/audiotests.
+
+Het expliciete gebruikersakkoord is vastgelegd bij de bestaande workflowgate; dezelfde workflow bouwt daarna Mac arm64 DMG/ZIP en Windows x64 per-user NSIS/ZIP, controleert de werkelijk geinstalleerde app met tijdelijke gegevens en publiceert de bestanden gezamenlijk met SHA-256-controle. Geen nieuwe volledige regressie op ongewijzigde productcode na het akkoord.
+
+De bestaande bibliotheek, schema 10, appdatapaden en afhankelijkheden blijven gelijk. Mac is ad-hoc ondertekend en niet genotariseerd; Windows is niet ondertekend. Geen nieuwe claim over muzikale luisteracceptatie of fysieke Windows-gebruikstest. De oorspronkelijke 1.0.0 blijft behouden. Milestone 2 sluit na geslaagde publicatie en administratieve controle.
+
+Release 1.1.0 is op 17 oktober 2026 definitief gepubliceerd, met vier platformdownloads, controlegetallen en instructies. Beide native installercontroles zijn geslaagd (elk vier gerichte tests). De automatische conceptpublicatie is na een tag-opvraagfout op dezelfde release-ID met gecontroleerde hashes afgerond; geen wijziging aan de goedgekeurde appbron. Zie docs/RELEASE-1.1.0.md.
