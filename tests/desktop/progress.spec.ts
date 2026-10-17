@@ -106,6 +106,16 @@ test('dashboard reflects real time, separate fragment contexts, ratings and immu
     expect(await page.evaluate(() => window.hitthebeat!.listSessions())).toEqual(original);
     await page.setViewportSize({ width: 960, height: 700 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.getByRole('checkbox', { name: 'Ritme', exact: true }).focus();
+    await page.getByRole('checkbox', { name: 'Ritme', exact: true }).press('Space');
+    await expect(page.getByRole('checkbox', { name: 'Ritme', exact: true })).not.toBeChecked();
+    await page.evaluate(() => window.hitthebeat!.setLanguage('en'));
+    const englishChart = page.getByRole('img', { name: 'Tempos played for all visible exercises', exact: true });
+    await expect(englishChart).toBeVisible();
+    await expect(englishChart.locator('circle').filter({ hasText: 'Full track' })).toHaveCount(1);
+    await expect(englishChart.locator('circle').filter({ hasText: 'Volledige track' })).toHaveCount(0);
+    await expect(page.getByRole('checkbox', { name: 'Ritme', exact: true })).not.toBeChecked();
+    await expect(page.getByLabel('Progress period')).toHaveValue('all');
     expect(errors).toEqual([]);
   } finally { await app.close(); await rm(root, { recursive: true, force: true }); }
 });

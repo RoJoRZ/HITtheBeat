@@ -1,4 +1,4 @@
-import { t, locale } from '../../electron/i18n.mjs';
+import { t, locale, getLanguage } from '../../electron/i18n.mjs';
 import { bpmText } from '../../electron/tempo-display.mjs';
 import { useMemo, useState } from 'react';
 import type { SessionRecord } from '../library/types';
@@ -48,7 +48,8 @@ function FrequencyChart({ exercises }: { exercises: Dashboard['exercises'] }) {
   </svg></div>;
 }
 export function ProgressDashboard({ sessions, period, changePeriod }: { sessions: SessionRecord[]; period: Period; changePeriod: (value: Period) => void }) {
-  const data = useMemo(() => buildDashboard(sessions, { period }), [sessions, period]);
+  const language = getLanguage();
+  const data = useMemo(() => buildDashboard(sessions, { period }), [sessions, period, language]);
   const [hidden, setHidden] = useState<Set<string>>(new Set()), [offset, setOffset] = useState(0);
   const activity = useMemo(() => buildActivity(sessions, { offset }), [sessions, offset]);
   const maximum = Math.max(1, ...activity.days.map(day => day.seconds));

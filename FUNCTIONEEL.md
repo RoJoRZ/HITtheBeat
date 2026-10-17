@@ -578,3 +578,5 @@ Het staafdiagram toont hoe vaak elke oefening is geoefend in de gekozen periode,
 Oefentijd per dag heeft een eigen, aaneengesloten venster van 30 dagen: aanvankelijk de laatste 30 inclusief vandaag; Vorige/Volgende bladeren telkens 30 dagen zonder gaten of overlap. Dit staat los van de periode bovenaan. Geen bladeren naar de toekomst; terug stopt zodra er geen oudere gespeelde historie is. Exacte dagtijden blijven via de dagtabel toegankelijk.
 
 Het vak Laatste resultaat en de gedetailleerde sessie-/oefeninginformatie verdwijnen uit dit scherm. Opgeslagen sessies, evaluaties, oorspronkelijke notities en bronmomentopnamen blijven intact. De UI toont uitsluitend eigen geschiedenis en werkt offline, in Nederlands en Engels. Geen schemawijziging of nieuwe bibliotheekafhankelijkheid.
+
+Bij direct wisselen van taal vertalen ook de historische contextlabels in de grafieken. De gekozen periode, verborgen oefeningen en dagvenster blijven daarbij staan; eigen namen en opgeslagen historie worden niet vertaald.
