@@ -272,3 +272,8 @@ Release 1.1.0 is na de expliciete handmatige eindgoedkeuring op 17 oktober 2026 
 ## Losse reparatie #36 — 24 oktober 2026
 
 Op expliciet gebruikersverzoek buiten een nieuwe milestone: defensieve reparatie van A/B-slepen in de gedeelde waveformeditor, met gerichte regressie en reviewbare PR. Zie docs/WAVEFORM.md. Geen zelfstandige release, milestonewijziging of merge; praktijkcontrole op de betrokken Windows-machine staat open.
+
+
+## Release 1.1.1 — voorbereiding 24 oktober 2026
+
+Gebruiker heeft #37 gecontroleerd en merge/publicatie opgedragen. PR samengevoegd, #36 gesloten; gerichte CI groen op Mac/Windows (40079726724). Versie 1.1.1 wordt vastgezet voor volledige release-regressie, ontwikkelapp en verplichte menselijke eindcontrole vóór installers. Geen nieuwe milestone toegevoegd. Zie docs/RELEASE-1.1.1.md.
