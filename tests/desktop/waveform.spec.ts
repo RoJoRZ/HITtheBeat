@@ -7,13 +7,14 @@ async function drag(page: Page, from: number, to: number) {
   await page.mouse.move(box.x + box.width * from, box.y + box.height * .6); await page.mouse.down();
   await page.mouse.move(box.x + box.width * to, box.y + box.height * .6, { steps: 8 }); await page.mouse.up();
 }
-test('waveform selects source passages, drags markers after zoom/pan, previews, saves and resumes the unchanged session', async () => {
+for (const captureFails of [false, true]) test(`capture ${captureFails ? 'fallback' : 'normal'}: waveform selects source passages, drags markers after zoom/pan, previews, saves and resumes the unchanged session`, async () => {
   test.setTimeout(60000);
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-wave-')), executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
   const app = await electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
   try {
     const page = await app.firstWindow(), errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
     await expect(page.locator('h1')).toBeVisible(); await page.waitForLoadState('load');
+    if (captureFails) await page.addInitScript(() => { Element.prototype.setPointerCapture = () => { throw new DOMException('Capture unavailable', 'NotFoundError'); }; });
     const bytes = Array.from(await readFile('tests/fixtures/pulse-aac.m4a'));
     const original = await page.evaluate(async bytes => {
       const api = window.hitthebeat!, audio = await api.saveExercise({ title: 'Selecteren', description: '', bpm: 120, duration: 6, detectedBpm: null, analysisStatus: 'unavailable', audio: { name: 'select.m4a', bytes: new Uint8Array(bytes) } });
@@ -70,7 +71,38 @@ test('waveform selects source passages, drags markers after zoom/pan, previews, 
     await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click(); await page.getByRole('button', { name: 'Stoppen en terug', exact: true }).click();
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click(); await page.getByRole('button', { name: /Selecteren/ }).click();
     await expect(page.getByRole('button', { name: 'Fragment beluisteren' })).toBeEnabled();
-    await drag(page, .15, .35); await page.getByRole('button', { name: 'Fragment beluisteren' }).click();
+    await drag(page, .15, .35);
+    await expect(page.getByRole('button', { name: 'Fragment beluisteren' })).toBeEnabled();
+    const svgBox = (await page.locator('.interactive-waveform').boundingBox())!;
+    await page.mouse.move(svgBox.x + svgBox.width * .35, svgBox.y + svgBox.height * .6);
+    await page.mouse.down();
+    await page.mouse.move(svgBox.x + svgBox.width * .8, svgBox.y - 5, { steps: 8 });
+    await page.mouse.up();
+    await expect.poll(async () => Number(await b.inputValue())).toBeCloseTo(4.8, 1);
+    // A release without a preceding move still carries the final coordinate.
+    const boundary = page.getByLabel('Begin A (seconden)', { exact: true });
+    await expect(page.getByRole('button', { name: 'Fragment beluisteren' })).toBeEnabled();
+    const previous = await boundary.inputValue();
+    await page.locator('.interactive-waveform').evaluate(svg => {
+      const box = svg.getBoundingClientRect();
+      const send = (type: string, fraction: number) => svg.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerId: 91, button: 0, clientX: box.x + box.width * fraction }));
+      send('pointerdown', .5); send('pointerup', .7);
+    });
+    await expect(boundary).not.toHaveValue(previous);
+    await expect(page.getByRole('button', { name: 'Fragment beluisteren' })).toBeEnabled();
+    const committed = await boundary.inputValue();
+    // A click or cancelled gesture must leave the committed loop alone.
+    for (const cancel of [false, true]) {
+      await page.locator('.interactive-waveform').evaluate((svg, cancel) => {
+        const box = svg.getBoundingClientRect();
+        const send = (type: string, fraction: number) => svg.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerId: 92, button: 0, clientX: box.x + box.width * fraction }));
+        send('pointerdown', .2);
+        if (cancel) { send('pointermove', .4); send('pointercancel', .4); }
+        else send('pointerup', .2);
+      }, cancel);
+      await expect(boundary).toHaveValue(committed);
+    }
+    await page.getByRole('button', { name: 'Fragment beluisteren' }).click();
     await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeEnabled();
     expect(errors).toEqual([]);
   } finally { await app.close(); await rm(root, { recursive: true, force: true }); }

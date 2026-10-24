@@ -10,20 +10,44 @@ export function WaveformEditor({ wave, duration, position, a, b, disabled, selec
   const [view, setView] = useState({ start: 0, end: duration }), [draft, setDraft] = useState<Range | null>(null), [pan, setPan] = useState(false);
   const drag = useRef<{ id: number; kind: 'a'|'b'|'select'|'pan'; anchor: number; initial: Range; view: typeof view; moved: boolean } | null>(null);
   const latest = useRef<Range | null>(null);
-  useEffect(() => { setView({ start: 0, end: duration }); setDraft(null); drag.current = null; }, [wave, duration]);
+  const fallbackCleanup = useRef<(() => void) | null>(null);
+  useEffect(() => () => fallbackCleanup.current?.(), []);
+  useEffect(() => { setView({ start: 0, end: duration }); setDraft(null); drag.current = null; fallbackCleanup.current?.(); }, [wave, duration]);
   const span = view.end - view.start, chosen = draft ?? { a, b };
   const peaks = useMemo(() => visiblePeaks(wave, view.start, view.end), [wave, view.start, view.end]);
   const x = (time: number) => (time - view.start) / (span || 1) * 880;
   const allowed = !disabled && duration >= minimumSelection && Boolean(wave);
-  function coordinate(event: PointerEvent<SVGSVGElement>) { const rect = event.currentTarget.getBoundingClientRect(); const selected = drag.current?.view ?? view; return timeAt(event.clientX, rect.left, rect.width, selected.start, selected.end); }
+  function coordinate(event: Pick<PointerEvent<SVGSVGElement>, 'pointerId' | 'clientX' | 'currentTarget'>) { const rect = event.currentTarget.getBoundingClientRect(); const selected = drag.current?.view ?? view; return timeAt(event.clientX, rect.left, rect.width, selected.start, selected.end); }
   function down(event: PointerEvent<SVGSVGElement>) {
-    if (!allowed || event.button !== 0) return;
+    if (!allowed || event.button !== 0 || drag.current) return;
     const target = (event.target as Element).closest('[data-handle]')?.getAttribute('data-handle');
     const kind = target === 'a' || target === 'b' ? target : pan ? 'pan' : 'select';
     drag.current = { id: event.pointerId, kind, anchor: coordinate(event), initial: { a, b }, view, moved: false }; latest.current = null;
-    event.currentTarget.setPointerCapture(event.pointerId); event.preventDefault();
+    event.preventDefault();
+    try { event.currentTarget.setPointerCapture(event.pointerId); }
+    catch {
+      // Some input environments cannot acquire capture. Keep tracking outside
+      // the SVG without accepting events from another pointer.
+      const svg = event.currentTarget, pointerId = event.pointerId, clientX = event.clientX;
+      const blur = () => finish({ pointerId, clientX, currentTarget: svg }, true);
+      const adapt = (input: globalThis.PointerEvent) => ({ pointerId: input.pointerId, clientX: input.clientX, currentTarget: svg });
+      const moving = (input: globalThis.PointerEvent) => move(adapt(input));
+      const ending = (input: globalThis.PointerEvent) => finish(adapt(input));
+      const cancelling = (input: globalThis.PointerEvent) => finish(adapt(input), true);
+      window.addEventListener('pointermove', moving);
+      window.addEventListener('pointerup', ending);
+      window.addEventListener('pointercancel', cancelling);
+      window.addEventListener('blur', blur);
+      fallbackCleanup.current = () => {
+        window.removeEventListener('pointermove', moving);
+        window.removeEventListener('pointerup', ending);
+        window.removeEventListener('pointercancel', cancelling);
+        window.removeEventListener('blur', blur);
+        fallbackCleanup.current = null;
+      };
+    }
   }
-  function move(event: PointerEvent<SVGSVGElement>) {
+  function move(event: Pick<PointerEvent<SVGSVGElement>, 'pointerId' | 'clientX' | 'currentTarget'>) {
     const gesture = drag.current; if (!gesture || gesture.id !== event.pointerId) return;
     const at = coordinate(event); gesture.moved ||= Math.abs(at - gesture.anchor) > span / 880 * 2;
     if (gesture.kind === 'pan') { setView(viewportRange(gesture.view.start + gesture.anchor - at, gesture.view.end - gesture.view.start, duration)); return; }
@@ -32,10 +56,11 @@ export function WaveformEditor({ wave, duration, position, a, b, disabled, selec
       : selectionRange(gesture.anchor, at, duration);
     latest.current = next; setDraft(next);
   }
-  function finish(event: PointerEvent<SVGSVGElement>, cancelled = false) {
+  function finish(event: Pick<PointerEvent<SVGSVGElement>, 'pointerId' | 'clientX' | 'currentTarget'>, cancelled = false) {
     const gesture = drag.current; if (!gesture || gesture.id !== event.pointerId) return;
+    if (!cancelled) move(event); // Release can arrive without a final pointermove.
     if (!cancelled && gesture.kind !== 'pan' && latest.current && gesture.moved) select(latest.current);
-    drag.current = null; latest.current = null; setDraft(null);
+    drag.current = null; latest.current = null; setDraft(null); fallbackCleanup.current?.();
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   }
   function zoom(factor: number) {
