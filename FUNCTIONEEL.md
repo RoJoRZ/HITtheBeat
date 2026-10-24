@@ -598,3 +598,8 @@ Release 1.1.0 is op 17 oktober 2026 definitief gepubliceerd, met vier platformdo
 Geïmplementeerd op de issuebranch: A/B slepen in de losse oefeningspeler en sessiespeler gebruikt bij mislukte pointer capture een vensterbrede terugval, ook bij loslaten buiten de waveform. De definitieve loslaatpositie bepaalt de selectie als een laatste bewegingsevent ontbreekt. Een klik zonder slepen, annuleren of focusverlies in de terugvalroute behoudt de vorige grenzen. Audio gebruikt de bestaande selectie-/looproute; sessie-opbouwen en historische momentopnamen wijzigen niet.
 
 Aanleiding is een Windows-gebruiker bij wie markeringen en audioloop op de vorige grenzen blijven staan. De precieze oorzaak en Windows-versie zijn niet vastgesteld. Dit is een defensieve reparatie, geen bewezen oplossing op de betrokken machine. Praktijkcontrole daar blijft open; er is geen nieuwe release gepubliceerd.
+
+
+## Releasevoorbereiding 1.1.1 — 24 oktober 2026
+
+De gebruiker heeft de reparatie gecontroleerd en expliciet opdracht gegeven PR #37 samen te voegen en een nieuwe release te maken. #37 is samengevoegd na groene gerichte Mac/Windows-CI; #36 is gesloten. Voorgestelde patchversie: 1.1.1, uitsluitend de defensieve fragmentbediening uit #36. Geen schema-/historiewijziging of nieuwe afhankelijkheden. De bestaande releaseketen blijft gelden: volledige native regressie op vaste bron, testbare ontwikkelapp en daarna expliciet gebruikersakkoord bij release-approval vóór de nieuwe installers en publicatie. Controle van de oorspronkelijke Windows-oorzaak blijft open. Zie docs/RELEASE-1.1.1.md.
