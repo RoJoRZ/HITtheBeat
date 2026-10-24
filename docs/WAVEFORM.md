@@ -33,3 +33,18 @@ Een extra diagnose van de realtime probes liet zien dat een AudioContext na resu
 
 
 Verpakt Mac-arm64-programma v0.0.22: **6/6 pakkettests geslaagd**, één bron-DSP-probe bewust overgeslagen (wel geslaagd in de broncontrole). Audio/toetsen, bestaande fragmentopslag, tablatuurvenster, sessiehervatting en de volledige waveformroute inclusief muis-pan en losse speler zijn getest. Visuele controle uitgevoerd; `git diff --check` schoon. Mac-arm64- en Windows-x64-zip gebouwd. Echte Windows-gebruikstest en muzikale luisterbeoordeling blijven open.
+
+
+## Gerichte reparatie #36 — 24 oktober 2026
+
+Risico: een invoeromgeving zonder succesvolle pointer capture kan slepen buiten de SVG verliezen; een ontbrekend laatste move-event laat verouderde grenzen staan. De gedeelde editor krijgt een terugval en verwerkt de loslaatcoördinaat. Geen wijziging aan audio-engine, opslag of snapshots. Zelfreview controleert listeneropruiming en pointeridentiteit; dit is geen onafhankelijke menselijke review.
+
+| Controle | Reden / resultaat |
+| --- | --- |
+| Typecheck + productiebuild | Gedeelde React-bediening; geslaagd (bestaande bundelwaarschuwingen) |
+| tests/waveform.test.mjs | Broncoördinaten/minimumgrenzen/pieken; 2/2 geslaagd |
+| tests/desktop/waveform.spec.ts | 2/2 geslaagd op Mac: normale capture en geforceerde capturefout in beide spelers; zoom/pan, A/B, buiten waveform loslaten, release zonder move, klik/annuleren, preview, opslaan en sessiehervatting |
+| Windows/invoerapparaat betrokken gebruiker | Open; oorzaak op die machine niet bevestigd |
+| Volledige releasegroep/installers/luisteracceptatie | Uitgesteld naar release; niet nodig voor deze lokale pointerwijziging |
+
+Tests gebruiken uitsluitend tijdelijke geïsoleerde gebruikersdata. Eerste sandboxstart van Electron werd door de omgeving geblokkeerd; uitvoering buiten de sandbox is nodig. De nieuwe opeenvolgende sleepcontrole wacht expliciet tot de eerdere audio-opdracht klaar is.

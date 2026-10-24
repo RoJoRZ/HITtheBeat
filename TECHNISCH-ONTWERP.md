@@ -360,3 +360,8 @@ buildDashboard behoudt historische contextgroepering en voegt exerciseId, per-oe
 SessionHistory laadt uitsluitend historische sessies; gedetailleerde resultaatweergave vervalt. ProgressDashboard gebruikt eigen SVG-lijn-/staafdiagrammen, gedeelde checkboxstate en een aparte dagoffset. Geen chartdependency, IPC, schema- of audiowijziging. Punten blijven per context gescheiden en behouden bronprecisie; alleen BPM-presentatie rondt af. Catalogus bevat expliciete NL/EN-sleutels; eigen namen blijven gewone tekst. Wijzigingen in bestaande UI-regressies volgen het vervallen dashboard, terwijl BPM-precisie, metronoomcontext, evaluatiebewaring en taalwissel beschermd blijven.
 
 Dashboard-zelfreview: de gememoiseerde aggregatie bevat vertaalde contextlabels en neemt daarom getLanguage() op als afhankelijkheid. De bestaande Root-taalsubscriptie zorgt voor herberekening, zonder componentremount of filterverlies. De gerichte dashboardtest toont eerst de fout en bewaakt vervolgens de live NL/EN-wissel en toetsenbordbediende checkboxstate.
+
+
+### Pointerterugval — issue #36
+
+WaveformEditor vangt een fout van setPointerCapture op en volgt dezelfde pointer via pointermove/up/cancel op window. Tijdelijke listeners verdwijnen bij afronding, annuleren, blur, bronwissel en unmount. Een tweede pointer kan een lopende sleepactie niet overnemen. Pointerup verwerkt ook zijn eigen broncoördinaat, zodat geen laatste pointermove vereist is. Normale pointercapture en annuleren bij captureverlies blijven behouden. Geen nieuwe dependency, IPC of opslagwijziging; ontwerp/stijl in DESIGN.md ongewijzigd.

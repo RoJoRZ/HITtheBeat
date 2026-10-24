@@ -591,3 +591,10 @@ Het expliciete gebruikersakkoord is vastgelegd bij de bestaande workflowgate; de
 De bestaande bibliotheek, schema 10, appdatapaden en afhankelijkheden blijven gelijk. Mac is ad-hoc ondertekend en niet genotariseerd; Windows is niet ondertekend. Geen nieuwe claim over muzikale luisteracceptatie of fysieke Windows-gebruikstest. De oorspronkelijke 1.0.0 blijft behouden. Milestone 2 sluit na geslaagde publicatie en administratieve controle.
 
 Release 1.1.0 is op 17 oktober 2026 definitief gepubliceerd, met vier platformdownloads, controlegetallen en instructies. Beide native installercontroles zijn geslaagd (elk vier gerichte tests). De automatische conceptpublicatie is na een tag-opvraagfout op dezelfde release-ID met gecontroleerde hashes afgerond; geen wijziging aan de goedgekeurde appbron. Zie docs/RELEASE-1.1.0.md.
+
+
+## Fragmentbediening robuuster — issue #36 (24 oktober 2026)
+
+Geïmplementeerd op de issuebranch: A/B slepen in de losse oefeningspeler en sessiespeler gebruikt bij mislukte pointer capture een vensterbrede terugval, ook bij loslaten buiten de waveform. De definitieve loslaatpositie bepaalt de selectie als een laatste bewegingsevent ontbreekt. Een klik zonder slepen, annuleren of focusverlies in de terugvalroute behoudt de vorige grenzen. Audio gebruikt de bestaande selectie-/looproute; sessie-opbouwen en historische momentopnamen wijzigen niet.
+
+Aanleiding is een Windows-gebruiker bij wie markeringen en audioloop op de vorige grenzen blijven staan. De precieze oorzaak en Windows-versie zijn niet vastgesteld. Dit is een defensieve reparatie, geen bewezen oplossing op de betrokken machine. Praktijkcontrole daar blijft open; er is geen nieuwe release gepubliceerd.

@@ -267,3 +267,8 @@ De twee issues zijn geïmplementeerd: #28 via PR #30 samengevoegd en gesloten na
 #27 is via PR #31 samengevoegd en gesloten na groene Mac/Windows-CI (elk 20 Node-/14 desktoptests). Beide geselecteerde issues zijn gereed. Versievoorbereiding 1.1.0 en ontwikkelapp zijn klaar; de volledige release-regressie en vervolgens handmatige eindcontrole volgen nog. Milestone 2 blijft open tot geslaagde publicatie.
 
 Release 1.1.0 is na de expliciete handmatige eindgoedkeuring op 17 oktober 2026 gepubliceerd. Volledige Mac/Windows-regressie: elk 111 Node- en 31 desktop-/audiotests; na akkoord uitsluitend vier gerichte installercontroles per platform. Conceptpublicatie gecontroleerd afgerond op dezelfde bestanden na een tag-opvraagfout. Publicatiescript en verslagen krijgen een gerichte afrondings-PR; geen appwijziging of herhaalde volledige regressie. Milestone 2 sluit na administratieve controle.
+
+
+## Losse reparatie #36 — 24 oktober 2026
+
+Op expliciet gebruikersverzoek buiten een nieuwe milestone: defensieve reparatie van A/B-slepen in de gedeelde waveformeditor, met gerichte regressie en reviewbare PR. Zie docs/WAVEFORM.md. Geen zelfstandige release, milestonewijziging of merge; praktijkcontrole op de betrokken Windows-machine staat open.
