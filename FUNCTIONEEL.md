@@ -603,3 +603,8 @@ Aanleiding is een Windows-gebruiker bij wie markeringen en audioloop op de vorig
 ## Releasevoorbereiding 1.1.1 — 24 oktober 2026
 
 De gebruiker heeft de reparatie gecontroleerd en expliciet opdracht gegeven PR #37 samen te voegen en een nieuwe release te maken. #37 is samengevoegd na groene gerichte Mac/Windows-CI; #36 is gesloten. Voorgestelde patchversie: 1.1.1, uitsluitend de defensieve fragmentbediening uit #36. Geen schema-/historiewijziging of nieuwe afhankelijkheden. De bestaande releaseketen blijft gelden: volledige native regressie op vaste bron, testbare ontwikkelapp en daarna expliciet gebruikersakkoord bij release-approval vóór de nieuwe installers en publicatie. Controle van de oorspronkelijke Windows-oorzaak blijft open. Zie docs/RELEASE-1.1.1.md.
+
+
+### Release 1.1.1 gepubliceerd — 25 oktober 2026
+
+Na controle van de ontwikkelapp heeft de gebruiker expliciet toestemming gegeven voor de release. Bron `4ff243d0eedd0a1d36a2229c8bfa5fc896435947`: volledige native Mac/Windows-regressie groen (elk 120 Node- en 32 desktop-/audiotests), daarna akkoord via release-approval, native installerbuilds en elk vier gerichte pakkettests. Release 1.1.1 met Mac arm64 DMG/ZIP en Windows x64 NSIS/ZIP is automatisch gepubliceerd. Tag, zeven assets en digests gecontroleerd; run 40081653930 volledig groen. Geen opslag-/historiewijziging, geen nieuwe milestone of wijziging aan bestaande releases. Zie docs/RELEASE-1.1.1.md. Oorzaak op de oorspronkelijke Windows-machine blijft onbevestigd.

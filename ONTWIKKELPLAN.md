@@ -277,3 +277,6 @@ Op expliciet gebruikersverzoek buiten een nieuwe milestone: defensieve reparatie
 ## Release 1.1.1 — voorbereiding 24 oktober 2026
 
 Gebruiker heeft #37 gecontroleerd en merge/publicatie opgedragen. PR samengevoegd, #36 gesloten; gerichte CI groen op Mac/Windows (40079726724). Versie 1.1.1 wordt vastgezet voor volledige release-regressie, ontwikkelapp en verplichte menselijke eindcontrole vóór installers. Geen nieuwe milestone toegevoegd. Zie docs/RELEASE-1.1.1.md.
+
+
+Release 1.1.1 is op 25 oktober 2026 na expliciete eindgoedkeuring gepubliceerd op vaste bron 4ff243d. Volledige Mac/Windows-regressie elk 120 Node-/32 desktoptests; vervolgens vier pakkettests per native installerjob. Publicatie en alle zeven assets gecontroleerd; run 40081653930 groen. Geen nieuwe milestone gestart. Verslag: docs/RELEASE-1.1.1.md.
