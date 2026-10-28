@@ -1,5 +1,13 @@
 // Dutch source messages are stable catalog keys; user content is never a key.
 export const english = {
+  "Tempo → aantal BPM. Enter bewaart je keuze en gaat door. Standaard: tempo gelijk.": "Tempo → BPM adjustment. Enter saves your choice and continues. Default: same tempo.",
+  "1. Volgende keer ": "1. Next time ",
+  "2. Aanpassing in BPM": "2. BPM adjustment",
+  "Oefeningen in de tempografiek": "Exercises in the tempo chart",
+  "Vink oefeningen uit om ze in de tempografiek te verbergen. Totalen en staafdiagram blijven gelijk.": "Uncheck exercises to hide them in the tempo chart. Totals and the bar chart stay the same.",
+  "Kies na een fragmentserie of oefening voor herhalen, hetzelfde tempo of een BPM-aanpassing voor de volgende keer.": "After a fragment series or exercise, choose to repeat, keep the tempo or adjust the BPM for next time.",
+  "Bekijk gespeelde oefentijd, oefendagen en oefensessies. Volg het tempo per oefening, inclusief fragmenttraining, en blader door je oefenritme. Een hoger BPM is niet automatisch beter.": "View practice time, practice days and sessions. Follow tempo per exercise, including fragment practice, and browse your practice rhythm. A higher BPM does not automatically mean better playing.",
+
   "Dashboard beheren": "Manage dashboard",
   "Standaardperiode": "Default period",
   "Getoond tempo": "Displayed tempo",

@@ -45,10 +45,9 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await page.getByRole('button', { name: 'Deze serie opnieuw', exact: true }).click();
     await expect(page.getByTestId('session-bpm')).toHaveText('75 BPM');
     await expect(page.getByRole('heading', { name: 'Fragmentserie afgerond', exact: true })).toBeVisible();
-    await page.keyboard.press('4');
-    await expect(page.getByRole('button', { name: 'Beoordeling 4 van 5' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: /Beoordeling .* van 5/ })).toHaveCount(0);
     await page.keyboard.press('3');
-    await expect(page.getByLabel('3. Aanpassing in BPM')).toBeFocused();
+    await expect(page.getByLabel('2. Aanpassing in BPM')).toBeFocused();
     await page.getByLabel('Aanpassing in BPM').fill('400');
     await expect(page.getByRole('button', { name: 'Verder met volgende fragment', exact: true })).toBeDisabled();
     await page.getByLabel('Aanpassing in BPM').fill('');
@@ -69,7 +68,6 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('session-bpm')).toHaveText('120 BPM');
     await expect(page.getByRole('heading', { name: 'Oefening afgerond', exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'Beoordeling 2 van 5' }).click();
     await page.keyboard.press('1');
     await expect(page.getByLabel('Aanpassing in BPM')).toBeFocused();
     await page.keyboard.type('7');
@@ -80,7 +78,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await page.getByRole('article', { name: 'Techniek', exact: true }).getByRole('button', { name: 'Bewerken' }).click();
     await expect(page.getByLabel('BPM oefening 1 stap 1', { exact: true })).toHaveValue('80');
     await page.getByRole('button', { name: 'Voortgang', exact: true }).click();
-    await expect(page.getByRole('img', { name: 'Beoordelingen van alle zichtbare oefeningen' })).toBeVisible();
+    await expect(page.getByRole('img', { name: 'Beoordelingen van alle zichtbare oefeningen' })).toHaveCount(0);
     expect(await page.evaluate(async () => (await window.hitthebeat!.listSessions())[0].progress.passes)).toBe(8);
     await page.locator('#main').focus();
     await page.screenshot({ path: 'test-results/phase6-history.png', fullPage: true });
@@ -92,7 +90,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     expect(saved.routine.blocks[0].steps.map(item => item.bpm)).toEqual([75,95,85]);
     expect(saved.evaluations).toHaveLength(4);
     expect(saved.evaluations.every(item => item.note === '')).toBe(true);
-    expect(saved.evaluations.map(item => item.rating)).toEqual([3,4,3,2]);
+    expect(saved.evaluations.map(item => item.rating)).toEqual([undefined,undefined,undefined,undefined]);
     expect(saved.evaluations.map(item => item.delta)).toEqual([0,5,0,-7]);
     expect((await page.evaluate(async () => window.hitthebeat!.listRoutines())).find(item => item.id === routineId)!.blocks[1].steps[0].bpm).toBe(113);
     await page.getByRole('button', { name: 'Sessie starten', exact: true }).click();

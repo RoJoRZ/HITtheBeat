@@ -369,3 +369,7 @@ WaveformEditor vangt een fout van setPointerCapture op en volgt dezelfde pointer
 ## Dashboardvoorkeuren en tempo — #40
 
 Hoofdproces bewaart period/tempo atomair en serieel in dashboard-preferences.json, onafhankelijk van de bestaande taalvoorkeur. Strikt gevalideerde get/set-IPC alleen voor het geautoriseerde hoofdvenster; tablatuurpreload krijgt geen extra rechten. Ontbrekende/ongeldige voorkeur: all/min. SessionHistory laadt voorkeur en historie samen; lokale periodewijziging schrijft niet terug. progress.mjs aggregeert gespeelde BPM per session/exercise-ID; minimum/maximum of som(BPM × seconden)/som(seconden). Historische snapshots blijven onveranderd. Gerichte tests dekken oude taalvoorkeur, write-fout, ongeldige IPC-input, deelherhalingen en gecombineerde fragmenten.
+
+### #41 — optionele historische cijfers
+
+SessionReview/SessionPlayer sturen geen rating meer; validateEvaluation bewaart een expliciete legacy rating alleen indien aanwezig en valideert die zoals tevoren. Geen default 3 toevoegen en geen migratie van bestaande evaluaties. Scoregrafiek wordt niet gerenderd; About-teksten volgen de twee overblijvende evaluatiestappen. Toetsen 1–3 kiezen direct tempo, Enter bevestigt. Tests voor oude ratings blijven bestaan als compatibiliteitscontrole; desktoptests behouden tempo-, fout-, herhaal-, focus- en taalwisseldekking.

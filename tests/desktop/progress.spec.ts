@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
-test('dashboard reflects real time, separate fragment contexts, ratings and immutable history offline', async () => {
+test('dashboard reflects real time, combined exercise tempo, no score and immutable history offline', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-progress-'));
   const executablePath = process.env.HITTHEBEAT_TEST_EXECUTABLE;
   const launch = () => electron.launch({ executablePath, args: ['--lang=nl-NL', ...(executablePath ? [] : ['.']), `--user-data-dir=${root}`], env: { ...process.env, HITTHEBEAT_DEV: '0' } });
@@ -56,14 +56,12 @@ test('dashboard reflects real time, separate fragment contexts, ratings and immu
     await expect(page.getByTestId('dashboard-sessions')).toHaveText('3');
     await expect(page.getByLabel('Periode voortgang').locator('option')).toHaveCount(4);
     const tempos = page.getByRole('img', { name: 'Gespeelde tempo’s van alle zichtbare oefeningen', exact: true });
+    await expect(page.getByRole('heading', { name: 'Score-ontwikkeling', exact: true })).toHaveCount(0);
     const ratings = page.getByRole('img', { name: 'Beoordelingen van alle zichtbare oefeningen', exact: true });
     await expect(tempos.locator('circle')).toHaveCount(3);
-    await expect(ratings.locator('circle')).toHaveCount(2);
     await expect(tempos.locator('circle').filter({ hasText: '90 BPM' })).toHaveCount(1);
     await expect(tempos.locator('circle').filter({ hasText: '110 BPM' })).toHaveCount(0);
     await expect(tempos.locator('circle').filter({ hasText: '60 BPM' })).toHaveCount(1);
-    await expect(ratings.locator('circle').filter({ hasText: '3/5' })).toHaveCount(1);
-    await expect(ratings.locator('circle').filter({ hasText: '4/5' })).toHaveCount(1);
     await expect(page.getByTestId('exercise-frequency')).toHaveCount(2);
     const firstFrequency = await page.getByTestId('exercise-frequency').allTextContents();
     await expect(page.getByRole('heading', { name: 'Laatste resultaat voor dit onderdeel' })).toHaveCount(0);
@@ -86,7 +84,7 @@ test('dashboard reflects real time, separate fragment contexts, ratings and immu
     expect(await page.getByTestId('exercise-frequency').allTextContents()).toEqual(firstFrequency);
     await page.getByRole('checkbox', { name: 'Ritme', exact: true }).uncheck();
     await expect(tempos).toHaveCount(0);
-    await expect(page.getByText('Geen zichtbare meetpunten in deze periode.', { exact: true })).toHaveCount(2);
+    await expect(page.getByText('Geen zichtbare meetpunten in deze periode.', { exact: true })).toHaveCount(1);
     await page.getByRole('checkbox', { name: 'Wisselslag', exact: true }).check();
     await page.getByRole('checkbox', { name: 'Ritme', exact: true }).check();
     for (const period of ['month', 'year', 'all']) {
