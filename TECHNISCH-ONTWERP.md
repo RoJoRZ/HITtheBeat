@@ -373,3 +373,8 @@ Hoofdproces bewaart period/tempo atomair en serieel in dashboard-preferences.jso
 ### #41 — optionele historische cijfers
 
 SessionReview/SessionPlayer sturen geen rating meer; validateEvaluation bewaart een expliciete legacy rating alleen indien aanwezig en valideert die zoals tevoren. Geen default 3 toevoegen en geen migratie van bestaande evaluaties. Scoregrafiek wordt niet gerenderd; About-teksten volgen de twee overblijvende evaluatiestappen. Toetsen 1–3 kiezen direct tempo, Enter bevestigt. Tests voor oude ratings blijven bestaan als compatibiliteitscontrole; desktoptests behouden tempo-, fout-, herhaal-, focus- en taalwisseldekking.
+
+
+### #42 — transactionele voortgangverwijdering
+
+listPracticeProgress gebruikt session snapshot exercise-ID en played.seconds, dedupliceert per sessie en neemt geen actuele bibliotheekvereiste aan. Hoofdproces genereert de native bevestiging en een SHA-256 van de betrokken sessies; renderer stuurt alleen de gevalideerde oefen-ID. Na bevestiging opnieuw hoofdvensterautorisatie en fingerprint/actieve-sessiecontrole binnen BEGIN IMMEDIATE. Alleen progress/evaluations worden bijgewerkt, zonder historische snapshot-/timestamp-/statuswijziging. Played/evaluations van andere blokken blijven behouden; passes en planned/fragment worden uit resterende played afgeleid. Elke fout rolt alle writes terug. Geen nieuw schema, geen nieuwe dependency en geen extra viewerrechten.

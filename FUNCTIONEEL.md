@@ -618,3 +618,8 @@ Ook vastgesteld voor deze milestone: scoregrafiek en cijferinvoer vervallen; oud
 ### #41 — evaluatie zonder cijfers
 
 De cijferstap en scoregrafiek zijn verwijderd. Evaluatie start bij 1 · Langzamer, 2 · Gelijk houden, 3 · Sneller; daarna zo nodig het aantal BPM. Enter bewaart en gaat door, herhalen blijft beschikbaar. Standaard tempo gelijk en 5 BPM aanpassing. Nieuwe evaluaties zonder cijfer krijgen geen fictieve 3; oude expliciete cijfers blijven ongewijzigd bewaard. Deze afspraak vervangt de eerdere cijferinvoer uit hoofdstuk 18/19 en scoreweergave uit hoofdstuk 23. Overige tempo-/sessieregels blijven behouden.
+
+
+### #42 — bewaarde voortgang verwijderen
+
+Dashboard beheren toont alle oefenidentiteiten met gespeelde historie, ook na verwijderen uit de bibliotheek, met sessieaantal en oefentijd. Gelijke namen zijn afzonderlijke identiteiten. De actie toont een native waarschuwing met oefening, sessies en seconden; Annuleren is standaard. Bevestigen wist alleen gespeelde resultaten en evaluaties voor de gekozen oefenidentiteit. Oefening/media, sessie-opbouwen en historische oefen-/opbouwmomentopnamen blijven behouden. Geaggregeerde gespeelde tijden en herhalingen worden opnieuw uit de resterende resultaten bepaald; overige resultaten blijven intact. Een lege historische sessie blijft als momentopname bestaan maar telt niet meer mee in het dashboard. Nieuwe training verschijnt weer. Wissen wordt geweigerd bij een lopende sessie met deze oefening of gewijzigde gegevens na de bevestigingspreview.

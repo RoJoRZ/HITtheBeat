@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld('hitthebeat', Object.freeze({
   confirmImport: (/** @type {string} */ token, /** @type {string} */ title) => ipcRenderer.invoke('sharing:confirm',token,title),
   cancelImport: (/** @type {string} */ token) => ipcRenderer.invoke('sharing:cancel',token),
   startSession: (/** @type {string} */ id) => ipcRenderer.invoke('sessions:start', id),
+  listPracticeProgress: () => ipcRenderer.invoke('dashboard:progress'),
+  deletePracticeProgress: (/** @type {string} */ id) => ipcRenderer.invoke('dashboard:delete-progress', id),
   getDashboardSettings: () => ipcRenderer.invoke('dashboard:get'),
   setDashboardSettings: (/** @type {import('./dashboard-settings.mjs').DashboardSettings} */ value) => ipcRenderer.invoke('dashboard:set', value),
   listSessions: () => ipcRenderer.invoke('sessions:list'),
