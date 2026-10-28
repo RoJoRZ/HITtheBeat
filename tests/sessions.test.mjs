@@ -72,14 +72,14 @@ test('migration from schema 2 preserves routines and exercises', async () => fix
   assert.equal(library.listSessions().length, 0); library.startSession(routine.id);
 }));
 
-test('ratings validate, persist across reopen and missing ratings default to three', async () => fixture(async ({ library, routine, reopen }) => {
+test('ratings validate, persist across reopen and new missing ratings stay absent', async () => fixture(async ({ library, routine, reopen }) => {
   const session = library.startSession(routine.id); library.saveSession(session.id, reviewProgress(session));
   for (const rating of [0,6,2.5,'3',null,NaN]) assert.throws(() => library.reviewSession(session.id, { ...evaluation(0), rating }), /beoordeling/);
   assert.equal(library.listSessions()[0].evaluations.length, 0);
   library.reviewSession(session.id, { ...evaluation(0), rating: 5 });
   library.reviewSession(session.id, evaluation(0));
   library = await reopen();
-  assert.deepEqual(library.listSessions()[0].evaluations.map(item => item.rating), [5,3]);
+  assert.deepEqual(library.listSessions()[0].evaluations.map(item => item.rating), [5,undefined]);
 }));
 
 test('dashboard remains unchanged after editing and deleting current routines and correcting source BPM', async () => fixture(async ({ library, routine }) => {

@@ -45,5 +45,5 @@ export function validateEvaluation(input, snapshot, progress) {
   const duration = snapshot.exercises.find(item => item.id === snapshot.routine.blocks[input.block].exerciseId)?.duration;
   const same = (/** @type {import('./routine-model.mjs').RoutineStep} */ step) => (step.start ?? 0) === (last.start ?? 0) && (step.end ?? duration) === (last.end ?? duration);
   if ((input.toStep + 1 < steps.length && same(steps[input.toStep + 1])) || (input.fromStep > 0 && same(steps[input.fromStep - 1])) || steps.slice(input.fromStep, input.toStep + 1).some(step => !same(step))) throw new LocalizedError("De evaluatie hoort bij de volledige fragmentserie.");
-  return { id: input.id, block: input.block, fromStep: input.fromStep, toStep: input.toStep, action: input.action, delta: input.delta, note: input.note.trim(), rating: input.rating ?? 3 };
+  return { id: input.id, block: input.block, fromStep: input.fromStep, toStep: input.toStep, action: input.action, delta: input.delta, note: input.note.trim(), ...(input.rating === undefined ? {} : { rating: input.rating }) };
 }
