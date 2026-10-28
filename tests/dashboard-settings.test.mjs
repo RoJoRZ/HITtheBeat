@@ -14,6 +14,7 @@ test('dashboard preferences default to all/min, persist independently of languag
   assert.deepEqual((await dashboardSettings(root)).get(), {period:'year',tempo:'average'});
   assert.equal(await readFile(path.join(root,'preferences.json'),'utf8'),'{"version":1,"language":"en"}');
   await assert.rejects(settings.set({period:'bogus',tempo:'min'}));
+  await assert.rejects(settings.set({period:{toString:()=> 'all'},tempo:'min'}));
   await assert.rejects(settings.set({period:'all',tempo:'min',extra:true}));
   await rm(root,{recursive:true}); await assert.rejects(settings.set({period:'all',tempo:'min'}));
   assert.deepEqual(settings.get(), {period:'year',tempo:'average'});

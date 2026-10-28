@@ -7,7 +7,7 @@ import { LocalizedError } from './i18n.mjs';
 export function isDashboardSettings(value) {
   if (!value || typeof value !== 'object') return false;
   const v = /** @type {Record<string,unknown>} */ (value);
-  return ['week','month','year','all'].includes(String(v.period)) && ['min','max','average'].includes(String(v.tempo)) && Object.keys(v).every(key => ['period','tempo'].includes(key));
+  return typeof v.period === 'string' && typeof v.tempo === 'string' && ['week','month','year','all'].includes(v.period) && ['min','max','average'].includes(v.tempo) && Object.keys(v).every(key => ['period','tempo'].includes(key));
 }
 /** @param {string} directory */
 export async function dashboardSettings(directory) {
