@@ -44,3 +44,22 @@ Gerichte hercontrole van tests/desktop/bpm.spec.ts en metronome.spec.ts: 4/4 ges
 Definitieve bron: `a56c71c047f607da355f056ad4eda4bb563dad79`, versie 1.2.0. [Run 40707188776](https://github.com/RoJoRZ/HITtheBeat/actions/runs/40707188776) is groen op beide native platformen: elk 125 Node-tests en 34 desktop-/audiotests plus build/typecheck. De vier gerichte testonderhoudcontroles zijn behouden in deze volledige groep. PR #47 wijzigt alleen tests/docs; de ontwikkelapp bevat byte-identieke productbestanden en packageversie ten opzichte van deze bron. Geen extra ontwikkelapp- of installerbuild nodig voor uitsluitend testonderhoud.
 
 Milestone 3 is gemarkeerd als GEREED VOOR MENSELIJKE EINDCONTROLE met drie gesloten issues. De beschermde release-approval-stap wacht op het ene expliciete gebruikersakkoord. Nog geen nieuwe installers, tag of publicatie. Persoonlijke resultaten zijn niet aangepast. Alleen na akkoord volgt dezelfde vaste bron automatisch naar native installers, gerichte pakketcontroles en publicatie; de milestone sluit pas daarna. Deze verslagaanvulling wijzigt geen productcode of de vastgezette releasebron.
+
+
+## Menselijk eindakkoord — 28 oktober 2026
+
+De gebruiker heeft ontwikkelversie 1.2.0 gestart en getest en daarna expliciet bevestigd: “getest en akkoord voor release”. Dit akkoord is bij release-approval geregistreerd voor uitsluitend bron `a56c71c047f607da355f056ad4eda4bb563dad79`. De bestaande run 40707188776 gaat daarna door met native installerbuilds en gerichte pakketcontroles; geen herhaalde volledige regressie of tweede routinematige toestemmingsvraag op ongewijzigde bron.
+
+
+## Gepubliceerd en afgesloten — 28 oktober 2026
+
+[Release 1.2.0](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.2.0) is definitief gepubliceerd om 15:13 UTC (16:13 CET), release-ID 426829310. De tag verwijst naar de goedgekeurde bron `a56c71c047f607da355f056ad4eda4bb563dad79`. Run 40707188776 is volledig geslaagd: naast de eerder vermelde regressie slagen de vier gerichte tests van de daadwerkelijk gebouwde Mac-pakketten en de vier Windows-pakket-/installatietests. Alle zeven bestanden zijn geüpload en hun digests zijn vóór en na publicatie gecontroleerd. Milestone 3 is daarna gesloten met nul open en drie gesloten issues. Eerdere releases blijven behouden.
+
+| Download | SHA-256 |
+| --- | --- |
+| HITtheBeat-1.2.0-mac-arm64.dmg | 484ce0540d16f2ef029332a11865d223bbc43226558344e385b40e1fa101cb50 |
+| HITtheBeat-1.2.0-mac-arm64.zip | 59cacfeda64f2e9cc6d8f93e31a8e6b56c74e66eae9cf91fe3bc0df9fcc208fc |
+| HITtheBeat-1.2.0-win-x64.exe | 6ad46e6b389281b68482343f5086663bde1d01386071015d473542b001e06d07 |
+| HITtheBeat-1.2.0-win-x64.zip | 60dcc0189a5a0afaaa6f5e9afc993314013a9daa1a253a93400fc0ba9d6dde02 |
+
+De overige bestanden zijn RELEASE.md, SHA256SUMS.txt en THIRD-PARTY-NOTICES.txt. Deze administratieve afsluiting verandert geen productcode, releasetag of downloads. Geen nieuwe claim over de oorspronkelijke Windows-invoerfout, muzikale luisteracceptatie of notariseringsstatus. Er is geen nieuwe milestone gestart.

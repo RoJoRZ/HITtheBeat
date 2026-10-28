@@ -290,3 +290,8 @@ Gebruiker autoriseert issues en milestone: #40 dashboardvoorkeuren/één tempoli
 
 
 Release 1.2.0 gereed voor één menselijke eindcontrole: bron a56c71c047f607da355f056ad4eda4bb563dad79, run 40707188776; elk native platform 125 Node-/34 desktoptests groen. Testbare Mac-ontwikkelapp beschikbaar, dezelfde productcode; release-approval wacht. Geen installers/publicatie vóór expliciet akkoord, milestone 3 blijft open.
+
+
+### Release 1.2.0 gepubliceerd — 28 oktober 2026
+
+De gebruiker heeft de ontwikkelversie getest en expliciet akkoord voor release gegeven. Versie 1.2.0 is gepubliceerd vanuit bron `a56c71c047f607da355f056ad4eda4bb563dad79`: dashboardinstellingen en één tempografiek per oefening inclusief fragmenten, verwijderen van cijfers en beheer van bewaarde voortgang. Native Mac/Windows-regressie: elk 125 Node- en 34 desktop-/audiotests; daadwerkelijke pakketcontroles: elk vier geslaagd. Run 40707188776 is geslaagd; alle zeven releasebestanden en digests zijn gecontroleerd. Milestone 3 is na publicatie gesloten met drie gesloten issues (#40–#42) en nul open issues. Zie [releaseverslag](docs/RELEASE-1.2.0.md) en [downloads](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.2.0). Persoonlijke resultaten zijn niet door de agent verwijderd. Geen nieuwe milestone starten zonder gebruikersopdracht.
