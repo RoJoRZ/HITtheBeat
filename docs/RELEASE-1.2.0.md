@@ -10,3 +10,5 @@ Milestone 3: #40 dashboardvoorkeuren/tempo, #41 cijfers verwijderen, #42 voortga
 | Pakketten | Geen installers tijdens issuewerk | Na menselijk akkoord native builds + gerichte pakketcontrole |
 
 #40: implementatie op issuebranch; Node-controles 15/15 geslaagd. Tijdelijke data, geen persoonlijke bibliotheek. Electron progress: 2/2 geslaagd, inclusief instellingen, tijd/filters, oude snapshots en herstart. Zelfreview is geen onafhankelijke menselijke review. Geen nieuwe dependency/schema voor voorkeuren. Bestaande context-/scoreaggregatie blijft tot #41 intern aanwezig voor de oude scoregrafiek; de tempografiek gebruikt uitsluitend de nieuwe oefeningaggregatie.
+
+CI #40 ontdekte een verouderde taaltest die exact één select in Instellingen veronderstelde. Nu zijn er drie; de test controleert nog steeds exact één taalkeuze, behoudt alle taal/herstart/menuchecks en verwacht daarnaast de twee dashboardkeuzes. Geen productfout of geschrapte dekking.
