@@ -23,7 +23,7 @@ function TrendChart({ data, hidden, metric }: { data: Dashboard; hidden: Set<str
   if (!values.length) return <p role="status">{t("Geen zichtbare meetpunten in deze periode.")}</p>;
   const min = score ? 1 : Math.max(0, Math.floor(Math.min(...values) / 10) * 10 - 5);
   const max = score ? 5 : Math.ceil(Math.max(...values) / 10) * 10 + 5;
-  const from = data.from === '0000-00-00' ? (data.groups.flatMap(group => group.points.map(point => point.day)).sort()[0] ?? data.today) : data.from;
+  const from = data.from === '0000-00-00' ? (candidates.flatMap(group => group.points.map(point => point.day)).sort()[0] ?? data.today) : data.from;
   const start = dayTime(from), end = dayTime(data.today), span = end - start;
   const x = (day: string) => span === 0 ? 400 : 65 + (dayTime(day) - start) / span * 700;
   const y = (value: number) => 220 - (value - min) / (max - min) * 175;

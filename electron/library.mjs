@@ -6,7 +6,7 @@ import { validateFragment } from './fragment-model.mjs';
 import { sessionId, validateProgress, validateEvaluation } from './session-model.mjs';
 import { validateRoutine } from './routine-model.mjs';
 import { DatabaseSync } from 'node:sqlite';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -279,6 +279,55 @@ export async function openLibrary(root) {
       const progress = { seq: 0, block: 0, step: 0, repetition: 0, phase: 'ready', passes: 0, statuses: routine.blocks.map(() => 'pending'), times: { planned: 0, fragment: 0, pause: 0 }, played: [] };
       db.prepare('INSERT INTO sessions VALUES (?,?,?,?,?,?,?,?,?)').run(id, now, now, null, 'running', JSON.stringify({ routine, exercises }), JSON.stringify(progress), '[]', routine.updatedAt);
       return sessionFrom(sessionRow(id));
+    },
+    // Summary and confirmation fingerprint are derived from immutable historical identities.
+    listPracticeProgress() {
+      /** @type {Map<string,{id:string,title:string,sessions:number,seconds:number,running:boolean}>} */
+      const summary = new Map();
+      const sessions = this.listSessions();
+      for (const session of [...sessions].reverse()) {
+        const perExercise = new Map();
+        for (const played of session.progress.played) {
+          if (!(played.seconds > 0)) continue;
+          const id = session.routine.blocks[played.block]?.exerciseId;
+          if (id) perExercise.set(id, (perExercise.get(id) ?? 0) + played.seconds);
+        }
+        for (const [id, seconds] of perExercise) {
+          const source = session.exercises.find((/** @type {Exercise} */ item) => item.id === id);
+          const item = summary.get(id) ?? { id, title: source?.title ?? id, sessions: 0, seconds: 0, running: false };
+          item.title = source?.title ?? item.title; item.sessions++; item.seconds += seconds; summary.set(id, item);
+        }
+      }
+      for (const item of summary.values()) item.running = sessions.some(session => session.status === 'running' && session.routine.blocks.some((/** @type {import('./routine-model.mjs').RoutineBlock} */ block) => block.exerciseId === item.id));
+      return [...summary.values()].sort((a,b) => a.title.localeCompare(b.title) || a.id.localeCompare(b.id));
+    },
+    /** @param {string} id */
+    practiceDeletionPreview(id) {
+      validId(id);
+      const summary = this.listPracticeProgress().find(item => item.id === id);
+      if (!summary) throw new LocalizedError('Voor deze oefening zijn geen resultaten bewaard.');
+      if (summary.running) throw new LocalizedError('Stop eerst de lopende sessie voordat je voortgang verwijdert.');
+      const affected = this.listSessions().filter(session => session.routine.blocks.some((/** @type {import('./routine-model.mjs').RoutineBlock} */ block) => block.exerciseId === id));
+      const fingerprint = createHash('sha256').update(JSON.stringify(affected)).digest('hex');
+      return { ...summary, fingerprint };
+    },
+    /** Delete only results; historical snapshots and unrelated results remain intact.
+     * @param {string} id @param {string} fingerprint */
+    deletePracticeProgress(id, fingerprint) {
+      validId(id); db.exec('BEGIN IMMEDIATE;');
+      try {
+        if (this.practiceDeletionPreview(id).fingerprint !== fingerprint) throw new LocalizedError('De voortgang is intussen gewijzigd. Controleer opnieuw voordat je verwijdert.');
+        for (const session of this.listSessions()) {
+          const matches = (/** @type {number} */ block) => session.routine.blocks[block]?.exerciseId === id;
+          const played = session.progress.played.filter((/** @type {import('./session-model.mjs').Played} */ item) => !matches(item.block));
+          const evaluations = session.evaluations.filter((/** @type {import('./session-model.mjs').Evaluation} */ item) => !matches(item.block));
+          if (played.length === session.progress.played.length && evaluations.length === session.evaluations.length) continue;
+          const sum = (/** @type {string} */ mode) => played.filter((/** @type {import('./session-model.mjs').Played} */ item) => item.mode === mode).reduce((/** @type {number} */ total, /** @type {import('./session-model.mjs').Played} */ item) => total + item.seconds, 0);
+          const progress = { ...session.progress, played, passes: played.reduce((/** @type {number} */ n, /** @type {import('./session-model.mjs').Played} */ item) => n + item.completed, 0), times: { ...session.progress.times, planned: sum('planned'), fragment: sum('fragment') } };
+          db.prepare('UPDATE sessions SET progress=?, evaluations=? WHERE id=?').run(JSON.stringify(progress), JSON.stringify(evaluations), session.id);
+        }
+        db.exec('COMMIT;'); return true;
+      } catch (error) { db.exec('ROLLBACK;'); throw error; }
     },
     listSessions() { return db.prepare('SELECT * FROM sessions ORDER BY started_at DESC, id').all().map(sessionFrom); },
     /** @param {string} id @param {import('./session-model.mjs').Progress} input @param {'running'|'stopped'|'completed'|'partial'} [status] */

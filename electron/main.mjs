@@ -96,6 +96,16 @@ app.whenReady().then(async () => {
   localizedHandle(ipcMain, 'sharing:cancel', (event,token)=>{ authorize(event); return sharing.cancel(token); });
   localizedHandle(ipcMain, 'app:info', event => { authorize(event); return { version: app.getVersion(), platform: process.platform }; });
   localizedHandle(ipcMain, 'sessions:start', (event, id) => { authorize(event); return library.startSession(id); });
+  localizedHandle(ipcMain, 'dashboard:progress', event => { authorize(event); return library.listPracticeProgress(); });
+  localizedHandle(ipcMain, 'dashboard:delete-progress', async (event, id) => {
+    authorize(event);
+    const preview = library.practiceDeletionPreview(id);
+    if (!window) throw new LocalizedError('Geen hoofdvenster.');
+    const answer = await dialog.showMessageBox(window, { type: 'warning', title: t('Bewaarde voortgang verwijderen'), message: t('Voortgang van {0} definitief verwijderen?', preview.title), detail: t('{0} sessies · {1} seconden oefentijd. Deze resultaten verdwijnen uit alle grafieken en totalen. De oefening zelf en andere oefenresultaten blijven behouden. Dit kan niet ongedaan worden gemaakt.', preview.sessions, Math.round(preview.seconds)), buttons: [t('Voortgang verwijderen'), t('Annuleren')], defaultId: 1, cancelId: 1, noLink: true });
+    authorize(event);
+    if (answer.response !== 0) return false;
+    return library.deletePracticeProgress(id, preview.fingerprint);
+  });
   localizedHandle(ipcMain, 'dashboard:get', event => { authorize(event); return dashboardPreferences.get(); });
   localizedHandle(ipcMain, 'dashboard:set', (event, value) => { authorize(event); return dashboardPreferences.set(value); });
   localizedHandle(ipcMain, 'sessions:list', event => { authorize(event); return library.listSessions(); });
