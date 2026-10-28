@@ -20,6 +20,8 @@ interface Window {
     confirmImport(token: string, title: string): Promise<import('./library/types').Exercise>;
     cancelImport(token: string): Promise<void>;
     startSession(id: string): Promise<import('./library/types').SessionRecord>;
+    getDashboardSettings(): Promise<import('../electron/dashboard-settings.mjs').DashboardSettings>;
+    setDashboardSettings(value: import('../electron/dashboard-settings.mjs').DashboardSettings): Promise<import('../electron/dashboard-settings.mjs').DashboardSettings>;
     listSessions(): Promise<import('./library/types').SessionRecord[]>;
     saveSession(id: string, progress: import('./library/types').SessionProgress, status: 'running'|'stopped'|'completed'|'partial'): Promise<import('./library/types').SessionRecord>;
     reviewSession(id: string, evaluation: import('./library/types').Evaluation): Promise<import('./library/types').SessionRecord>;

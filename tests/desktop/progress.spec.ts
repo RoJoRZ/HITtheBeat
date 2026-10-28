@@ -30,6 +30,7 @@ test('dashboard reflects real time, separate fragment contexts, ratings and immu
       const stopped = await window.hitthebeat!.startSession(routine.id);
       await window.hitthebeat!.saveSession(stopped.id, { ...stopped.progress, seq: 1, phase: 'paused', times: { planned: 1, fragment: 0, pause: 50 }, played: [{ ...first, seconds: 1, completed: 0 }] }, 'stopped');
     });
+    await page.evaluate(() => window.hitthebeat!.setDashboardSettings({ period: 'week', tempo: 'min' }));
     const oldId = await page.evaluate(async () => {
       const e = await window.hitthebeat!.saveExercise({ kind: 'metronome', title: 'Ritme', description: '', bpm: 120, detectedBpm: null, analysisStatus: 'unavailable', duration: 0, meter: '4/4', bars: 1 });
       const r = await window.hitthebeat!.saveRoutine({ title: 'Ritmesessie', blocks: [{ id: crypto.randomUUID(), exerciseId: e.id, steps: [{ id: crypto.randomUUID(), start: null, end: null, bpm: 120, repetitions: 1 }] }] });
@@ -56,10 +57,10 @@ test('dashboard reflects real time, separate fragment contexts, ratings and immu
     await expect(page.getByLabel('Periode voortgang').locator('option')).toHaveCount(4);
     const tempos = page.getByRole('img', { name: 'Gespeelde tempo’s van alle zichtbare oefeningen', exact: true });
     const ratings = page.getByRole('img', { name: 'Beoordelingen van alle zichtbare oefeningen', exact: true });
-    await expect(tempos.locator('circle')).toHaveCount(4);
+    await expect(tempos.locator('circle')).toHaveCount(3);
     await expect(ratings.locator('circle')).toHaveCount(2);
     await expect(tempos.locator('circle').filter({ hasText: '90 BPM' })).toHaveCount(1);
-    await expect(tempos.locator('circle').filter({ hasText: '110 BPM' })).toHaveCount(1);
+    await expect(tempos.locator('circle').filter({ hasText: '110 BPM' })).toHaveCount(0);
     await expect(tempos.locator('circle').filter({ hasText: '60 BPM' })).toHaveCount(1);
     await expect(ratings.locator('circle').filter({ hasText: '3/5' })).toHaveCount(1);
     await expect(ratings.locator('circle').filter({ hasText: '4/5' })).toHaveCount(1);
@@ -102,7 +103,7 @@ test('dashboard reflects real time, separate fragment contexts, ratings and immu
     await page.getByRole('button', { name: 'Voortgang', exact: true }).click();
     await page.getByLabel('Periode voortgang').selectOption('all');
     await expect(page.getByTestId('dashboard-time')).toHaveText('0:30');
-    await expect(page.locator('circle').filter({ hasText: 'Dagelijkse techniek' })).toHaveCount(5);
+    await expect(page.getByRole('img', { name: 'Gespeelde tempo’s van alle zichtbare oefeningen', exact: true }).locator('circle').filter({ hasText: 'Wisselslag' })).toHaveCount(2);
     expect(await page.evaluate(() => window.hitthebeat!.listSessions())).toEqual(original);
     await page.setViewportSize({ width: 960, height: 700 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -112,10 +113,28 @@ test('dashboard reflects real time, separate fragment contexts, ratings and immu
     await page.evaluate(() => window.hitthebeat!.setLanguage('en'));
     const englishChart = page.getByRole('img', { name: 'Tempos played for all visible exercises', exact: true });
     await expect(englishChart).toBeVisible();
-    await expect(englishChart.locator('circle').filter({ hasText: 'Full track' })).toHaveCount(1);
+    await expect(englishChart.locator('circle').filter({ hasText: 'Wisselslag' })).toHaveCount(2);
     await expect(englishChart.locator('circle').filter({ hasText: 'Volledige track' })).toHaveCount(0);
     await expect(page.getByRole('checkbox', { name: 'Ritme', exact: true })).not.toBeChecked();
     await expect(page.getByLabel('Progress period')).toHaveValue('all');
     expect(errors).toEqual([]);
   } finally { await app.close(); await rm(root, { recursive: true, force: true }); }
+});
+
+test('dashboard settings persist period/tempo across navigation and restart without changing language', async () => {
+ const root=await mkdtemp(path.join(tmpdir(),'htb-dash-settings-'));
+ const launch=()=>electron.launch({args:['.','--lang=nl-NL',`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
+ let app=await launch();
+ try {
+  let page=await app.firstWindow(); await page.getByRole('button',{name:'Instellingen',exact:true}).click();
+  await expect(page.getByLabel('Standaardperiode')).toHaveValue('all'); await expect(page.getByLabel('Getoond tempo')).toHaveValue('min');
+  await page.getByLabel('Standaardperiode').selectOption('year'); await expect(page.getByLabel('Getoond tempo')).toBeEnabled();
+  await page.getByLabel('Getoond tempo').selectOption('average'); await expect(page.getByLabel('Getoond tempo')).toBeEnabled();
+  await page.getByRole('button',{name:'Voortgang',exact:true}).click(); await expect(page.getByLabel('Periode voortgang')).toHaveValue('year');
+  await page.getByLabel('Periode voortgang').selectOption('week');
+  await page.getByRole('button',{name:'Instellingen',exact:true}).click(); await expect(page.getByLabel('Standaardperiode')).toHaveValue('year');
+  await app.close();app=await launch();page=await app.firstWindow();
+  await page.getByRole('button',{name:'Voortgang',exact:true}).click();await expect(page.getByLabel('Periode voortgang')).toHaveValue('year');
+  expect(await page.evaluate(()=>window.hitthebeat!.getDashboardSettings())).toEqual({period:'year',tempo:'average'});
+ } finally {await app.close();await rm(root,{recursive:true,force:true});}
 });

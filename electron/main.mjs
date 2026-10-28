@@ -1,3 +1,4 @@
+import { dashboardSettings } from './dashboard-settings.mjs';
 import { languageSettings } from './language-settings.mjs';
 import { getLanguage, setLanguage, subscribeLanguage, localizedHandle } from './i18n.mjs';
 import { t, LocalizedError } from './i18n.mjs';
@@ -75,6 +76,7 @@ app.whenReady().then(async () => {
   const preferences = await languageSettings(app.getPath('userData'), app.commandLine.getSwitchValue('lang') || app.getPreferredSystemLanguages()[0] || app.getLocale());
   setLanguage(preferences.get());
   subscribeLanguage(() => { updateMenu(); for (const current of BrowserWindow.getAllWindows()) current.webContents.send('language:changed', getLanguage()); });
+  const dashboardPreferences = await dashboardSettings(app.getPath('userData'));
   const library = await openLibrary(path.join(app.getPath('userData'), 'library'));
   interruptSessions = () => library.interruptSessions();
   app.on('will-quit', () => { interruptSessions(); library.close(); });
@@ -94,6 +96,8 @@ app.whenReady().then(async () => {
   localizedHandle(ipcMain, 'sharing:cancel', (event,token)=>{ authorize(event); return sharing.cancel(token); });
   localizedHandle(ipcMain, 'app:info', event => { authorize(event); return { version: app.getVersion(), platform: process.platform }; });
   localizedHandle(ipcMain, 'sessions:start', (event, id) => { authorize(event); return library.startSession(id); });
+  localizedHandle(ipcMain, 'dashboard:get', event => { authorize(event); return dashboardPreferences.get(); });
+  localizedHandle(ipcMain, 'dashboard:set', (event, value) => { authorize(event); return dashboardPreferences.set(value); });
   localizedHandle(ipcMain, 'sessions:list', event => { authorize(event); return library.listSessions(); });
   localizedHandle(ipcMain, 'sessions:save', (event, id, progress, status) => { authorize(event); return library.saveSession(id, progress, status); });
   localizedHandle(ipcMain, 'sessions:review', (event, id, evaluation) => { authorize(event); return library.reviewSession(id, evaluation); });

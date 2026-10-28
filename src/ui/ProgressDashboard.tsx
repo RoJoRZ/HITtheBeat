@@ -15,7 +15,8 @@ function context(group: Dashboard['groups'][number]) {
   return `${group.exercise} · ${group.routine}${t(" · oefening ")}${group.block} · ${group.part} · ${group.mode === 'planned' ? t("Sessie") : t("Vrije training")} · ${bpmText(group.originalBpm)}${t(" BPM origineel")}${group.kind !== 'metronome' ? `${t(" · bron ")}${durationLabel(group.sourceDuration)}` : ''}${group.pitch ? t(" · {0}{1} halve tonen", group.pitch > 0 ? '+' : '', group.pitch) : ''}`;
 }
 function TrendChart({ data, hidden, metric }: { data: Dashboard; hidden: Set<string>; metric: 'bpm' | 'rating' }) {
-  const groups = data.groups.filter(group => !hidden.has(group.exerciseId) && group.points.some(point => point[metric] !== undefined));
+  const candidates: {key:string;exerciseId:string;label:string;points:{sessionId:string;day:string;bpm:number;rating?:number}[]}[] = metric === 'bpm' ? data.tempoGroups.map(group => ({ ...group, label: group.exercise })) : data.groups.map(group => ({ ...group, label: context(group) }));
+  const groups = candidates.filter(group => !hidden.has(group.exerciseId) && group.points.some(point => point[metric] !== undefined));
   const values = groups.flatMap(group => group.points.flatMap(point => point[metric] === undefined ? [] : [point[metric]!]));
   const score = metric === 'rating';
   const label = score ? t("Beoordelingen van alle zichtbare oefeningen") : t("Gespeelde tempo’s van alle zichtbare oefeningen");
@@ -33,7 +34,7 @@ function TrendChart({ data, hidden, metric }: { data: Dashboard; hidden: Set<str
       const points = group.points.filter(point => point[metric] !== undefined);
       return <g key={group.key} data-exercise={group.exerciseId} data-testid={`trend-${metric}-series`}>
         {points.length > 1 && <polyline style={{ stroke: color(group.exerciseId) }} strokeDasharray={index % 3 === 0 ? undefined : index % 3 === 1 ? '8 4' : '2 4'} points={points.map(point => `${x(point.day)},${y(point[metric]!)}`).join(' ')} />}
-        {points.map(point => { const text = `${dayLabel(point.day)} · ${context(group)} · ${score ? `${point.rating}/5` : `${bpmText(point.bpm)} BPM`}`; return <circle key={point.sessionId} cx={x(point.day)} cy={y(point[metric]!)} r="5" style={{ fill: color(group.exerciseId) }} tabIndex={0} aria-label={text}><title>{text}</title></circle>; })}
+        {points.map(point => { const text = `${dayLabel(point.day)} · ${group.label} · ${score ? `${point.rating}/5` : `${bpmText(point.bpm)} BPM`}`; return <circle key={point.sessionId} cx={x(point.day)} cy={y(point[metric]!)} r="5" style={{ fill: color(group.exerciseId) }} tabIndex={0} aria-label={text}><title>{text}</title></circle>; })}
       </g>;
     })}
     {[...new Set([start, Math.round((start + end) / 2), end])].map(date => <text key={date} x={span === 0 ? 400 : 65 + (date - start) / span * 700} y="260" textAnchor="middle">{dayLabel(new Date(date).toISOString().slice(0, 10))}</text>)}
@@ -47,9 +48,9 @@ function FrequencyChart({ exercises }: { exercises: Dashboard['exercises'] }) {
     {exercises.map((item, index) => { const x = 65 + index * step, height = item.count / maximum * 160; return <g key={item.id} data-testid="exercise-frequency"><rect x={x + step * .15} y={205 - height} width={step * .55} height={height} fill={color(item.id)} tabIndex={0} aria-label={`${item.title}: ${item.count}`}><title>{item.title}: {item.count}</title></rect><text x={x + step * .42} y={195 - height} textAnchor="middle">{item.count}</text><text transform={`translate(${x + step * .3},225) rotate(45)`}>{item.title.length > 24 ? `${item.title.slice(0, 23)}…` : item.title}<title>{item.title}</title></text></g>; })}
   </svg></div>;
 }
-export function ProgressDashboard({ sessions, period, changePeriod }: { sessions: SessionRecord[]; period: Period; changePeriod: (value: Period) => void }) {
+export function ProgressDashboard({ sessions, period, changePeriod, tempo }: { tempo: 'min'|'max'|'average'; sessions: SessionRecord[]; period: Period; changePeriod: (value: Period) => void }) {
   const language = getLanguage();
-  const data = useMemo(() => buildDashboard(sessions, { period }), [sessions, period, language]);
+  const data = useMemo(() => buildDashboard(sessions, { period, tempo }), [sessions, period, tempo, language]);
   const [hidden, setHidden] = useState<Set<string>>(new Set()), [offset, setOffset] = useState(0);
   const activity = useMemo(() => buildActivity(sessions, { offset }), [sessions, offset]);
   const maximum = Math.max(1, ...activity.days.map(day => day.seconds));
@@ -60,7 +61,7 @@ export function ProgressDashboard({ sessions, period, changePeriod }: { sessions
     <p className="caption">{t("Pauzes en evaluaties tellen niet mee. Gestopte en onderbroken sessies tellen mee voor hun afgespeelde tijd. Dagindeling: ")}{data.timeZone}{t("; tijd wordt toegerekend aan de startdag van de sessie.")}</p>
     {!data.practicedSessions && <section className="panel"><h2>{t("Elke oefening telt")}</h2><p>{t("In deze periode is nog geen afgespeelde oefentijd bewaard. Start een oefensessie of kies een andere periode.")}</p></section>}
     {!!data.exercises.length && <fieldset className="panel exercise-legend"><legend>{t("Oefeningen in de lijngrafieken")}</legend><p className="caption">{t("Vink oefeningen uit om ze in beide lijngrafieken te verbergen. Totalen en staafdiagram blijven gelijk.")}</p><div>{data.exercises.map(item => <label key={item.id}><input type="checkbox" checked={!hidden.has(item.id)} onChange={() => toggle(item.id)} /><span className="legend-swatch" style={{ background: color(item.id) }} />{item.title}</label>)}</div></fieldset>}
-    <section className="panel progress-chart"><h2>{t("Tempo-ontwikkeling")}</h2><TrendChart data={data} hidden={hidden} metric="bpm" /><p className="caption">{t("Hoogste BPM per sessie en onderdeel: afgeronde herhalingen in de sessie, werkelijk afgespeeld tempo bij vrije training. Verschillende fragmenten, sessie-opbouwen, broninstellingen en toonhoogtes krijgen aparte lijnen. Een hoger tempo betekent niet automatisch beter spel.")}</p></section>
+    <section className="panel progress-chart"><h2>{t("Tempo-ontwikkeling")}</h2><TrendChart data={data} hidden={hidden} metric="bpm" /><p className="caption">{t("Eén lijn per oefening, inclusief alle gespeelde fragmenten. Minimum, maximum of tijdgewogen gemiddelde per sessie volgens je instellingen. Een hoger tempo betekent niet automatisch beter spel.")}</p></section>
     <section className="panel progress-chart"><h2>{t("Score-ontwikkeling")}</h2><TrendChart data={data} hidden={hidden} metric="rating" /><p className="caption">{t("Laatste eigen beoordeling per sessie en onderdeel, van 1 tot 5. Zonder bewaard cijfer verschijnt geen scorepunt. Punten tonen datum, oefening en context.")}</p></section>
     <section className="panel"><h2>{t("Aantal keer geoefend per oefening")}</h2><p className="caption">{t("Een oefening telt eenmaal per sessie met gespeelde tijd, ook bij meerdere fragmenten of herhalingen. Vrije training en gedeeltelijk gespeelde sessies tellen mee.")}</p><FrequencyChart exercises={data.exercises} /></section>
     <section className="panel"><div className="round-heading"><div><h2>{t("Jouw oefenritme")}</h2><p data-testid="activity-range">{dayLabel(activity.from)} – {dayLabel(activity.end)}</p></div><div className="row-actions"><button className="secondary" disabled={!activity.canGoBack} onClick={() => setOffset(value => value + 1)}>{t("Vorige 30 dagen")}</button><button className="secondary" disabled={offset === 0} onClick={() => setOffset(value => Math.max(0, value - 1))}>{t("Volgende 30 dagen")}</button></div></div><p className="caption">{t("Dertig dagen oefentijd, onafhankelijk van de periode hierboven.")}</p><div className="activity-chart" role="img" aria-label={t("Oefentijd per dag, 30 dagen")}>

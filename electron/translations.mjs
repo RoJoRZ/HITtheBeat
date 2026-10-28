@@ -1,5 +1,18 @@
 // Dutch source messages are stable catalog keys; user content is never a key.
 export const english = {
+  "Dashboard beheren": "Manage dashboard",
+  "Standaardperiode": "Default period",
+  "Getoond tempo": "Displayed tempo",
+  "Minimum": "Minimum",
+  "Maximum": "Maximum",
+  "Gemiddelde": "Average",
+  "Deze voorkeuren blijven bewaard. Een tijdelijke periodekeuze in het dashboard verandert je standaard niet.": "These preferences are saved. A temporary period selection in the dashboard does not change your default.",
+  "Eén meetpunt per oefening en sessie, inclusief fragmenttraining. Het gemiddelde weegt naar gespeelde oefentijd.": "One point per exercise and session, including fragment practice. The average is weighted by practice time.",
+  "Ongeldige dashboardinstellingen.": "Invalid dashboard settings.",
+  "De dashboardinstellingen konden niet worden geladen.": "The dashboard settings could not be loaded.",
+  "De dashboardinstellingen konden niet worden opgeslagen. Probeer opnieuw.": "The dashboard settings could not be saved. Please try again.",
+  "Eén lijn per oefening, inclusief alle gespeelde fragmenten. Minimum, maximum of tijdgewogen gemiddelde per sessie volgens je instellingen. Een hoger tempo betekent niet automatisch beter spel.": "One line per exercise, including all fragments played. Minimum, maximum or time-weighted average per session according to your settings. A higher tempo does not automatically mean better playing.",
+
   "Mijn oefensessies": "My practice sessions",
   "Vind je ritme, ontwikkel je spel.": "Find your rhythm, develop your playing.",
   "Oefeningen": "Exercises",

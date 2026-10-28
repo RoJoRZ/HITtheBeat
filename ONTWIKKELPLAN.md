@@ -280,3 +280,7 @@ Gebruiker heeft #37 gecontroleerd en merge/publicatie opgedragen. PR samengevoeg
 
 
 Release 1.1.1 is op 25 oktober 2026 na expliciete eindgoedkeuring gepubliceerd op vaste bron 4ff243d. Volledige Mac/Windows-regressie elk 120 Node-/32 desktoptests; vervolgens vier pakkettests per native installerjob. Publicatie en alle zeven assets gecontroleerd; run 40081653930 groen. Geen nieuwe milestone gestart. Verslag: docs/RELEASE-1.1.1.md.
+
+## Release 1.2.0 — gestart 28 oktober 2026
+
+Gebruiker autoriseert issues en milestone: #40 dashboardvoorkeuren/één tempolijn per oefening, #41 cijfers verwijderen, #42 voortgang wissen per oefening. Gerichte tests en merges per issue; één volledige release-regressie op vaste bron, ontwikkelapp en verplichte menselijke eindcontrole vóór installers. Milestone 3 blijft open tot publicatie. Zie docs/RELEASE-1.2.0.md.

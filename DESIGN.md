@@ -277,3 +277,7 @@ Het optionele notitieveld vervalt. Cijfer, tempokeuze, BPM-invoer en acties blij
 Studio donker, Mandarijn #FF922E en Source Sans 3 blijven leidend. Bovenaan periodekeuze met vier opties en drie samenvattingskaarten. Daaronder een gedeelde checkboxlegenda voor oefeningen, één breed tempopaneel en één breed scorepaneel. Elke oefening heeft een consistente kleur uit een helder, donker-achtergrondpalet; contexten krijgen afzonderlijke lijnen en puntlabels. De tekstlegenda en toetsenbordfocus maken kleur niet de enige toegang tot gegevens. Geen waardering op basis van een hogere BPM.
 
 Het frequentiepaneel toont oefeningnamen onder 45 graden, aantallen boven balken en volledige namen in labels. Veel oefeningen krijgen horizontaal scrollen binnen het paneel; de pagina zelf blijft binnen het venster. Dagritme heeft 30 compacte balken, duidelijk datumbereik en vorige/volgende-knoppen. Bestaande dagtabel blijft beschikbaar. Geen laatste-resultaatkaart, context-dropdown of gedetailleerde oefening/sessiepanelen. Info-tekst sluit aan op de eenvoudigere evaluatie en het nieuwe dashboard.
+
+## Dashboardbeheer — Release 1.2.0
+
+Instellingen krijgt een paneel Dashboard beheren met standaardperiode en getoond tempo; dezelfde Studio-donker/Mandarijn-componenten. Voortgang krijgt één lijn per oefening; fragmenten worden niet als aparte lijnen gepresenteerd. Scoregrafiek en beoordelingsknoppen vervallen. Verwijderen van voortgang gebruikt een expliciete bevestigingsdialoog met oefening en impact; geen verwijderactie direct vanuit de grafiek.
