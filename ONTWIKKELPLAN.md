@@ -287,3 +287,6 @@ Gebruiker autoriseert issues en milestone: #40 dashboardvoorkeuren/één tempoli
 
 
 #40–#42 zijn geïmplementeerd, gericht gecontroleerd en via PR #43/#44/#45 samengevoegd en gesloten. Versievoorbereiding 1.2.0 volgt: vaste bron → één volledige Mac/Windows-regressie → ontwikkelapp en menselijke eindcontrole → na akkoord installers/pakketcontroles/publicatie. Milestone 3 blijft open.
+
+
+Release 1.2.0 gereed voor één menselijke eindcontrole: bron a56c71c047f607da355f056ad4eda4bb563dad79, run 40707188776; elk native platform 125 Node-/34 desktoptests groen. Testbare Mac-ontwikkelapp beschikbaar, dezelfde productcode; release-approval wacht. Geen installers/publicatie vóór expliciet akkoord, milestone 3 blijft open.
