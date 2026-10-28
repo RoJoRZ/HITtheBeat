@@ -44,7 +44,7 @@ test('whole BPM presentation preserves fractional exercises, plans and historica
   await page.getByRole('button',{name:'Halveer BPM',exact:true}).click();await expect(page.getByLabel('Origineel BPM',{exact:true})).toHaveValue('60');
   await page.getByRole('button',{name:'Verdubbel BPM',exact:true}).click();await expect(page.getByLabel('Origineel BPM',{exact:true})).toHaveValue('120');
   await page.getByLabel('Origineel BPM',{exact:true}).fill('124');await page.getByRole('button',{name:'Oefening opslaan',exact:true}).click();
-  stored=(await page.evaluate(()=>window.hitthebeat!.listExercises()))[0];expect(stored.bpm).toBe(124);
+  await expect.poll(async()=> (await page.evaluate(()=>window.hitthebeat!.listExercises()))[0]?.bpm).toBe(124);
   expect((await page.evaluate(()=>window.hitthebeat!.listSessions())).find(s=>s.id===original.history.id)).toEqual(original.history);
  }finally{await app.close();await rm(root,{recursive:true,force:true});}
 });
@@ -60,6 +60,6 @@ test('MP3 worker detects accented subdivisions and retains a manual BPM entered 
   await page.getByLabel('Origineel BPM',{exact:true}).fill('88');
   await expect(page.getByRole('status')).toContainText('Geschat tempo: 85 BPM',{timeout:15000});await expect(page.getByLabel('Origineel BPM',{exact:true})).toHaveValue('88');await wholeBpm(page);
   await page.setViewportSize({width:960,height:800});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:'test-results/bpm-detection.png',fullPage:true});
-  await page.getByRole('button',{name:'Oefening opslaan',exact:true}).click();expect((await page.evaluate(()=>window.hitthebeat!.listExercises()))[0].bpm).toBe(88);
+  await page.getByRole('button',{name:'Oefening opslaan',exact:true}).click();await expect.poll(async()=> (await page.evaluate(()=>window.hitthebeat!.listExercises()))[0]?.bpm).toBe(88);
  }finally{await app.close();await rm(root,{recursive:true,force:true});}
 });
