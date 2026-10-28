@@ -45,7 +45,7 @@ test('dashboard reflects real time, combined exercise tempo, no score and immuta
     await app.close();
     const db = new DatabaseSync(path.join(root, 'library', 'library.sqlite'));
     const date = new Date(); date.setDate(date.getDate() - 45);
-    try { db.prepare('UPDATE sessions SET started_at=? WHERE id=?').run(date.toISOString(), oldId); } finally { db.close(); }
+    try { const old = db.prepare('SELECT progress FROM sessions WHERE id=?').get(oldId)!; const progress = JSON.parse(String(old.progress)); progress.passes = 0; progress.played.forEach((item: { completed: number }) => { item.completed = 0; }); db.prepare('UPDATE sessions SET started_at=?, progress=?, status=\'stopped\' WHERE id=?').run(date.toISOString(), JSON.stringify(progress), oldId); } finally { db.close(); }
     app = await launch(); page = await app.firstWindow();
     page.on('pageerror', error => errors.push(error.message));
 
@@ -91,6 +91,7 @@ test('dashboard reflects real time, combined exercise tempo, no score and immuta
       await page.getByLabel('Periode voortgang').selectOption(period);
       await expect(page.getByTestId('dashboard-time')).toHaveText(period === 'month' ? '0:28' : '0:30');
     }
+    await expect(tempos.locator('text').filter({ hasText: date.toLocaleDateString('nl-NL', {day:'numeric',month:'short',year:'numeric'}) })).toHaveCount(1);
     await page.getByText('Oefentijd per dag bekijken', { exact: true }).click();
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.screenshot({ path: 'test-results/release-1.1-dashboard.png', fullPage: true });
