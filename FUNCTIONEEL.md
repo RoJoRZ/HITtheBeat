@@ -623,3 +623,8 @@ De cijferstap en scoregrafiek zijn verwijderd. Evaluatie start bij 1 · Langzame
 ### #42 — bewaarde voortgang verwijderen
 
 Dashboard beheren toont alle oefenidentiteiten met gespeelde historie, ook na verwijderen uit de bibliotheek, met sessieaantal en oefentijd. Gelijke namen zijn afzonderlijke identiteiten. De actie toont een native waarschuwing met oefening, sessies en seconden; Annuleren is standaard. Bevestigen wist alleen gespeelde resultaten en evaluaties voor de gekozen oefenidentiteit. Oefening/media, sessie-opbouwen en historische oefen-/opbouwmomentopnamen blijven behouden. Geaggregeerde gespeelde tijden en herhalingen worden opnieuw uit de resterende resultaten bepaald; overige resultaten blijven intact. Een lege historische sessie blijft als momentopname bestaan maar telt niet meer mee in het dashboard. Nieuwe training verschijnt weer. Wissen wordt geweigerd bij een lopende sessie met deze oefening of gewijzigde gegevens na de bevestigingspreview.
+
+
+### Releasevoorbereiding 1.2.0
+
+#40, #41 en #42 zijn geïmplementeerd en samengevoegd via PR #43, #44 en #45. Voorgestelde versie 1.2.0 bevat uitsluitend deze gestarte milestonescope. De volledige native regressie volgt op de vaste releasebron; daarna één menselijke eindcontrole met ontwikkelapp. Nieuwe installers en publicatie wachten op expliciet akkoord. Geen persoonlijke voortgang is tijdens de ontwikkeling gewist.
