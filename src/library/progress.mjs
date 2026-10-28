@@ -21,8 +21,8 @@ export function buildActivity(sessions, { offset = 0, now = new Date(), timeZone
   for (let day = from; day <= end; day = shiftDay(day, 1)) days.push({ day, seconds: totals.get(day) ?? 0 });
   return { from, end, days, canGoBack: sessions.some(session => localDay(session.startedAt, timeZone) < from && session.progress.times.planned + session.progress.times.fragment > 0) };
 }
-/** @param {Session[]} sessions @param {{period?:Period,now?:Date,timeZone?:string}} options */
-export function buildDashboard(sessions, { period = 'week', now = new Date(), timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone } = {}) {
+/** @param {Session[]} sessions @param {{period?:Period,tempo?:'min'|'max'|'average',now?:Date,timeZone?:string}} options */
+export function buildDashboard(sessions, { period = 'all', tempo = 'min', now = new Date(), timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone } = {}) {
   const today = localDay(now, timeZone);
   const weekday = new Date(`${today}T12:00:00Z`).getUTCDay();
   const from = period === 'week' ? shiftDay(today, -((weekday + 6) % 7)) : period === 'month' ? `${today.slice(0, 7)}-01` : period === 'year' ? yearAgo(today) : '0000-00-00';
@@ -75,5 +75,22 @@ export function buildDashboard(sessions, { period = 'week', now = new Date(), ti
       group.points.push({ sessionId: session.id, date: session.startedAt, day: localDay(session.startedAt, timeZone), bpm: point.bpm, completed: point.completed, seconds: point.seconds, status: session.status, rating: review?.rating, note: review?.note ?? '', action: review?.action ?? '', delta: review?.delta ?? 0 });
     }
   }
-  return { from, today, timeZone, sessions: selected, totalSeconds: planned + fragment, plannedSeconds: planned, fragmentSeconds: fragment, practiceDays: dayTotals.size, practicedSessions: practiced.length, completedSessions: practiced.filter(session => session.status === 'completed').length, days, exercises: [...exercises.values()].sort((a, b) => a.title.localeCompare(b.title, 'nl') || a.id.localeCompare(b.id)), groups: [...groups.values()].sort((a, b) => a.routine.localeCompare(b.routine, 'nl') || a.block - b.block || a.part.localeCompare(b.part, 'nl') || a.mode.localeCompare(b.mode) || a.pitch - b.pitch) };
+  /** @type {Map<string,{key:string,exerciseId:string,exercise:string,points:{sessionId:string,day:string,bpm:number,seconds:number}[]}>} */
+  const tempoGroups = new Map();
+  for (const session of [...practiced].reverse()) {
+    /** @type {Map<string,{min:number,max:number,weighted:number,seconds:number}>} */
+    const totals = new Map();
+    for (const played of session.progress.played) {
+      if (!(played.seconds > 0) || !(played.bpm > 0)) continue;
+      const id = session.routine.blocks[played.block]?.exerciseId;
+      const source = session.exercises.find(item => item.id === id); if (!source) continue;
+      const group = tempoGroups.get(source.id) ?? { key: source.id, exerciseId: source.id, exercise: source.title, points: [] };
+      group.exercise = source.title; tempoGroups.set(source.id, group);
+      const total = totals.get(source.id) ?? { min: Infinity, max: 0, weighted: 0, seconds: 0 };
+      total.min = Math.min(total.min, played.bpm); total.max = Math.max(total.max, played.bpm);
+      total.weighted += played.bpm * played.seconds; total.seconds += played.seconds; totals.set(source.id, total);
+    }
+    for (const [id, total] of totals) tempoGroups.get(id)?.points.push({ sessionId: session.id, day: localDay(session.startedAt, timeZone), seconds: total.seconds, bpm: tempo === 'min' ? total.min : tempo === 'max' ? total.max : total.weighted / total.seconds });
+  }
+  return { tempoGroups: [...tempoGroups.values()], from, today, timeZone, sessions: selected, totalSeconds: planned + fragment, plannedSeconds: planned, fragmentSeconds: fragment, practiceDays: dayTotals.size, practicedSessions: practiced.length, completedSessions: practiced.filter(session => session.status === 'completed').length, days, exercises: [...exercises.values()].sort((a, b) => a.title.localeCompare(b.title, 'nl') || a.id.localeCompare(b.id)), groups: [...groups.values()].sort((a, b) => a.routine.localeCompare(b.routine, 'nl') || a.block - b.block || a.part.localeCompare(b.part, 'nl') || a.mode.localeCompare(b.mode) || a.pitch - b.pitch) };
 }

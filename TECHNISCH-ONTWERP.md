@@ -365,3 +365,7 @@ Dashboard-zelfreview: de gememoiseerde aggregatie bevat vertaalde contextlabels 
 ### Pointerterugval — issue #36
 
 WaveformEditor vangt een fout van setPointerCapture op en volgt dezelfde pointer via pointermove/up/cancel op window. Tijdelijke listeners verdwijnen bij afronding, annuleren, blur, bronwissel en unmount. Een tweede pointer kan een lopende sleepactie niet overnemen. Pointerup verwerkt ook zijn eigen broncoördinaat, zodat geen laatste pointermove vereist is. Normale pointercapture en annuleren bij captureverlies blijven behouden. Geen nieuwe dependency, IPC of opslagwijziging; ontwerp/stijl in DESIGN.md ongewijzigd.
+
+## Dashboardvoorkeuren en tempo — #40
+
+Hoofdproces bewaart period/tempo atomair en serieel in dashboard-preferences.json, onafhankelijk van de bestaande taalvoorkeur. Strikt gevalideerde get/set-IPC alleen voor het geautoriseerde hoofdvenster; tablatuurpreload krijgt geen extra rechten. Ontbrekende/ongeldige voorkeur: all/min. SessionHistory laadt voorkeur en historie samen; lokale periodewijziging schrijft niet terug. progress.mjs aggregeert gespeelde BPM per session/exercise-ID; minimum/maximum of som(BPM × seconden)/som(seconden). Historische snapshots blijven onveranderd. Gerichte tests dekken oude taalvoorkeur, write-fout, ongeldige IPC-input, deelherhalingen en gecombineerde fragmenten.
