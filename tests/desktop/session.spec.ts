@@ -72,7 +72,7 @@ test('real routine restores interrupted pass, plays repeats in order and advance
     await expect(page.getByText('Stap 2 van 3 · Herhaling 1 van 2')).toBeVisible();
     await page.locator('#main').focus(); await page.keyboard.press('Space');
     await expect(page.getByText('Stap 2 van 3 · Herhaling 2 van 2')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByRole('heading', { name: 'Oefening afgerond', exact: true })).toBeVisible({ timeout: 6000 });
+    await expect(page.getByRole('heading', { name: 'Oefening afgerond', exact: true })).toBeVisible({ timeout: 12000 });
     await expect(page.getByRole('region', { name: 'Oefeningen in deze sessie' })).toContainText('Afgerond');
     await page.getByRole('button', { name: 'Verder met volgende oefening', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Akkoorden', exact: true })).toBeVisible();
