@@ -18,7 +18,7 @@ export interface SaveInput {
   analysisStatus: Exercise['analysisStatus']; duration: number; audio?: Asset; image?: Asset | null; normalizationDb?: number | null; normalizeAudio?: boolean;
 }
 
-export interface RoutineStep { bars?: number; fragmentId?: string; fragmentName?: string; id: string; repetitions: number; bpm: number; start: number | null; end: number | null }
+export interface RoutineStep { audioMode?: 'audio'|'metronome'; bars?: number; fragmentId?: string; fragmentName?: string; id: string; repetitions: number; bpm: number; start: number | null; end: number | null }
 export interface RoutineBlock { countIn?: { enabled: boolean; meter: string }; id: string; exerciseId: string; steps: RoutineStep[] }
 export interface RoutineInput { countIn?: { enabled: boolean; meter: string };  id?: string; title: string; blocks: RoutineBlock[] }
 export interface Routine extends RoutineInput { id: string; updatedAt: string }

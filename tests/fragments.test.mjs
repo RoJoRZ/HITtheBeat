@@ -51,7 +51,7 @@ test('schema 4 migration preserves media, routine boundaries and existing sessio
   library.startSession(routine.id); library.interruptSessions();
   const history = library.listSessions();
   const db = new DatabaseSync(path.join(root, 'library.sqlite'));
-  db.exec('ALTER TABLE exercises DROP COLUMN beat_offset; ALTER TABLE exercises DROP COLUMN credit; ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN fragments; ALTER TABLE routine_steps DROP COLUMN fragment_id; ALTER TABLE routine_steps DROP COLUMN fragment_name; PRAGMA user_version=4;'); db.close();
+  db.exec('ALTER TABLE routine_steps DROP COLUMN audio_mode; ALTER TABLE exercises DROP COLUMN beat_offset; ALTER TABLE exercises DROP COLUMN credit; ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN fragments; ALTER TABLE routine_steps DROP COLUMN fragment_id; ALTER TABLE routine_steps DROP COLUMN fragment_name; PRAGMA user_version=4;'); db.close();
   library = await reopen();
   assert.deepEqual(library.list()[0].fragments, []);
   assert.deepEqual(library.listRoutines()[0], routine); assert.deepEqual(library.listSessions(), history);
