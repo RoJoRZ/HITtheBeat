@@ -291,3 +291,8 @@ Eerste tel staat bij audio-oefening aanmaken/bewerken, met lokale beluisterbedie
 ## Klikbare oefenblokken — #53
 
 Bestaande queue-vakken zijn native buttons met aria-current en disabled bij laden/inactief/afgerond. Titel/status en Mandarijn-actiefmarkering blijven gelijk. Evaluatie vermeldt dat springen onbevestigde keuzes niet opslaat.
+
+
+## Evaluatie met klankkeuze — #52
+
+Audioblokken krijgen een compact beginmenu Tempo aanpassen / Audio-metronoom kiezen. Enter behoudt de eenvoudige doorgaande route. De klankroute toont herkenbare stapnummers/BPM met Alleen metronoom-checkboxen en toelichting over volgende herhaling en duur. De speler toont Audio of Alleen metronoom. Native focus, toetsen en bestaande donker/Mandarijn-componenten behouden.

@@ -1,9 +1,9 @@
 import { LocalizedError } from './i18n.mjs';
 import { countInForBlock, hasCountIn } from './count-in-model.mjs';
 import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
-/** @typedef {{mode:'planned'|'fragment', block:number, step:number, a:number, b:number, bpm:number, pitch:number, seconds:number, completed:number}} Played */
+/** @typedef {{sound?:'audio'|'metronome',mode:'planned'|'fragment', block:number, step:number, a:number, b:number, bpm:number, pitch:number, seconds:number, completed:number}} Played */
 /** @typedef {{seq:number, block:number, step:number, repetition:number, phase:string, passes:number, statuses:string[], times:{planned:number,fragment:number,pause:number,preparation?:number}, played:Played[]}} Progress */
-/** @typedef {{id:string,block:number,fromStep:number,toStep:number,action:'repeat'|'same'|'faster'|'slower',delta:number,note:string,rating?:number}} Evaluation */
+/** @typedef {{id:string,block:number,fromStep:number,toStep:number,action:'repeat'|'same'|'faster'|'slower',delta:number,note:string,rating?:number,audioModes?:('audio'|'metronome')[]}} Evaluation */
 /** @typedef {{routine:import('./routine-model.mjs').RoutineInput,exercises:import('./library.mjs').Exercise[]}} Snapshot */
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /** @param {unknown} id */
@@ -26,12 +26,13 @@ export function validateProgress(input, snapshot) {
     if (!item || !['planned','fragment'].includes(item.mode) || !integer(item.block, snapshot.routine.blocks.length - 1)) return fail();
     const sourceBlock = snapshot.routine.blocks[item.block], source = snapshot.exercises.find(exercise => exercise.id === sourceBlock.exerciseId);
     if (!source || !integer(item.step, sourceBlock.steps.length - 1) || !seconds(item.seconds) || !integer(item.completed, 1000000) || !Number.isFinite(item.a) || !Number.isFinite(item.b) || item.a < 0 || item.b > sourceSeconds(sourceBlock.steps[item.step], source) + .1 || item.b - item.a < .1 - 1e-9 || !validTempo(item.bpm, source) || !Number.isFinite(item.pitch) || Math.abs(item.pitch) > 12) return fail();
+    if (item.sound !== undefined && (!['audio','metronome'].includes(item.sound) || item.mode !== 'planned' || isMetronome(source))) return fail();
     const step = sourceBlock.steps[item.step];
     if (isMetronome(source) && (item.mode !== 'planned' || item.pitch !== 0)) return fail();
     if (item.mode === 'planned' && (item.bpm !== step.bpm || item.pitch !== 0 || item.a !== (step.start ?? 0) || Math.abs(item.b - (step.end ?? sourceSeconds(step, source))) > .1)) return fail();
     if (item.mode === 'fragment' && item.completed !== 0) return fail();
     passes += item.completed; if (item.mode === 'planned') planned += item.seconds; else fragment += item.seconds;
-    return { mode: item.mode, block: item.block, step: item.step, a: item.a, b: item.b, bpm: item.bpm, pitch: item.pitch, seconds: item.seconds, completed: item.completed };
+    return { ...(item.sound === undefined ? {} : {sound:item.sound}), mode: item.mode, block: item.block, step: item.step, a: item.a, b: item.b, bpm: item.bpm, pitch: item.pitch, seconds: item.seconds, completed: item.completed };
   });
   if (passes !== input.passes || Math.abs(planned - input.times.planned) > .01 || Math.abs(fragment - input.times.fragment) > .01) return fail();
   return { seq: input.seq, block: input.block, step: input.step, repetition: input.repetition, phase: input.phase, passes: input.passes, statuses: [...input.statuses], times: { ...input.times }, played };
@@ -40,10 +41,12 @@ export function validateProgress(input, snapshot) {
 export function validateEvaluation(input, snapshot, progress) {
   if (!input || progress.phase !== 'review' || input.block !== progress.block || input.toStep !== progress.step || !integer(input.fromStep, input.toStep) || !['repeat','same','faster','slower'].includes(input.action) || !Number.isFinite(input.delta) || Math.abs(input.delta) > 1000 || (input.action === 'faster' ? input.delta <= 0 : input.action === 'slower' ? input.delta >= 0 : input.delta !== 0) || typeof input.note !== 'string' || input.note.length > 2000 || input.note.includes('\0')) throw new LocalizedError("Controleer de evaluatie en BPM-aanpassing.");
   if (input.rating !== undefined && (!integer(input.rating, 5) || input.rating < 1)) throw new LocalizedError("Kies een beoordeling van 1 tot en met 5.");
+  const block = snapshot.routine.blocks[input.block], source = snapshot.exercises.find(e => e.id === block.exerciseId);
+  if (input.audioModes !== undefined && (!source || isMetronome(source) || !Array.isArray(input.audioModes) || input.audioModes.length !== block.steps.length || input.audioModes.some(mode => !['audio','metronome'].includes(mode)))) throw new LocalizedError("Controleer de audio/metronoomkeuze per stap.");
   sessionId(input.id);
   const steps = snapshot.routine.blocks[input.block].steps, last = steps[input.toStep];
   const duration = snapshot.exercises.find(item => item.id === snapshot.routine.blocks[input.block].exerciseId)?.duration;
   const same = (/** @type {import('./routine-model.mjs').RoutineStep} */ step) => (step.start ?? 0) === (last.start ?? 0) && (step.end ?? duration) === (last.end ?? duration);
   if ((input.toStep + 1 < steps.length && same(steps[input.toStep + 1])) || (input.fromStep > 0 && same(steps[input.fromStep - 1])) || steps.slice(input.fromStep, input.toStep + 1).some(step => !same(step))) throw new LocalizedError("De evaluatie hoort bij de volledige fragmentserie.");
-  return { id: input.id, block: input.block, fromStep: input.fromStep, toStep: input.toStep, action: input.action, delta: input.delta, note: input.note.trim(), ...(input.rating === undefined ? {} : { rating: input.rating }) };
+  return { id: input.id, block: input.block, fromStep: input.fromStep, toStep: input.toStep, action: input.action, delta: input.delta, note: input.note.trim(), ...(input.rating === undefined ? {} : { rating: input.rating }), ...(input.audioModes === undefined ? {} : {audioModes:[...input.audioModes]}) };
 }

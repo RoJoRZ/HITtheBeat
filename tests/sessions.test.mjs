@@ -91,3 +91,18 @@ test('dashboard remains unchanged after editing and deleting current routines an
   library.deleteRoutine(routine.id);
   assert.deepEqual(buildDashboard(library.listSessions(), options), before);
 }));
+
+test('audio mode choices are session-local, validated and preserve mixed audio/metronome history', async()=>fixture(async({library,routine,reopen})=>{
+  const session=library.startSession(routine.id), progress=reviewProgress(session);
+  library.saveSession(session.id,progress);
+  const modes=['audio','metronome','audio'];
+  library.reviewSession(session.id,{...evaluation(0),audioModes:modes});
+  assert.deepEqual(library.listRoutines().find(r=>r.id===routine.id),routine);
+  assert.throws(()=>library.reviewSession(session.id,{...evaluation(0),audioModes:['audio']}),/audio\/metronoom/);
+  assert.throws(()=>library.reviewSession(session.id,{...evaluation(0),audioModes:['audio','invalid','audio']}),/audio\/metronoom/);
+  const next={...progress,seq:2,played:progress.played.map((p,i)=>i===1?{...p,sound:'metronome'}:p)};
+  library.saveSession(session.id,next,'stopped');
+  library=await reopen(); const saved=library.listSessions()[0];
+  assert.equal(saved.progress.played[1].sound,'metronome');assert.equal(saved.progress.played[0].sound,undefined);
+  assert.deepEqual(saved.evaluations[0].audioModes,modes);assert.deepEqual(saved.routine,routine);
+}));

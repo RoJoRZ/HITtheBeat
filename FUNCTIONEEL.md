@@ -648,3 +648,10 @@ Geïmplementeerd: optionele Eerste tel in bronseconden bij Oefening aanmaken/bew
 ### #53 — direct naar oefenblok springen
 
 De bovenste oefenblokken zijn knoppen (ook via toetsen bereikbaar). Spring naar eerste stap/herhaling van gekozen blok. Spelen/aftellen blijft spelen met eigen aftelinstelling, ready/pauze blijft stil; tijdens evaluatie spring je gepauzeerd en onbevestigde keuzes worden niet opgeslagen. Gespeelde tijd/passes blijven behouden; ongespeelde voorgaande pending blokken worden Overgeslagen, geen fictieve herhalingen. Opnieuw bezoeken zet doelblok op pending. Actieve oefening/tablatuur volgt bestaande routes. Na sessieafronding zijn de knoppen uitgeschakeld.
+
+
+### #52 — audio of metronoom per sessiestap
+
+De evaluatie van een audioblok begint met Tempo aanpassen of Audio/metronoom kiezen; toetsen 1/2 kiezen deze routes, Enter gaat vanuit de beginstand zonder wijzigingen door. De klankroute toont alle stappen van dit oefenblok met Alleen metronoom per stap; uitgevinkt is audio. Bevestigen (ook Deze serie opnieuw) bewaart de keuzes voor de lopende sessie, vanaf de volgende gespeelde herhaling van die stap. Andere blokken en een nieuwe sessie beginnen met audio. Er is geen wijziging aan de bibliotheekoefening of sessie-opbouw door de klankkeuze.
+
+De oorspronkelijke bronseconden blijven leidend: aantal kwarttellen = fragmentduur × origineel BPM / 60; speelduur = fragmentduur × origineel BPM / speel-BPM. Niet afronden naar hele tellen/maten. Track klinkt niet, metronoom en eventueel aftellen wel; gedeeld volume/dempen blijft gelden. Pauze/herstart/vrije fragmenttraining stoppen oude klikken. Vrije fragmenttraining gebruikt weer audio. Werkelijk gespeelde historie bewaart klankkeuze per resultaat; bestaande resultaten krijgen geen verzonnen veld. De bestaande tempoaanpassing blijft voor de opgeslagen opbouw/volgende sessie, zonder oude momentopnamen te herschrijven.

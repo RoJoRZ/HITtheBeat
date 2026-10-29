@@ -52,7 +52,7 @@ export class MetronomeEngine {
   playPause() { return this.serialize(async () => { await this.context.resume(); const ended = this.ended; this.anchorPosition = ended ? 0 : this.position; this.playing = ended || !this.playing; this.schedule(); }); }
   pause() { return this.serialize(async () => { this.anchorPosition = this.position; this.playing = false; this.schedule(); }); }
   seek(value: number) { return this.serialize(async () => { this.anchorPosition = Math.max(0, Math.min(this.end, value)); this.schedule(); }); }
-  playSegment(a: number, b: number, rate: number, pitch = 0, playing = true, countIn?: CountIn, _countBpm?: number) {
+  playSegment(a: number, b: number, rate: number, pitch = 0, playing = true, countIn?: CountIn, _countBpm?: number, _metronomeOnly?: boolean) {
     return this.serialize(async () => {
       if (a !== 0 || b !== this.duration || pitch !== 0 || !Number.isFinite(rate) || rate <= 0) throw new LocalizedError("Ongeldige metronoomstap.");
       if (playing) await this.context.resume();
