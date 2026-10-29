@@ -17,6 +17,10 @@ export class AudioEngine {
   private anchorPosition = 0;
   private queue: Promise<unknown> = Promise.resolve();
   private disposed = false;
+  constructor() {
+    this.gain.connect(this.output);
+    this.output.connect(this.context.destination);
+  }
   private segmentStart = 0;
   private segmentEnd: number | null = null;
   get playbackStart() { return this.anchorTime; }
@@ -47,22 +51,28 @@ export class AudioEngine {
     await this.loadBuffer(buffer, normalizationDb);
     return buffer;
   }
-  async loadBuffer(buffer: AudioBuffer, normalizationDb: number | null = null) {
-    if (this.disposed) return;
-    this.node = await createStretch(this.context);
-    if (this.disposed) { this.node.disconnect(); return; }
-    const channels = Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i));
-    if (normalizationDb !== null) {
-      if (!Number.isFinite(normalizationDb) || normalizationDb < -60 || normalizationDb > 12 + 1e-9) throw new LocalizedError("Ongeldige volumenormalisatie.");
-      let peak = 0; for (const channel of channels) for (const sample of channel) peak = Math.max(peak, Math.abs(sample));
-      const gain = Math.min(Math.pow(10, normalizationDb / 20), peak ? Math.pow(10, -1 / 20) / peak : 1);
-      await this.node.addBuffers(channels.map(channel => Float32Array.from(channel, sample => sample * gain)));
-    } else await this.node.addBuffers(channels);
-    this.node.connect(this.gain);
-    this.gain.connect(this.output);
-    this.output.connect(this.context.destination);
-    this.duration = buffer.duration;
-    this.b = buffer.duration;
+  loadBuffer(buffer: AudioBuffer, normalizationDb: number | null = null) {
+    return this.serialize(async () => {
+      if (normalizationDb !== null && (!Number.isFinite(normalizationDb) || normalizationDb < -60 || normalizationDb > 12 + 1e-9)) throw new LocalizedError("Ongeldige volumenormalisatie.");
+      // Replace ownership atomically: a previous worklet must never remain audible.
+      this.playing = false; this.cancelCountIn();
+      this.gain.gain.cancelScheduledValues(this.clock); this.gain.gain.setValueAtTime(0, this.clock);
+      this.node?.disconnect(); this.node = undefined;
+      const node = await createStretch(this.context);
+      try {
+        if (this.disposed) return;
+        const channels = Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i));
+        if (normalizationDb !== null) {
+          let peak = 0; for (const channel of channels) for (const sample of channel) peak = Math.max(peak, Math.abs(sample));
+          const gain = Math.min(Math.pow(10, normalizationDb / 20), peak ? Math.pow(10, -1 / 20) / peak : 1);
+          await node.addBuffers(channels.map(channel => Float32Array.from(channel, sample => sample * gain)));
+        } else await node.addBuffers(channels);
+        if (this.disposed) return;
+        this.node = node; node.connect(this.gain);
+        this.duration = buffer.duration; this.b = buffer.duration;
+        this.anchorPosition = 0; this.segmentStart = 0; this.segmentEnd = null; this.loop = false;
+      } finally { if (this.node !== node) node.disconnect(); }
+    });
   }
   setVolume(value: number) {
     if (!Number.isFinite(value) || value < 0 || value > 1) throw new LocalizedError("Kies een volume van 0–100%.");
@@ -76,7 +86,7 @@ export class AudioEngine {
   private cancelCountIn() { for (const tone of this.countTones) { try { tone.stop(); } catch { /* Already ended. */ } } this.countTones = []; }
   private async schedule(countIn?: CountIn, countBpm = 1) {
     this.cancelCountIn();
-    if (!this.node) return;
+    if (this.disposed || !this.node) return;
     const now = this.context.currentTime;
     const lead = this.playing ? scheduleCountIn(this.context, this.output, countIn, countBpm, now) : { seconds: 0, nodes: [] };
     this.countTones = lead.nodes; this.anchorTime = now + lead.seconds;
@@ -84,6 +94,7 @@ export class AudioEngine {
     try { await this.node.schedule({ active: this.playing, input: this.anchorPosition, output: this.anchorTime,
       rate: this.rate, semitones: this.semitones, loopStart: this.loop ? this.a : 0, loopEnd: this.loop ? this.b : 0 }); }
     catch (reason) { this.cancelCountIn(); this.playing = false; throw reason; }
+    if (this.disposed) return;
     // Gate the output on the audio clock, including in background windows.
     this.gain.gain.cancelScheduledValues(now);
     this.gain.gain.setValueAtTime(this.playing && !lead.seconds ? 1 : 0, this.context.currentTime);
@@ -138,6 +149,7 @@ export class AudioEngine {
     this.disposed = true;
     this.playing = false;
     this.cancelCountIn();
+    this.gain.disconnect(); this.output.disconnect();
     this.node?.disconnect();
     void this.context.close();
   }

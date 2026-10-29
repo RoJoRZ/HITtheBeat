@@ -18,6 +18,13 @@ export async function segmentProbe() {
     await engine.pause();
     await engine.configure(1, 0, .1, .3, true); await engine.seek(.1); await engine.playPause();
     await waitAudio(internals.context,.9);
-    return { during, after, end, ended, loopPosition: engine.position, loopEnded: engine.ended, loopRms: rms() };
+    const loopPosition = engine.position, loopEnded = engine.ended, loopRms = rms();
+    // A loaded replacement must stop the old playing worklet, even when the new source is silent.
+    const silence = internals.context.createBuffer(1, internals.context.sampleRate, internals.context.sampleRate);
+    await engine.loadBuffer(silence);
+    await engine.playSegment(0, 1, 1);
+    await waitAudio(internals.context, .25);
+    const replacementRms = rms();
+    return { during, after, end, ended, loopPosition, loopEnded, loopRms, replacementRms };
   } finally { engine.dispose(); }
 }
