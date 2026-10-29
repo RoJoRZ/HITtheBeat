@@ -300,3 +300,8 @@ De gebruiker heeft de ontwikkelversie getest en expliciet akkoord voor release g
 ## Release 1.3.0 — milestone 4
 
 Gestart op opdracht van 29 oktober 2026, scope #50–#53. Volgorde #51, #50, #53, #52 met gerichte controles/PR per issue. Zie docs/RELEASE-1.3.0.md voor analyse en testmatrix. Eén volledige releasegroep op vaste bron en daarna expliciete menselijke eindcontrole vóór installers; milestone blijft open tot publicatie.
+
+
+### Status 1.3.0 — gereed voor release-regressie
+
+Alle vier issues zijn uitgevoerd en samengevoegd (PR #54–#57). Nu versievoorbereiding 1.3.0 → vaste bron → volledige native Mac/Windows-groep → testbare Mac-ontwikkelapp en ene menselijke eindcontrole. Geen installers/tag/publicatie vóór expliciet akkoord. #51 bevat een defensieve reparatie; de eigen arpeggio-opname moet in de eindcontrole nog beluisterd worden.

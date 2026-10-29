@@ -655,3 +655,8 @@ De bovenste oefenblokken zijn knoppen (ook via toetsen bereikbaar). Spring naar 
 De evaluatie van een audioblok begint met Tempo aanpassen of Audio/metronoom kiezen; toetsen 1/2 kiezen deze routes, Enter gaat vanuit de beginstand zonder wijzigingen door. De klankroute toont alle stappen van dit oefenblok met Alleen metronoom per stap; uitgevinkt is audio. Bevestigen (ook Deze serie opnieuw) bewaart de keuzes voor de lopende sessie, vanaf de volgende gespeelde herhaling van die stap. Andere blokken en een nieuwe sessie beginnen met audio. Er is geen wijziging aan de bibliotheekoefening of sessie-opbouw door de klankkeuze.
 
 De oorspronkelijke bronseconden blijven leidend: aantal kwarttellen = fragmentduur × origineel BPM / 60; speelduur = fragmentduur × origineel BPM / speel-BPM. Niet afronden naar hele tellen/maten. Track klinkt niet, metronoom en eventueel aftellen wel; gedeeld volume/dempen blijft gelden. Pauze/herstart/vrije fragmenttraining stoppen oude klikken. Vrije fragmenttraining gebruikt weer audio. Werkelijk gespeelde historie bewaart klankkeuze per resultaat; bestaande resultaten krijgen geen verzonnen veld. De bestaande tempoaanpassing blijft voor de opgeslagen opbouw/volgende sessie, zonder oude momentopnamen te herschrijven.
+
+
+### Releasevoorbereiding 1.3.0
+
+#51/#50/#53/#52 zijn samengevoegd via PR #54/#55/#56/#57 na gerichte controles en zelfreview. Voorgestelde versie 1.3.0, schema 11. Volledige native regressie volgt op vaste bron; ontwikkelapp is toegestaan, nieuwe installers/publicatie wachten op de ene expliciete menselijke eindcontrole. De testmatrix en beperkingen staan in docs/RELEASE-1.3.0.md.
