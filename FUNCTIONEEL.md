@@ -660,3 +660,8 @@ Bronseconden blijven leidend: aantal kwarttellen = fragmentduur × origineel BPM
 ### Releasevoorbereiding 1.3.0
 
 #51/#50/#53/#52 zijn samengevoegd via PR #54/#55/#56/#57 na gerichte controles en zelfreview. Voorgestelde versie 1.3.0, schema 12. Volledige native regressie volgt op vaste bron; ontwikkelapp is toegestaan, nieuwe installers/publicatie wachten op de ene expliciete menselijke eindcontrole. De testmatrix en beperkingen staan in docs/RELEASE-1.3.0.md.
+
+
+### 1.3.0 gereed voor menselijke eindcontrole — 29 oktober 2026
+
+Alle vier geselecteerde issues zijn uitgevoerd via PR #54–#57, met #52-toepassingscorrectie in #60 en testcuratie #59/#61. Definitieve bron `430ac0863dabd51899fd77d42e5c925ba940ce1d`, versie 1.3.0, schema 12. Run 40923261862 is native Mac/Windows groen: elk 130 Node- en 38 desktop-/audiotests plus build/typecheck. De ontwikkelapp is op beide bronnen product-identiek; aparte lokale reviewkopie en launcher staan klaar. Zie docs/RELEASE-1.3.0.md voor bewijs, hash en controlepunten. Eén expliciet menselijk eindakkoord blijft verplicht vóór nieuwe installers. Milestone 4 blijft open; nog geen tag of publicatie. De bronoorzaak van dubbele audio op de gebruikersopname is niet bewezen.

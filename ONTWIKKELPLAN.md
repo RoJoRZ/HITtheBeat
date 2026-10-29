@@ -305,3 +305,8 @@ Gestart op opdracht van 29 oktober 2026, scope #50–#53. Volgorde #51, #50, #53
 ### Status 1.3.0 — gereed voor release-regressie
 
 Alle vier issues zijn uitgevoerd en samengevoegd (PR #54–#57). Nu versievoorbereiding 1.3.0 → vaste bron → volledige native Mac/Windows-groep → testbare Mac-ontwikkelapp en ene menselijke eindcontrole. Geen installers/tag/publicatie vóór expliciet akkoord. #51 bevat een defensieve reparatie; de eigen arpeggio-opname moet in de eindcontrole nog beluisterd worden.
+
+
+### 1.3.0 — gereed voor de ene eindcontrole
+
+Bron 430ac0863dabd51899fd77d42e5c925ba940ce1d; run 40923261862: Mac/Windows elk 130 Node en 38 desktop/audio geslaagd. #52 geldt voor volgende sessie-uitvoering zoals BPM; schema 12. Ontwikkelapp en aparte reviewkopie gereed (docs/RELEASE-1.3.0.md). Wacht op expliciet gebruikersakkoord; keur release-approval niet zelfstandig goed. Daarna dezelfde bron verpakken, daadwerkelijke pakketten controleren en publiceren. Milestone 4 pas na publicatie sluiten.
