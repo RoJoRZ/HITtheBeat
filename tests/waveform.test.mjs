@@ -18,3 +18,13 @@ test('selection uses canonical source time, supports reverse drags, clamps bound
   const selected={a:2.345,b:4.567};const zoomed=viewportRange(2,3,10);assert.equal(timeAt(100+(.345/3)*500,100,500,zoomed.start,zoomed.end),selected.a);
   assert.deepEqual(selected,{a:2.345,b:4.567}); assert.deepEqual(viewportRange(99,3,10),{start:7,end:10});assert.deepEqual(viewportRange(-10,20,10),{start:0,end:10});
 });
+
+
+test('beat grid uses source BPM and offset, clamps to valid grid points and preserves source precision', async () => {
+  const { snapBeat } = await import('../src/audio/waveform.mjs');
+  assert.equal(snapBeat(1.12, 120, .2, 0, 6), 1.2);
+  assert.equal(snapBeat(.01, 120, .2, 0, 6), .2);
+  assert.equal(snapBeat(6, 120, .2, 0, 6), 5.7);
+  assert.equal(snapBeat(1.4, 120, .2, 0, 1.3), 1.2);
+  assert.ok(Math.abs(snapBeat(2, 119.6, .123, 0, 6) - (.123 + 4 * 60 / 119.6)) < 1e-10);
+});

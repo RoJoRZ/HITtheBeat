@@ -64,7 +64,7 @@ test('schema 3 upgrade preserves library, routines and session history without c
     const session = library.startSession(routine.id); library.interruptSessions();
     const history = library.listSessions(); library.close();
     const { DatabaseSync } = await import('node:sqlite'); const db = new DatabaseSync(path.join(root, 'library.sqlite'));
-    db.exec('ALTER TABLE exercises DROP COLUMN credit; ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN fragments; ALTER TABLE routine_steps DROP COLUMN fragment_id; ALTER TABLE routine_steps DROP COLUMN fragment_name; ALTER TABLE exercises DROP COLUMN normalization_db; ALTER TABLE exercises DROP COLUMN normalize_audio; PRAGMA user_version=3;'); db.close();
+    db.exec('ALTER TABLE exercises DROP COLUMN beat_offset; ALTER TABLE exercises DROP COLUMN credit; ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN fragments; ALTER TABLE routine_steps DROP COLUMN fragment_id; ALTER TABLE routine_steps DROP COLUMN fragment_name; ALTER TABLE exercises DROP COLUMN normalization_db; ALTER TABLE exercises DROP COLUMN normalize_audio; PRAGMA user_version=3;'); db.close();
     library = await openLibrary(root);
     assert.equal(library.list()[0].normalizationDb, null); assert.equal(library.list()[0].normalizeAudio, true);
     assert.deepEqual(library.listRoutines()[0], routine); assert.deepEqual(library.listSessions(), history);
@@ -99,4 +99,22 @@ test('replace audio atomically, protect saved boundaries and preserve historical
     library.close(); library = await openLibrary(root);
     assert.equal(library.list().length, 0); assert.deepEqual(library.listSessions(), history);
   } finally { library.close(); await rm(root, { recursive: true, force: true }); }
+});
+
+
+test('first beat survives edits, sharing and schema 10 migration without moving fragments or history', async () => {
+  const { DatabaseSync } = await import('node:sqlite');
+  const { encodeExercise, decodeExercise } = await import('../electron/exercise-sharing.mjs');
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-beat-')); let lib;
+  try {
+    lib = await openLibrary(root); const saved = await lib.save({...input, beatOffset:.123});
+    lib.saveFragment(saved.id,{name:'Vrij',start:1.11,end:2.22});
+    const changed = await lib.save({...saved,title:'Andere naam'}); assert.equal(changed.beatOffset,.123);
+    const decoded = decodeExercise(encodeExercise(await lib.exportExercise(saved.id),null)); assert.equal(decoded.input.beatOffset,.123);
+    await assert.rejects(lib.save({...changed,beatOffset:12}),/eerste tel/);
+    lib.close();
+    const db = new DatabaseSync(path.join(root,'library.sqlite')); db.exec('ALTER TABLE exercises DROP COLUMN beat_offset; PRAGMA user_version=10;'); db.close();
+    lib = await openLibrary(root); assert.equal(lib.list()[0].beatOffset,null); assert.equal(lib.list()[0].fragments[0].start,1.11);
+    await lib.save({...lib.list()[0],beatOffset:.234}); lib.close(); lib=await openLibrary(root); assert.equal(lib.list()[0].beatOffset,.234);
+  } finally { lib?.close(); await rm(root,{recursive:true,force:true}); }
 });

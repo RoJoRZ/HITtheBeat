@@ -16,6 +16,9 @@ import { durationLabel } from './controls';
 const message = (error: unknown) => error instanceof Error ? errorMessage(error) : m("Dit is niet gelukt. Probeer opnieuw.");
 
 function ExerciseForm({ initial, done, cancel }: { initial?: Exercise; done: (item: Exercise) => void; cancel: () => void }) {
+  const [beatOffset, setBeatOffset] = useState(initial?.beatOffset == null ? '' : String(initial.beatOffset));
+  const [previewUrl, setPreviewUrl] = useState('');
+  const previewAudio = useRef<HTMLAudioElement>(null);
   const [kind, setKind] = useState(initial?.kind ?? 'audio'), [meter, setMeter] = useState(initial?.meter ?? '4/4');
   const [bars, setBars] = useState(String(initial?.bars ?? 8));
   const metro = kind === 'metronome';
@@ -36,6 +39,17 @@ function ExerciseForm({ initial, done, cancel }: { initial?: Exercise; done: (it
   const abort = useRef<AbortController | null>(null);
   const manual = useRef(Boolean(initial));
   useEffect(() => () => abort.current?.abort(), []);
+  useEffect(() => {
+    let alive = true, url = '';
+    if (metro) return;
+    void (async () => {
+      const source = audio ?? (initial ? await window.hitthebeat!.readAudio(initial.id) : null);
+      if (!source || !alive) return;
+      url = URL.createObjectURL(new Blob([new Uint8Array(source.bytes)], { type: /\.m4a$/i.test(audio?.name ?? initial?.audioName ?? '') ? 'audio/mp4' : 'audio/mpeg' }));
+      setPreviewUrl(url);
+    })().catch(() => {});
+    return () => { alive = false; if (url) URL.revokeObjectURL(url); };
+  }, [audio, initial?.id, metro]);
   async function analyze(file?: File) {
     abort.current?.abort();
     const controller = new AbortController(); abort.current = controller;
@@ -66,7 +80,7 @@ function ExerciseForm({ initial, done, cancel }: { initial?: Exercise; done: (it
   return <section className="panel exercise-form" aria-label={initial ? t("Oefening bewerken") : t("Nieuwe oefening")}><h2>{initial ? t("Oefening bewerken") : t("Nieuwe oefening")}</h2><form onSubmit={async event => {
     event.preventDefault(); setSaving(true); setError('');
     try {
-      const item = await window.hitthebeat!.saveExercise({ id: initial?.id, kind, meter, bars: metro ? Number(bars) : undefined, title, description, bpm: Number(bpm), detectedBpm: detected, analysisStatus: detected ? 'estimated' : 'unavailable', duration: metro ? 0 : duration, audio: metro ? undefined : audio, image, normalizationDb: metro ? null : normalizationDb, normalizeAudio: metro ? false : normalizeAudio });
+      const item = await window.hitthebeat!.saveExercise({ id: initial?.id, kind, meter, bars: metro ? Number(bars) : undefined, beatOffset: beatOffset === '' ? null : Number(beatOffset), title, description, bpm: Number(bpm), detectedBpm: detected, analysisStatus: detected ? 'estimated' : 'unavailable', duration: metro ? 0 : duration, audio: metro ? undefined : audio, image, normalizationDb: metro ? null : normalizationDb, normalizeAudio: metro ? false : normalizeAudio });
       done(item);
     } catch (reason) { setError(message(reason)); }
     finally { setSaving(false); }
@@ -83,6 +97,7 @@ function ExerciseForm({ initial, done, cancel }: { initial?: Exercise; done: (it
     <label>{metro ? 'BPM' : t("Origineel BPM")}<input type="number" required min={metro ? 20 : 0} max={metro ? 300 : 1000} step="1" value={bpm === '' ? '' : bpmText(Number(bpm))} onChange={event => { manual.current = true; setBpm(event.target.value.trim() ? String(Math.round(event.target.valueAsNumber)) : ''); }} /></label>
     {!metro && detected !== null && <button type="button" className="text-button" onClick={() => { manual.current = true; setBpm(String(detected)); }}>{t("Gebruik schatting (")}{bpmText(detected)}{t(" BPM)")}</button>}
     {!metro && <div className="row-actions bpm-correction"><button type="button" className="secondary" disabled={!(Number(bpm) >= 2)} onClick={() => { manual.current = true; setBpm(String(Math.round(Number(bpm) / 2))); }}>{t("Halveer BPM")}</button><button type="button" className="secondary" disabled={!(Number(bpm) > 0 && Number(bpm) <= 500)} onClick={() => { manual.current = true; setBpm(String(Math.round(Number(bpm) * 2))); }}>{t("Verdubbel BPM")}</button><span className="caption">{t("Een schatting kan de halve of dubbele tel volgen. Kies wat bij de oefening hoort.")}</span></div>}
+    {!metro && <div className="beat-origin"><label>{t("Eerste tel (seconden, optioneel)")}<input type="number" min="0" max={duration || undefined} step=".001" value={beatOffset} onChange={event => setBeatOffset(event.target.value)} /></label>{previewUrl && <><audio ref={previewAudio} controls preload="metadata" src={previewUrl} aria-label={t("Eerste tel beluisteren")} /><button type="button" className="secondary" onClick={() => { previewAudio.current?.pause(); setBeatOffset(String(Math.round((previewAudio.current?.currentTime ?? 0) * 1000) / 1000)); }}>{t("Hier begint een tel")}</button></>}<p className="caption">{t("Pauzeer bij een tel of vul de bronpositie in. Alle fragmentselecties gebruiken dit raster bij het originele BPM. Leeg laat vrije selectie toe.")}</p></div>}
     <label>{t("Opdracht")}<textarea rows={5} maxLength={20000} value={description} onChange={event => setDescription(event.target.value)} /></label>
     <label>{t("Tablatuur of foto (optioneel)")}<input type="file" accept="image/png,image/jpeg,image/webp" onChange={event => { const file = event.target.files?.[0]; if (file) void chooseImage(file); }} /></label>
     <p className="caption">{image === null ? t("Geen afbeelding") : image?.name ?? initial?.imageName ?? t("Nog geen afbeelding")}{t(" · PNG, JPEG of WebP, maximaal 12 MB")}</p>

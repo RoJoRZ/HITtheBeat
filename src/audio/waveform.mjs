@@ -43,3 +43,13 @@ export function viewportRange(start, span, duration) {
   const length = Math.min(duration, Math.max(Math.min(.1, duration), span));
   const a = Math.max(0, Math.min(duration - length, start)); return { start: a, end: a + length };
 }
+
+/** Snap within allowed bounds; preserve endpoints when no grid point fits.
+ * @param {number} value @param {number} bpm @param {number} offset @param {number} min @param {number} max
+ */
+export function snapBeat(value, bpm, offset, min, max) {
+  if (!(bpm > 0) || !Number.isFinite(offset) || max < min) return Math.max(min, Math.min(max, value));
+  const interval = 60 / bpm, first = Math.ceil((min - offset) / interval - 1e-9), last = Math.floor((max - offset) / interval + 1e-9);
+  if (first > last) return Math.max(min, Math.min(max, value));
+  return offset + Math.max(first, Math.min(last, Math.round((value - offset) / interval))) * interval;
+}

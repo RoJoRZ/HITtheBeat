@@ -36,8 +36,8 @@ function decodeAsset(value, kind) {
 }
 /** @param {import('./library.mjs').Exercise & {audio?:import('./library.mjs').Asset,image?:import('./library.mjs').Asset|null}} source @param {unknown} credit */
 export function encodeExercise(source, credit) {
-  const {kind = 'audio', title, description, bpm, detectedBpm, analysisStatus, duration, normalizationDb, normalizeAudio, meter = '4/4', bars = 8} = source;
-  const bytes = Buffer.from(JSON.stringify({format:'hitthebeat-exercise',version:1,exercise:{kind,title,description,bpm,detectedBpm,analysisStatus,duration,normalizationDb,normalizeAudio,meter,bars,credit:validateCredit(credit),fragments:(source.fragments ?? []).map(({name,start,end})=>({name,start,end}))},audio:encodeAsset(source.audio),image:encodeAsset(source.image)}));
+  const {beatOffset = null, kind = 'audio', title, description, bpm, detectedBpm, analysisStatus, duration, normalizationDb, normalizeAudio, meter = '4/4', bars = 8} = source;
+  const bytes = Buffer.from(JSON.stringify({format:'hitthebeat-exercise',version:1,exercise:{beatOffset,kind,title,description,bpm,detectedBpm,analysisStatus,duration,normalizationDb,normalizeAudio,meter,bars,credit:validateCredit(credit),fragments:(source.fragments ?? []).map(({name,start,end})=>({name,start,end}))},audio:encodeAsset(source.audio),image:encodeAsset(source.image)}));
   // Export validates with the very same rules used by the recipient.
   decodeExercise(bytes);
   return bytes;
@@ -59,6 +59,7 @@ export function decodeExercise(bytes) {
   if (!Array.isArray(e.fragments) || e.fragments.length > 100 || (kind === 'metronome' && e.fragments.length)) throw invalid();
   const fragments = e.fragments.map((/** @type {any} */ f)=>validateFragment({name:f?.name,start:f?.start,end:f?.end},e.duration));
   if (new Set(fragments.map((/** @type {{name:string}} */ f)=>f.name.toLocaleLowerCase('nl'))).size !== fragments.length) throw invalid();
-  const input = {title,description,kind,bpm:e.bpm,detectedBpm:e.detectedBpm,analysisStatus:e.analysisStatus,duration:e.duration,normalizationDb:e.normalizationDb,normalizeAudio:e.normalizeAudio,meter:kind === 'metronome' ? e.meter : '4/4',bars:kind === 'metronome' ? e.bars : 8,credit:validateCredit(e.credit),audio,image};
+  if (e.beatOffset != null && (typeof e.beatOffset !== 'number' || !Number.isFinite(e.beatOffset) || e.beatOffset < 0 || e.beatOffset >= e.duration || kind === 'metronome')) throw invalid();
+  const input = {beatOffset:e.beatOffset ?? null,title,description,kind,bpm:e.bpm,detectedBpm:e.detectedBpm,analysisStatus:e.analysisStatus,duration:e.duration,normalizationDb:e.normalizationDb,normalizeAudio:e.normalizeAudio,meter:kind === 'metronome' ? e.meter : '4/4',bars:kind === 'metronome' ? e.bars : 8,credit:validateCredit(e.credit),audio,image};
   return {input,fragments};
 }

@@ -638,3 +638,8 @@ De gebruiker heeft de ontwikkelversie getest en expliciet akkoord voor release g
 ## Release 1.3.0 — gestart 29 oktober 2026
 
 Milestone 4 bevat uitsluitend #50–#53. Geaccepteerd: eerste tel per oefening bij aanmaken/bewerken, optioneel beat-snappen voor fragmenten; onderzoek dubbele audio; klikbare oefenblokken naar eerste stap met behoud spelen/pauze en werkelijk gespeelde tijd; evaluatie met Audio/Alleen metronoom per stap vanaf volgende gespeelde herhaling in deze sessie. Aantal kwarttellen van het oorspronkelijke geselecteerde fragment blijft gelijk, speelduur schaalt met BPM. Enter gaat zonder wijzigingen door. Volgorde #51 → #50 → #53 → #52. Eén menselijke eindcontrole na volledige native regressie en vóór installers. De scheiding private ontwikkeling/publieke downloads blijft geparkeerd.
+
+
+### #50 — eerste tel en beat-raster
+
+Geïmplementeerd: optionele Eerste tel in bronseconden bij Oefening aanmaken/bewerken, met lokale audio beluisteren en Hier begint een tel. Leeg betekent vrije selectie. Instellen bewaart het raster per oefening; beide spelers bieden Vastklikken op tel (aan bij beschikbaar raster), uit voor vrije selectie. Raster volgt origineel BPM, ook bij ander speeltempo. Bestaande grenzen worden niet automatisch aangepast; expliciet slepen/toetsen past de selectie aan. Audio vervangen behoudt de instelling zolang geldig; ongeldige positie wordt geweigerd. Oude oefeningen en snapshots blijven compatibel zonder raster. Export/import bewaart de eerste tel.
