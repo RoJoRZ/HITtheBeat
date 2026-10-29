@@ -2,6 +2,8 @@
 
 Kies de gewenste uitgave op [GitHub Releases](https://github.com/RoJoRZ/HITtheBeat/releases). Gebruik de tag en downloadbestanden van dezelfde versie. De releasetag legt de precieze bron vast; main kan al latere ontwikkeling bevatten. De oorspronkelijke [1.0.0](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.0.0) blijft ongewijzigd; het historische verslag staat in RELEASE-1.0.0-NOTES.md. Voor wijzigingen en controles van 1.1.0: RELEASE-1.1.0.md. [1.2.0](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.2.0) is gepubliceerd; zie RELEASE-1.2.0.md voor gebruikersakkoord, native regressie en pakketcontroles. Patch [1.1.1](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.1.1) is gepubliceerd; zie RELEASE-1.1.1.md.
 
+Versie 1.3.0 is gereed voor menselijke eindcontrole; nog niet gepubliceerd. Zie RELEASE-1.3.0.md voor bron, native testbewijs en ontwikkelapp.
+
 ## Downloads
 
 Vervang `<versie>` door de versie van de gekozen GitHub-release.
