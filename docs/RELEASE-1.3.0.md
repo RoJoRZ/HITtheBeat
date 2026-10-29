@@ -20,3 +20,19 @@ Geraakt: runner, transport, sessieresultaten en actieve oefening. Risico: tijd d
 ## #52 analyse en controle
 
 Geraakt: evaluatie, audio-engine en JSON-resultaatvalidatie. Risico: track toch hoorbaar, verkeerde duur/BPM, klikken na pauze, verouderde callback registreert verkeerde klank, overschrijven historie/opbouw. Optionele audioModes/sound-velden behouden oude data; schema blijft 11. Gerichte Node-tests op validatie/reopen en lokale keuzes; echte uitvoermeting controleert twee kwarttellen op 60 BPM (2 seconden), stilte tussen klikken, terugkeer naar audio en pauze. UI controleert per-stapkeuze vanaf herhalen, andere stap audio, bewaarde historie en nieuwe sessie met audio. Bestaande evaluatie/navigatie-/taaltests worden alleen aangepast om het nieuwe eerste menu expliciet te bedienen; inhoudelijke garanties blijven staan. Build/typecheck, 10 gerichte Node-controles (sessies/taal) en 11 desktopcontroles geslaagd. Echte klikmetingen: 0,0053s en 1,0027s, tussen/na afloop/pauze stilte 0, bron-eindpositie exact 1,2s bij rate 0,5; herstelde audio piek 0,300. Zelfreview op actual-engine klankregistratie, oude JSON-compatibiliteit, audiogate vóór asynchroon plannen en per-blokkeuzes. Geen onafhankelijke menselijke review; die volgt als release-eindcontrole. #53 is samengevoegd via PR #56 na 15 Node- en drie desktopcontroles.
+
+
+## Releasegroep en eindcontrole
+
+Alle geselecteerde issues samengevoegd via #54–#57. Voorgestelde versie 1.3.0. Geen nieuwe dependency, schema 11 met compatibele nullable eerste-telinstelling. De volledige groep draait uitsluitend op de vaste releasebron, native Mac en Windows, inclusief alle Node- en desktop/audio-tests. Geen extra volledige lokale reeks naast deze native groep. Gerichte tests gebruiken geïsoleerde data. Uitvoermetingen bewaken timing/grenzen, maar zijn geen muzikale luisteracceptatie.
+
+| Functie/risico | Gerichte issuegroep | Volledige releasegroep |
+| --- | --- | --- |
+| Dubbele bron/overgangen #51 | audio-controls, DSP inclusief buffervervanging, sessies (4 desktop) | alle audio-, volume-, aftel-, sessietests op Mac/Windows |
+| Beat-raster #50 | 41 Node (opslag/migratie/delen/raster/taal), 4 UI (pointer beide routes/beide spelers/delen) | alle opslag-/deel-/waveform-/bibliotheektests op Mac/Windows |
+| Navigatie #53 | 15 Node, 3 sessie-UI | alle runner/sessie/tablatuur/afteltests op Mac/Windows |
+| Audio/metronoom #52 | 10 Node, 11 desktop (eval/taal/sessie/klank met uitvoermeting) | alle evaluatie-/resultaat-/audio-/UI-tests op Mac/Windows |
+
+Behoud van eerdere regressies: geen test verwijderd. Migratiefixtures zijn bijgewerkt om echte oudere schema's te simuleren; evaluatietests openen nu expliciet het goedgekeurde beginmenu. Nieuwe tests beschermen daadwerkelijke audio-uitvoer, gegevenscompatibiliteit en tijd-/procesovergangen. Bekende beperking: oorzaak van de gemelde dubbele arpeggio op persoonlijke opname niet bewezen. Eerste tel/BPM-raster is handmatig instelbaar, geen automatische beatdetectie bij variabel tempo. Native installer-/pakkettests volgen pas na gebruikersakkoord; geen signing/notariseringsclaim.
+
+Ontwikkelapp wordt opgebouwd als appdirectory (geen release-installer) in release/review-1.3.0/mac-arm64/HITtheBeat.app. Menselijke controle: eerste tel opslaan/bewerken en snappen; eigen arpeggiosessie beluisteren; vooruit/terug springen met spelen/pauze; tijdens evaluatie per stap Audio/Alleen metronoom en herhalen. Persoonlijke bestanden worden niet vooraf aangepast. Exacte bron/run/resultaten volgen vóór verzoek om akkoord.
