@@ -12,7 +12,7 @@ test('infrastructure changes check startup and selector invariants without the f
 test('audio and storage changes include their critical regressions without duplicates', () => {
   const s = selectTests(['src/audio/engine.ts', 'electron/library-store.mjs', 'src/audio/bpm.ts']);
   for (const n of ['bpm', 'count-in', 'library', 'sessions']) assert.ok(s.node.includes(`tests/${n}.test.mjs`));
-  for (const n of ['audio', 'count-in', 'library', 'evaluation']) assert.ok(s.desktop.includes(`tests/desktop/${n}.spec.ts`));
+  for (const n of ['audio', 'count-in', 'library', 'evaluation', 'sound-mode']) assert.ok(s.desktop.includes(`tests/desktop/${n}.spec.ts`));
   assert.equal(new Set(s.node).size, s.node.length); assert.equal(new Set(s.desktop).size, s.desktop.length);
 });
 test('window, shared UI and changed tests are covered', () => {
@@ -23,6 +23,7 @@ test('window, shared UI and changed tests are covered', () => {
 test('evaluation and progress UI changes stay focused without storage/import regressions', () => {
   const evaluation = selectTests(['src/ui/SessionReview.tsx', 'src/ui/SessionPlayer.tsx', 'tests/desktop/evaluation.spec.ts']);
   assert.ok(evaluation.node.includes('tests/sessions.test.mjs'));
+  assert.ok(evaluation.desktop.includes('tests/desktop/sound-mode.spec.ts'));
   assert.ok(evaluation.desktop.includes('tests/desktop/evaluation.spec.ts'));
   assert.ok(!evaluation.desktop.includes('tests/desktop/sharing.spec.ts'));
   const progress = selectTests(['src/library/progress.mjs', 'src/ui/SessionHistory.tsx']);
