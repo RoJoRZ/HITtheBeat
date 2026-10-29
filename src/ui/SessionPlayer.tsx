@@ -14,7 +14,7 @@ import { VolumeControl } from './VolumeControl';
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { Play, Pause, RotateCcw, Expand } from 'lucide-react';
 import { AudioEngine, validateAudioSettings } from '../audio/engine';
-import { advance, createRun, current, remainingSeconds, remainingPreparation, series, type Run } from '../session/runner';
+import { advance, jumpToBlock, createRun, current, remainingSeconds, remainingPreparation, series, type Run } from '../session/runner';
 import type { Exercise, SessionRecord, Played, SessionProgress, Evaluation } from '../library/types';
 import { NumberField } from './AudioLab';
 import { durationLabel } from './controls';
@@ -205,6 +205,15 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
     if (action === 'skip' && !loaded && !locked.current) { commit(advance(state.current, 'skip')); return; }
     void operate(async audio => { await audio.pause(); commit(advance(state.current, action)); });
   }
+  async function navigate(blockIndex: number) {
+    if (locked.current || !active || state.current.phase === 'complete') return;
+    locked.current = true; setBusy(true); setReviewError('');
+    try {
+      await audioRef.current?.pause(); measure(); await persist();
+      const next = jumpToBlock(state.current, blockIndex);
+      last.current = null; setChoice('same'); setDelta(5); commit(next);
+    } catch (reason) { setReviewError(readable(reason)); locked.current = false; setBusy(false); }
+  }
   async function evaluate(action: Evaluation['action']) {
     if (locked.current || !active || state.current.phase !== 'review') return;
     locked.current = true; setBusy(true); setReviewError('');
@@ -239,7 +248,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   const field = (label: string, value: number, change: (value: number) => void, increment = 1) => <NumberField label={label} value={value} change={change} step={increment} disabled={busy || !active} />;
   return <div className="screen-stack session-player">
     <div className="player-context"><span>{routine.title}{t(" · Oefening ")}{run.block + 1}{t(" van ")}{routine.blocks.length}</span><button className="text-button" onClick={leave}>{complete ? t("Terug naar sessies") : t("Sessie stoppen")}</button></div>
-    <section className="panel round-playlist" aria-label={t("Oefeningen in deze sessie")}><h2>{t("De hele oefensessie")}</h2><ol>{routine.blocks.map((item, index) => <li key={item.id} aria-current={index === run.block && !complete ? 'step' : undefined}><div className="queue-item"><strong>{index + 1}. {exercises.find(source => source.id === item.exerciseId)!.title}</strong><small>{run.statuses[index] === 'completed' ? t("Afgerond") : run.statuses[index] === 'skipped' ? t("Overgeslagen") : index === run.block ? isFree ? t("Huidig · fragmenttraining") : t("Huidige oefening") : t("Hierna")}</small></div></li>)}</ol></section>
+    <section className="panel round-playlist" aria-label={t("Oefeningen in deze sessie")}><h2>{t("De hele oefensessie")}</h2><ol>{routine.blocks.map((item, index) => <li key={item.id} aria-current={index === run.block && !complete ? 'step' : undefined}><button type="button" className="queue-item" disabled={busy || !active || complete} onClick={() => void navigate(index)} aria-current={index === run.block && !complete ? 'step' : undefined}><strong>{index + 1}. {exercises.find(source => source.id === item.exerciseId)!.title}</strong><small>{run.statuses[index] === 'completed' ? t("Afgerond") : run.statuses[index] === 'skipped' ? t("Overgeslagen") : index === run.block ? isFree ? t("Huidig · fragmenttraining") : t("Huidige oefening") : t("Hierna")}</small></button></li>)}</ol>{run.phase === 'review' && <p className="caption">{t("Naar een oefening springen bewaart geen onbevestigde evaluatiekeuzes.")}</p>}</section>
     {reviewError && <p role="alert" className="error">{messageText(reviewError)}</p>}
     {saveError && <div role="alert" className="error"><p>{t("Bewaren is niet gelukt: ")}{messageText(saveError)}</p><button className="secondary" disabled={busy} onClick={() => { void persist(complete ? run.statuses.includes('skipped') ? 'partial' : 'completed' : 'running').then(() => { if (complete) finished(); }).catch(() => {}); }}>{t("Opnieuw bewaren")}</button></div>}
     {error && <div role="alert" className="error"><p>{messageText(error)}</p><button className="secondary" onClick={() => commit({ ...state.current, phase: 'paused', revision: state.current.revision + 1 })}>{t("Audio opnieuw laden")}</button><button className="text-button" onClick={leave}>{t("Terug naar sessies")}</button></div>}

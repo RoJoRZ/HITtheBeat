@@ -53,6 +53,15 @@ export function advance(run: Run, action: Action): Run {
   }
   return run;
 }
+/** Jump without awarding unplayed repetitions; review choices must be confirmed separately. */
+export function jumpToBlock(run: Run, block: number): Run {
+  if (!Number.isInteger(block) || block < 0 || block >= run.routine.blocks.length || run.phase === 'complete') return run;
+  const wasPlaying = ['playing', 'countin'].includes(run.phase) || run.phase === 'fragment' && run.resumePlaying;
+  const statuses = run.statuses.map((status, index) => index === block ? 'pending' as const : index < block && status === 'pending' ? 'skipped' as const : status);
+  const next = { ...run, block, step: 0, repetition: 0, statuses, revision: run.revision + 1, resumePlaying: false, resumeCountIn: false };
+  return { ...next, phase: wasPlaying ? startingPhase(next) : run.phase === 'ready' ? 'ready' : 'paused', resumeCountIn: Boolean(countInForBlock(next.routine, current(next).block)?.enabled) };
+}
+
 export function remainingSeconds(run: Run, position = 0) {
   if (run.phase === 'complete') return 0;
   let total = 0;
