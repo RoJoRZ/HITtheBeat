@@ -286,3 +286,8 @@ Instellingen krijgt een paneel Dashboard beheren met standaardperiode en getoond
 ## Beat-raster — #50
 
 Eerste tel staat bij audio-oefening aanmaken/bewerken, met lokale beluisterbediening en Hier begint een tel. Waveform-toolbar toont Vastklikken op tel wanneer ingesteld; aria-pressed, toetsen en vrije selectie blijven beschikbaar. Bestaande Studio-donker/Mandarijn-stijl behouden.
+
+
+## Klikbare oefenblokken — #53
+
+Bestaande queue-vakken zijn native buttons met aria-current en disabled bij laden/inactief/afgerond. Titel/status en Mandarijn-actiefmarkering blijven gelijk. Evaluatie vermeldt dat springen onbevestigde keuzes niet opslaat.

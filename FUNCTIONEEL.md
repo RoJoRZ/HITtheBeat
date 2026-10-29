@@ -643,3 +643,8 @@ Milestone 4 bevat uitsluitend #50–#53. Geaccepteerd: eerste tel per oefening b
 ### #50 — eerste tel en beat-raster
 
 Geïmplementeerd: optionele Eerste tel in bronseconden bij Oefening aanmaken/bewerken, met lokale audio beluisteren en Hier begint een tel. Leeg betekent vrije selectie. Instellen bewaart het raster per oefening; beide spelers bieden Vastklikken op tel (aan bij beschikbaar raster), uit voor vrije selectie. Raster volgt origineel BPM, ook bij ander speeltempo. Bestaande grenzen worden niet automatisch aangepast; expliciet slepen/toetsen past de selectie aan. Audio vervangen behoudt de instelling zolang geldig; ongeldige positie wordt geweigerd. Oude oefeningen en snapshots blijven compatibel zonder raster. Export/import bewaart de eerste tel.
+
+
+### #53 — direct naar oefenblok springen
+
+De bovenste oefenblokken zijn knoppen (ook via toetsen bereikbaar). Spring naar eerste stap/herhaling van gekozen blok. Spelen/aftellen blijft spelen met eigen aftelinstelling, ready/pauze blijft stil; tijdens evaluatie spring je gepauzeerd en onbevestigde keuzes worden niet opgeslagen. Gespeelde tijd/passes blijven behouden; ongespeelde voorgaande pending blokken worden Overgeslagen, geen fictieve herhalingen. Opnieuw bezoeken zet doelblok op pending. Actieve oefening/tablatuur volgt bestaande routes. Na sessieafronding zijn de knoppen uitgeschakeld.

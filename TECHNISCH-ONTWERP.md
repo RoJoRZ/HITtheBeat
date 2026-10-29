@@ -388,3 +388,8 @@ AudioEngine serialiseert ook buffervervanging en ontkoppelt de vorige worklet v�
 ## Eerste tel en fragmentraster — #50
 
 Schema 11 voegt nullable beat_offset toe, zonder historie te herschrijven. Save valideert eindige bronpositie binnen track; ontbrekende input behoudt waarde, oude bronnen default null. Deelbestand v1 krijgt optioneel beatOffset met validatie. WaveformEditor gebruikt bron-BPM en offset voor pointer en toetsen; snappen is lokale weergavestate, pannen verandert geen grenzen. Formulier heeft lokale blob-audiopreview, met intrekken object-URL bij bronwissel/unmount. CSP staat alleen lokale/blob-media toe, geen externe bron. Geen nieuwe dependency/IPC/rechten.
+
+
+## Sessienavigatie — #53
+
+Runner.jumpToBlock valideert doelindex, bewaart passes en stelt targetstap/herhaling terug. SessionPlayer pauzeert, meet en bewaart huidige voortgang vóór commit; de bestaande revision/generation-route laadt geselecteerde audio en tablatuur. Navigatie is gelockt tijdens laden/bewaren. Geen nieuwe IPC/schema; bestaande resultaatsvalidatie blijft leidend.

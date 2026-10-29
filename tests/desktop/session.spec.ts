@@ -131,3 +131,38 @@ test('missing audio does not advance or count a pass and stopping keeps the save
     await expect(page.getByRole('heading', { name: 'Sessie beëindigd', exact: true })).toBeVisible();
   } finally { await app.close(); await rm(root, { recursive: true, force: true }); }
 });
+
+test('queue buttons navigate forward/back while preserving transport and real time; review drafts are discarded', async()=>{
+  const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-jump-'));
+  const app=await electron.launch({args:['--lang=nl-NL','.',`--user-data-dir=${root}`],env:{...process.env,HITTHEBEAT_DEV:'0'}});
+  try {
+    const page=await app.firstWindow();await expect(page.locator('h1')).toBeVisible();
+    await page.evaluate(async bytes=>{
+      const api=window.hitthebeat!;const exercises=[];
+      for(const title of ['Eerste','Tweede','Derde'])exercises.push(await api.saveExercise({title,description:'',bpm:120,duration:6,detectedBpm:null,analysisStatus:'unavailable',audio:{name:'jump.mp3',bytes:new Uint8Array(bytes)}}));
+      await api.saveRoutine({title:'Springen',blocks:exercises.map((e,i)=>({id:crypto.randomUUID(),exerciseId:e.id,steps:[{id:crypto.randomUUID(),bpm:120,repetitions:1,start:0,end:i===2?.3:6}]}))});
+    },[...track()]);
+    await page.reload();await page.getByRole('article',{name:'Springen',exact:true}).getByRole('button',{name:'Starten',exact:true}).click();
+    const queue=page.getByRole('region',{name:'Oefeningen in deze sessie'});
+    await expect(page.getByRole('button',{name:'Afspelen',exact:true})).toBeEnabled();
+    await queue.getByRole('button',{name:/2\. Tweede/}).click();
+    await expect(page.getByRole('heading',{name:'Tweede',exact:true})).toBeVisible();
+    await expect(page.getByRole('button',{name:'Afspelen',exact:true})).toBeEnabled();
+    await page.getByRole('button',{name:'Afspelen',exact:true}).click();
+    await expect(page.getByTestId('time-planned')).not.toHaveText('0:00');
+    await page.getByRole('button',{name:'Pauzeren',exact:true}).click();
+    await queue.getByRole('button',{name:/1\. Eerste/}).click();
+    await expect(page.getByRole('heading',{name:'Eerste',exact:true})).toBeVisible();
+    await expect(page.getByRole('button',{name:'Afspelen',exact:true})).toBeEnabled();
+    await page.getByRole('button',{name:'Afspelen',exact:true}).click();
+    await queue.getByRole('button',{name:/3\. Derde/}).click();
+    await expect(page.getByRole('heading',{name:'Oefening afgerond',exact:true})).toBeVisible();
+    await page.getByRole('button',{name:'3 · Sneller',exact:true}).click();
+    await queue.getByRole('button',{name:/2\. Tweede/}).click();
+    await expect(page.getByRole('button',{name:'Afspelen',exact:true})).toBeEnabled();
+    const saved=(await page.evaluate(()=>window.hitthebeat!.listSessions()))[0];
+    expect(saved.evaluations).toEqual([]);expect(saved.progress.passes).toBe(1);
+    expect(saved.progress.played.some(p=>p.block===1&&p.seconds>0&&p.completed===0)).toBe(true);
+    expect((await page.evaluate(()=>window.hitthebeat!.listRoutines()))[0].blocks[2].steps[0].bpm).toBe(120);
+  } finally {await app.close();await rm(root,{recursive:true,force:true});}
+});

@@ -1,5 +1,6 @@
 // Dutch source messages are stable catalog keys; user content is never a key.
 export const english = {
+  "Naar een oefening springen bewaart geen onbevestigde evaluatiekeuzes.": "Jumping to an exercise does not save unconfirmed evaluation choices.",
   "Kies een eerste tel binnen de audiotrack.": "Choose a first beat within the audio track.",
   "Eerste tel (seconden, optioneel)": "First beat (seconds, optional)",
   "Eerste tel beluisteren": "Listen for the first beat",

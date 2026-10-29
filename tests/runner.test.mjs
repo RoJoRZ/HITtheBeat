@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { createRun, advance, current, remainingSeconds } from '../src/session/runner.ts';
+import { createRun, advance, jumpToBlock, current, remainingSeconds } from '../src/session/runner.ts';
 const exercise = { id: randomUUID(), bpm: 120, duration: 60 };
 const steps = [75,95,85].map((bpm, index) => ({ id: randomUUID(), bpm, repetitions: index === 1 ? 2 : 1, start: 12, end: 22 }));
 const routine = { id: randomUUID(), title: 'Techniek', updatedAt: '', blocks: [{ id: randomUUID(), exerciseId: exercise.id, steps }, { id: randomUUID(), exerciseId: exercise.id, steps: [{ ...steps[0], id: randomUUID(), bpm: 60 }] }] };
@@ -62,4 +62,17 @@ test('explicit full-range fragment and full track are the same series', () => {
   custom.blocks[0].steps = [{ ...steps[0], start: null, end: null }, { ...steps[1], start: 0, end: 60 }];
   let run = advance(createRun(custom, [exercise]), 'play');
   run = advance(run, 'ended'); assert.equal(run.phase, 'playing'); assert.equal(run.step, 1);
+});
+
+
+test('click navigation keeps transport, counts and partial history, skips only unplayed blocks and resets the target', () => {
+  const ready = createRun(routine, [exercise]);
+  let run = jumpToBlock(ready,1); assert.equal(run.phase,'ready'); assert.equal(run.statuses[0],'skipped'); assert.equal(run.passes,0);
+  run = advance(run,'play'); run=jumpToBlock(run,0); assert.equal(run.phase,'playing');assert.equal(run.step,0);assert.equal(run.repetition,0);
+  run=advance(run,'pause');run=jumpToBlock(run,1);assert.equal(run.phase,'paused');
+  const reviewed={...run,phase:'review',passes:3,statuses:['completed','completed']};
+  run=jumpToBlock(reviewed,0);assert.equal(run.phase,'paused');assert.equal(run.passes,3);assert.deepEqual(run.statuses,['pending','completed']);
+  assert.equal(jumpToBlock(run,99),run);
+  const counting=structuredClone(routine);counting.blocks[1].countIn={enabled:true,meter:'3/4'};
+  run=jumpToBlock(advance(createRun(counting,[exercise]),'play'),1);assert.equal(run.phase,'countin');
 });
