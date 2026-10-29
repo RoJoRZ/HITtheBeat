@@ -1,5 +1,6 @@
 import { LocalizedError } from '../../electron/i18n.mjs';
 import { scheduleCountIn, type CountIn } from './count-in';
+import { scheduleClick } from './click';
 import { createStretch } from './stretch';
 import type { StretchNode } from 'signalsmith-stretch';
 
@@ -17,12 +18,14 @@ export class AudioEngine {
   private anchorPosition = 0;
   private queue: Promise<unknown> = Promise.resolve();
   private disposed = false;
-  constructor() {
+  private metronomeBpm: number | null = null;
+  constructor(private beatOffset: number | null = null) {
     this.gain.connect(this.output);
     this.output.connect(this.context.destination);
   }
   private segmentStart = 0;
   private segmentEnd: number | null = null;
+  get soundMode(): 'audio'|'metronome' { return this.metronomeBpm === null ? 'audio' : 'metronome'; }
   get playbackStart() { return this.anchorTime; }
   get countRemaining() { return this.playing ? Math.max(0, this.anchorTime - this.clock) : 0; }
   get counting() { return this.countRemaining > 0; }
@@ -90,15 +93,24 @@ export class AudioEngine {
     const now = this.context.currentTime;
     const lead = this.playing ? scheduleCountIn(this.context, this.output, countIn, countBpm, now) : { seconds: 0, nodes: [] };
     this.countTones = lead.nodes; this.anchorTime = now + lead.seconds;
-    if (lead.seconds || !this.playing) { this.gain.gain.cancelScheduledValues(now); this.gain.gain.setValueAtTime(0, now); }
-    try { await this.node.schedule({ active: this.playing, input: this.anchorPosition, output: this.anchorTime,
+    if (lead.seconds || !this.playing || this.metronomeBpm !== null) { this.gain.gain.cancelScheduledValues(now); this.gain.gain.setValueAtTime(0, now); }
+    try { await this.node.schedule({ active: this.playing && this.metronomeBpm === null, input: this.anchorPosition, output: this.anchorTime,
       rate: this.rate, semitones: this.semitones, loopStart: this.loop ? this.a : 0, loopEnd: this.loop ? this.b : 0 }); }
     catch (reason) { this.cancelCountIn(); this.playing = false; throw reason; }
     if (this.disposed) return;
+    if (this.playing && this.metronomeBpm !== null) {
+      const interval = 60 / (this.metronomeBpm / this.rate);
+      const origin = this.beatOffset ?? this.segmentStart, end = this.segmentEnd ?? this.duration;
+      const first = Math.ceil((this.anchorPosition - origin) / interval - 1e-9);
+      for (let i = first; origin + i * interval < end - 1e-9; i++) {
+        const position = origin + i * interval;
+        this.countTones.push(scheduleClick(this.context, this.output, this.anchorTime + Math.max(0, position - this.anchorPosition) / this.rate, 1000, Math.min(.035, (end - position) / this.rate)));
+      }
+    }
     // Gate the output on the audio clock, including in background windows.
     this.gain.gain.cancelScheduledValues(now);
-    this.gain.gain.setValueAtTime(this.playing && !lead.seconds ? 1 : 0, this.context.currentTime);
-    if (this.playing && lead.seconds) this.gain.gain.setValueAtTime(1, this.anchorTime);
+    this.gain.gain.setValueAtTime(this.playing && !lead.seconds && this.metronomeBpm === null ? 1 : 0, this.context.currentTime);
+    if (this.playing && lead.seconds && this.metronomeBpm === null) this.gain.gain.setValueAtTime(1, this.anchorTime);
     if (this.playing && !this.loop) this.gain.gain.setValueAtTime(0, this.anchorTime + ((this.segmentEnd ?? this.duration) - this.anchorPosition) / this.rate);
   }
   playPause() {
@@ -124,6 +136,7 @@ export class AudioEngine {
       const ended = this.ended;
       this.anchorPosition = this.position;
       if (ended) this.playing = false;
+      this.metronomeBpm = null;
       this.segmentStart = 0; this.segmentEnd = null;
       this.rate = rate; this.semitones = semitones; this.a = a; this.b = b; this.loop = loop;
       if (loop && (this.anchorPosition < a || this.anchorPosition >= b)) this.anchorPosition = a;
@@ -135,10 +148,12 @@ export class AudioEngine {
       this.anchorPosition = this.position; this.playing = false; await this.schedule();
     });
   }
-  playSegment(a: number, b: number, rate: number, semitones = 0, playing = true, countIn?: CountIn, countBpm = 1) {
+  playSegment(a: number, b: number, rate: number, semitones = 0, playing = true, countIn?: CountIn, countBpm = 1, metronomeOnly = false) {
     return this.serialize(async () => {
       validateAudioSettings(rate, semitones, a, b, this.duration);
       if (playing) await this.context.resume();
+      if (metronomeOnly && (!Number.isFinite(countBpm) || countBpm <= 0)) throw new LocalizedError("Vul een BPM groter dan nul in.");
+      this.metronomeBpm = metronomeOnly ? countBpm : null;
       this.segmentStart = a; this.segmentEnd = b;
       this.a = a; this.b = b; this.rate = rate; this.semitones = semitones; this.loop = false;
       this.anchorPosition = a; this.playing = playing; await this.schedule(countIn, countBpm);

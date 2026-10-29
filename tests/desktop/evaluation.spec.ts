@@ -46,6 +46,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await expect(page.getByTestId('session-bpm')).toHaveText('75 BPM');
     await expect(page.getByRole('heading', { name: 'Fragmentserie afgerond', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: /Beoordeling .* van 5/ })).toHaveCount(0);
+    await page.getByRole('button',{name:'Tempo aanpassen',exact:true}).click();
     await page.keyboard.press('3');
     await expect(page.getByLabel('2. Aanpassing in BPM')).toBeFocused();
     await page.getByLabel('Aanpassing in BPM').fill('400');
@@ -68,6 +69,7 @@ test('evaluate at fragment boundaries, repeat a series, change one future block 
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('session-bpm')).toHaveText('120 BPM');
     await expect(page.getByRole('heading', { name: 'Oefening afgerond', exact: true })).toBeVisible();
+    await page.getByRole('button',{name:'Tempo aanpassen',exact:true}).click();
     await page.keyboard.press('1');
     await expect(page.getByLabel('Aanpassing in BPM')).toBeFocused();
     await page.keyboard.type('7');
@@ -126,6 +128,7 @@ test('a conflicting plan edit leaves evaluation open and can be saved without ov
     await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Oefening afgerond', exact: true })).toBeVisible();
     await page.evaluate(async () => { const routine = (await window.hitthebeat!.listRoutines())[0]; routine.blocks[0].steps[0].bpm = 140; await window.hitthebeat!.saveRoutine(routine); });
+    await page.getByRole('button',{name:'Tempo aanpassen',exact:true}).click();
     await page.getByRole('button', { name: '3 · Sneller', exact: true }).click();
     await page.getByRole('button', { name: 'Sessie afronden', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('intussen gewijzigd');

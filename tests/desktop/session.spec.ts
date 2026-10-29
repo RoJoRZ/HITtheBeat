@@ -157,6 +157,7 @@ test('queue buttons navigate forward/back while preserving transport and real ti
     await page.getByRole('button',{name:'Afspelen',exact:true}).click();
     await queue.getByRole('button',{name:/3\. Derde/}).click();
     await expect(page.getByRole('heading',{name:'Oefening afgerond',exact:true})).toBeVisible();
+    await page.getByRole('button',{name:'Tempo aanpassen',exact:true}).click();
     await page.getByRole('button',{name:'3 · Sneller',exact:true}).click();
     await queue.getByRole('button',{name:/2\. Tweede/}).click();
     await expect(page.getByRole('button',{name:'Afspelen',exact:true})).toBeEnabled();

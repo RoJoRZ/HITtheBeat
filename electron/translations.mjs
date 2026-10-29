@@ -1,5 +1,16 @@
 // Dutch source messages are stable catalog keys; user content is never a key.
 export const english = {
+  "Controleer de audio/metronoomkeuze per stap.": "Check the audio/metronome choice for each step.",
+  "Stap {0} · {1} BPM": "Step {0} · {1} BPM",
+  "Alleen metronoom": "Metronome only",
+  "Audio": "Audio",
+  "Evaluatie: kies tempo of audio/metronoom. Enter bewaart en gaat door.": "Evaluation: choose tempo or audio/metronome. Enter saves and continues.",
+  "Tempo aanpassen": "Adjust tempo",
+  "Audio/metronoom kiezen": "Choose audio/metronome",
+  "1: tempo · 2: audio/metronoom · Enter: ongewijzigd doorgaan": "1: tempo · 2: audio/metronome · Enter: continue unchanged",
+  "Audio per stap": "Audio per step",
+  "Vanaf de volgende gespeelde herhaling in deze sessie. Het aantal tellen blijft gelijk; de duur volgt het BPM. Uitgevinkt speelt de audio.": "From the next played repetition in this session. The beat count stays the same; duration follows BPM. Unchecked plays the audio.",
+
   "Naar een oefening springen bewaart geen onbevestigde evaluatiekeuzes.": "Jumping to an exercise does not save unconfirmed evaluation choices.",
   "Kies een eerste tel binnen de audiotrack.": "Choose a first beat within the audio track.",
   "Eerste tel (seconden, optioneel)": "First beat (seconds, optional)",

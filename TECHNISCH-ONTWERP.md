@@ -393,3 +393,10 @@ Schema 11 voegt nullable beat_offset toe, zonder historie te herschrijven. Save 
 ## Sessienavigatie — #53
 
 Runner.jumpToBlock valideert doelindex, bewaart passes en stelt targetstap/herhaling terug. SessionPlayer pauzeert, meet en bewaart huidige voortgang vóór commit; de bestaande revision/generation-route laadt geselecteerde audio en tablatuur. Navigatie is gelockt tijdens laden/bewaren. Geen nieuwe IPC/schema; bestaande resultaatsvalidatie blijft leidend.
+
+
+## Audio/metronoom per stap — #52
+
+Evaluation.audioModes is een optionele gevalideerde volledige array voor het huidige audioblok, opgeslagen in de bestaande evaluatie-JSON (geen nieuw schema/IPC). Laatste bevestigde keuze per blok bepaalt de volgende geplande weergave. Played.sound is optioneel audio/metronome en onderscheidt werkelijk gespeelde resultaten met verschillende klank; ontbrekend blijft legacy. Bibliotheekopbouw en momentopname blijven intact. Engine.soundMode bepaalt resultaatregistratie, zodat periodieke callbacks geen verouderde React-keuze vastleggen.
+
+AudioEngine gebruikt voor klikweergave dezelfde broncoördinaten, rate, audioklok en segment-eindgrens; worklet-output wordt expliciet gegate, klikt tonen lopen buiten de track-gain door de gedeelde output. Aftellen en oefentijd blijven gescheiden. Pauze/dispose/configure annuleert klikken; configure voor vrije training herstelt audio. SessionReview voegt voor audioblokken een beginmenu en per-stapcheckboxen toe; bestaande tempo-/herhaalroutes en metronoom-oefeningen blijven behouden.
