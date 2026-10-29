@@ -115,6 +115,8 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   useEffect(() => {
     const snapshot = state.current;
     if (snapshot.phase === 'review' || snapshot.phase === 'complete') {
+      generation.current++;
+      void audioRef.current?.pause();
       setError(''); setReviewError(''); setChoice('same'); setDelta(5); evaluationId.current = crypto.randomUUID();
       locked.current = true; setBusy(true);
       void persist(snapshot.phase === 'complete' ? snapshot.statuses.includes('skipped') ? 'partial' : 'completed' : 'running').then(() => { if (snapshot.phase === 'complete' && alive.current) finished(); }).catch(() => {}).finally(() => { if (alive.current && state.current.revision === snapshot.revision) { locked.current = false; setBusy(false); } });

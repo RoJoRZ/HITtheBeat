@@ -99,6 +99,7 @@ test('DSP preserves pitch at different speeds and shifts pitch at fixed speed', 
     expect(segment.loopPosition).toBeLessThan(.3);
     expect(segment.loopEnded).toBe(false);
     expect(segment.loopRms).toBeGreaterThan(.03);
+    expect(segment.replacementRms).toBeLessThan(.00001);
 
     const levels = await page.evaluate(async () => { const { volumeProbe } = await import('/tests/audio/volume-probe.ts'); return volumeProbe(); });
     expect(levels.quiet.full / levels.loud.full).toBeCloseTo(1, 1);

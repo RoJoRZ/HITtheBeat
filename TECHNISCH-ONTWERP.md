@@ -378,3 +378,8 @@ SessionReview/SessionPlayer sturen geen rating meer; validateEvaluation bewaart 
 ### #42 — transactionele voortgangverwijdering
 
 listPracticeProgress gebruikt session snapshot exercise-ID en played.seconds, dedupliceert per sessie en neemt geen actuele bibliotheekvereiste aan. Hoofdproces genereert de native bevestiging en een SHA-256 van de betrokken sessies; renderer stuurt alleen de gevalideerde oefen-ID. Na bevestiging opnieuw hoofdvensterautorisatie en fingerprint/actieve-sessiecontrole binnen BEGIN IMMEDIATE. Alleen progress/evaluations worden bijgewerkt, zonder historische snapshot-/timestamp-/statuswijziging. Played/evaluations van andere blokken blijven behouden; passes en planned/fragment worden uit resterende played afgeleid. Elke fout rolt alle writes terug. Geen nieuw schema, geen nieuwe dependency en geen extra viewerrechten.
+
+
+## Exclusief audio-eigenaarschap — #51
+
+AudioEngine serialiseert ook buffervervanging en ontkoppelt de vorige worklet vóór laden. Een lokaal vastgehouden nieuwe worklet wordt alleen na volledige bufferinitialisatie eigenaar; annuleren/dispose ontkoppelt ook een nog ladende worklet. Uitvoerverbindingen worden eenmaal aangelegd. Dispose sluit ook de gainroutes. Review/complete invalideert oudere laadopdrachten en pauzeert expliciet. Geen schema-/bibliotheekwijziging. Dit beschermt tegen dubbele bronnen; hernoemen is geen bewezen oorzaak van de gebruikersmelding.
