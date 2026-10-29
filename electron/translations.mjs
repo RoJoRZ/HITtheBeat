@@ -1,5 +1,12 @@
 // Dutch source messages are stable catalog keys; user content is never a key.
 export const english = {
+  "Kies een eerste tel binnen de audiotrack.": "Choose a first beat within the audio track.",
+  "Eerste tel (seconden, optioneel)": "First beat (seconds, optional)",
+  "Eerste tel beluisteren": "Listen for the first beat",
+  "Hier begint een tel": "A beat starts here",
+  "Pauzeer bij een tel of vul de bronpositie in. Alle fragmentselecties gebruiken dit raster bij het originele BPM. Leeg laat vrije selectie toe.": "Pause at a beat or enter the source position. All fragment selections use this grid at the original BPM. Leave empty for free selection.",
+  "Vastklikken op tel": "Snap to beat",
+
   "Sessies": "Sessions",
   "Actie": "Action",
   "Voor deze oefening zijn geen resultaten bewaard.": "No results have been saved for this exercise.",

@@ -281,3 +281,8 @@ Het frequentiepaneel toont oefeningnamen onder 45 graden, aantallen boven balken
 ## Dashboardbeheer — Release 1.2.0
 
 Instellingen krijgt een paneel Dashboard beheren met standaardperiode en getoond tempo; dezelfde Studio-donker/Mandarijn-componenten. Voortgang krijgt één lijn per oefening; fragmenten worden niet als aparte lijnen gepresenteerd. Scoregrafiek en beoordelingsknoppen vervallen. Verwijderen van voortgang gebruikt een expliciete bevestigingsdialoog met oefening en impact; geen verwijderactie direct vanuit de grafiek.
+
+
+## Beat-raster — #50
+
+Eerste tel staat bij audio-oefening aanmaken/bewerken, met lokale beluisterbediening en Hier begint een tel. Waveform-toolbar toont Vastklikken op tel wanneer ingesteld; aria-pressed, toetsen en vrije selectie blijven beschikbaar. Bestaande Studio-donker/Mandarijn-stijl behouden.

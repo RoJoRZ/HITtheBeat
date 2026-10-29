@@ -383,3 +383,8 @@ listPracticeProgress gebruikt session snapshot exercise-ID en played.seconds, de
 ## Exclusief audio-eigenaarschap — #51
 
 AudioEngine serialiseert ook buffervervanging en ontkoppelt de vorige worklet vóór laden. Een lokaal vastgehouden nieuwe worklet wordt alleen na volledige bufferinitialisatie eigenaar; annuleren/dispose ontkoppelt ook een nog ladende worklet. Uitvoerverbindingen worden eenmaal aangelegd. Dispose sluit ook de gainroutes. Review/complete invalideert oudere laadopdrachten en pauzeert expliciet. Geen schema-/bibliotheekwijziging. Dit beschermt tegen dubbele bronnen; hernoemen is geen bewezen oorzaak van de gebruikersmelding.
+
+
+## Eerste tel en fragmentraster — #50
+
+Schema 11 voegt nullable beat_offset toe, zonder historie te herschrijven. Save valideert eindige bronpositie binnen track; ontbrekende input behoudt waarde, oude bronnen default null. Deelbestand v1 krijgt optioneel beatOffset met validatie. WaveformEditor gebruikt bron-BPM en offset voor pointer en toetsen; snappen is lokale weergavestate, pannen verandert geen grenzen. Formulier heeft lokale blob-audiopreview, met intrekken object-URL bij bronwissel/unmount. CSP staat alleen lokale/blob-media toe, geen externe bron. Geen nieuwe dependency/IPC/rechten.

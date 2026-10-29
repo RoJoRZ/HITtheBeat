@@ -107,3 +107,33 @@ for (const captureFails of [false, true]) test(`capture ${captureFails ? 'fallba
     expect(errors).toEqual([]);
   } finally { await app.close(); await rm(root, { recursive: true, force: true }); }
 });
+
+test('first beat is saved with the exercise and reused by both players, with free selection available', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'hitthebeat-beat-ui-'));
+  const app = await electron.launch({ args: ['--lang=nl-NL', '.', `--user-data-dir=${root}`], env:{...process.env,HITTHEBEAT_DEV:'0'} });
+  try {
+    const page=await app.firstWindow(); await expect(page.locator('h1')).toBeVisible();
+    const bytes=Array.from(await readFile('tests/fixtures/pulse-aac.m4a'));
+    await page.evaluate(async bytes=>{
+      const api=window.hitthebeat!, e=await api.saveExercise({title:'Telraster',description:'',bpm:120,duration:6,detectedBpm:null,analysisStatus:'unavailable',audio:{name:'beat.m4a',bytes:new Uint8Array(bytes)}});
+      await api.saveRoutine({title:'Raster sessie',blocks:[{id:crypto.randomUUID(),exerciseId:e.id,steps:[{id:crypto.randomUUID(),bpm:80,repetitions:1,start:null,end:null}]}]});
+    },bytes);
+    await page.getByRole('button',{name:'Oefeningen',exact:true}).click();
+    await page.getByRole('button',{name:'Bewerken',exact:true}).click();
+    await page.getByLabel('Eerste tel (seconden, optioneel)',{exact:true}).fill('.2');
+    await page.getByRole('button',{name:'Oefening opslaan',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Vastklikken op tel',exact:true})).toBeEnabled();
+    await drag(page,.2,.5);
+    await expect(page.getByTestId('waveform-range')).toContainText('A 1.200–B 3.200');
+    await page.getByRole('button',{name:'Vastklikken op tel',exact:true}).click();
+    await page.getByRole('slider',{name:'Eindmarkering B',exact:true}).focus();await page.keyboard.press('ArrowLeft');
+    await expect(page.getByTestId('waveform-range')).toContainText('B 3.190');
+    await page.reload();
+    await page.getByRole('article',{name:'Raster sessie',exact:true}).getByRole('button',{name:'Starten',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Vastklikken op tel',exact:true})).toBeEnabled();
+    await drag(page,.2,.5);
+    await expect(page.getByTestId('waveform-range')).toContainText('A 1.200–B 3.200');
+    expect((await page.evaluate(()=>window.hitthebeat!.listExercises()))[0].beatOffset).toBe(.2);
+    await page.screenshot({path:'test-results/beat-grid.png',fullPage:true});
+  } finally {await app.close();await rm(root,{recursive:true,force:true});}
+});
