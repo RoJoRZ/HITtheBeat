@@ -295,4 +295,4 @@ Bestaande queue-vakken zijn native buttons met aria-current en disabled bij lade
 
 ## Evaluatie met klankkeuze — #52
 
-Audioblokken krijgen een compact beginmenu Tempo aanpassen / Audio-metronoom kiezen. Enter behoudt de eenvoudige doorgaande route. De klankroute toont herkenbare stapnummers/BPM met Alleen metronoom-checkboxen en toelichting over volgende herhaling en duur. De speler toont Audio of Alleen metronoom. Native focus, toetsen en bestaande donker/Mandarijn-componenten behouden.
+Audioblokken krijgen een compact beginmenu Tempo aanpassen / Audio-metronoom kiezen. Enter behoudt de eenvoudige doorgaande route. De klankroute toont herkenbare stapnummers/BPM met Alleen metronoom-checkboxen en toelichting over de volgende sessie-uitvoering en duur. De speler toont Audio of Alleen metronoom. Native focus, toetsen en bestaande donker/Mandarijn-componenten behouden.

@@ -2,7 +2,7 @@ import { t, LocalizedError } from './i18n.mjs';
 import { bpmText } from './tempo-display.mjs';
 import { validateCountIn } from './count-in-model.mjs';
 import { isMetronome, sourceSeconds, validTempo } from './exercise-model.mjs';
-/** @typedef {{id:string, repetitions:number, bpm:number, start:number|null, end:number|null,fragmentId?:string,fragmentName?:string,bars?:number}} RoutineStep */
+/** @typedef {{audioMode?:'audio'|'metronome',id:string, repetitions:number, bpm:number, start:number|null, end:number|null,fragmentId?:string,fragmentName?:string,bars?:number}} RoutineStep */
 /** @typedef {{id:string, exerciseId:string, steps:RoutineStep[], countIn?:import('./count-in-model.mjs').CountIn}} RoutineBlock */
 /** @typedef {{id?:string, title:string, blocks:RoutineBlock[], countIn?:import('./count-in-model.mjs').CountIn}} RoutineInput */
 /** @typedef {{id:string, bpm:number, duration:number,kind?:string,meter?:string,bars?:number}} SourceExercise */
@@ -32,6 +32,7 @@ export function validateRoutine(input, exercises) {
       const stepId = identity(step.id);
       if (!Number.isInteger(step.repetitions) || step.repetitions < 1 || step.repetitions > 99) throw new LocalizedError("Kies 1 tot 99 herhalingen per stap.");
       if (!validTempo(step.bpm, exercise)) throw new Error(isMetronome(exercise) ? t("Kies een tempo van 20–300 BPM.") : t("Kies een tempo van 25–300% van het originele BPM ({0}).", bpmText(exercise.bpm)));
+      if (step.audioMode !== undefined && (!['audio','metronome'].includes(step.audioMode) || isMetronome(exercise))) throw new LocalizedError("Controleer de audio/metronoomkeuze per stap.");
       if (isMetronome(exercise)) {
         sourceSeconds(step, exercise);
         if (step.start !== null || step.end !== null || step.fragmentId !== undefined) throw new LocalizedError("Een metronoomstap gebruikt maten, geen audiofragment.");
@@ -40,7 +41,7 @@ export function validateRoutine(input, exercises) {
         if (typeof step.start !== 'number' || typeof step.end !== 'number' || !Number.isFinite(step.start) || !Number.isFinite(step.end) || step.start < 0 || step.end > exercise.duration || step.end - step.start < .1 - 1e-9) throw new LocalizedError("Kies een fragment binnen de track, met A vóór B en minstens 0,1 seconde duur.");
       }
       if (step.fragmentId !== undefined && (typeof step.fragmentId !== 'string' || !uuid.test(step.fragmentId) || typeof step.fragmentName !== 'string' || !step.fragmentName.trim() || step.fragmentName.length > 160 || step.fragmentName.includes('\0') || step.start === null)) throw new LocalizedError("Controleer het benoemde fragment.");
-      return { ...(isMetronome(exercise) && step.bars !== undefined ? { bars: step.bars } : {}), ...(step.fragmentId ? { fragmentId: step.fragmentId, fragmentName: step.fragmentName } : {}), id: stepId, repetitions: step.repetitions, bpm: step.bpm, start: step.start, end: step.end };
+      return { ...(step.audioMode === 'metronome' ? {audioMode:step.audioMode} : {}), ...(isMetronome(exercise) && step.bars !== undefined ? { bars: step.bars } : {}), ...(step.fragmentId ? { fragmentId: step.fragmentId, fragmentName: step.fragmentName } : {}), id: stepId, repetitions: step.repetitions, bpm: step.bpm, start: step.start, end: step.end };
     });
     return { id, exerciseId: exercise.id, steps, ...(block.countIn === undefined ? {} : { countIn: validateCountIn(block.countIn) }) };
   });

@@ -1,5 +1,7 @@
 // Dutch source messages are stable catalog keys; user content is never a key.
 export const english = {
+  "De sessie is intussen gewijzigd. Bewaar deze evaluatie zonder tempo- of klankwijziging en pas de sessie daarna aan in de editor.": "The practice session has changed. Save this evaluation without tempo or sound changes, then edit the session in the editor.",
+"Geldt vanaf de volgende uitvoering van deze oefensessie, net als de tempoaanpassing. De huidige uitvoering blijft ongewijzigd. Het aantal tellen blijft gelijk; de duur volgt het BPM. Uitgevinkt speelt de audio.": "Applies from the next run of this practice session, just like a tempo adjustment. The current run stays unchanged. The beat count stays the same; duration follows BPM. Unchecked plays the audio.",
   "Controleer de audio/metronoomkeuze per stap.": "Check the audio/metronome choice for each step.",
   "Stap {0} · {1} BPM": "Step {0} · {1} BPM",
   "Alleen metronoom": "Metronome only",

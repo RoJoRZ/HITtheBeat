@@ -146,3 +146,8 @@ De gebruiker heeft de ontwikkelversie getest en expliciet akkoord voor release g
 ## Release 1.3.0 — gestart 29 oktober 2026
 
 Gebruiker autoriseert milestone 4, uitsluitend #50–#53, volgorde #51 → #50 → #53 → #52. Geaccepteerde criteria staan in de issues en FUNCTIONEEL.md. Eén menselijke eindcontrole na volledige native regressie, vóór nieuwe installers. Werk issues zelfstandig via gerichte controles en PRs af; geen extra scope. Private ontwikkeling/publieke downloads blijft geparkeerd. Zie docs/RELEASE-1.3.0.md.
+
+
+### Verduidelijking #52 vóór eindcontrole — 29 oktober 2026
+
+De gebruikersafspraak is ‘vanaf de volgende herhaling van de oefensessie, zoals snelheid’: bewaar klank per stap in de sessie-opbouw en pas toe bij de volgende sessiestart; huidige momentopname/herhalingen blijven gelijk. Dit corrigeert de eerdere agentinterpretatie ‘alleen lopende sessie’. Schema 12 met nullable audio_mode, bestaande data standaard audio. Eén eindcontrole vóór installers blijft gelden. Zie FUNCTIONEEL.md en docs/RELEASE-1.3.0.md.

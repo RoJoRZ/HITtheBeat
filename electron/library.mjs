@@ -44,7 +44,7 @@ export async function openLibrary(root) {
   const db = new DatabaseSync(path.join(root, 'library.sqlite'));
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;');
   const version = /** @type {{user_version:number}} */ (db.prepare('PRAGMA user_version').get()).user_version;
-  if (version > 11) { db.close(); throw new LocalizedError("Deze bibliotheek is gemaakt met een nieuwere appversie."); }
+  if (version > 12) { db.close(); throw new LocalizedError("Deze bibliotheek is gemaakt met een nieuwere appversie."); }
   if (version === 0) db.exec(`BEGIN IMMEDIATE;
     CREATE TABLE exercises (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL,
       bpm REAL NOT NULL CHECK(bpm>0), detected_bpm REAL, analysis_status TEXT NOT NULL, duration REAL NOT NULL,
@@ -94,6 +94,7 @@ export async function openLibrary(root) {
     PRAGMA user_version=9; COMMIT;`);
   if (version < 10) db.exec(`BEGIN IMMEDIATE; ALTER TABLE exercises ADD COLUMN credit TEXT; PRAGMA user_version=10; COMMIT;`);
   if (version < 11) db.exec(`BEGIN IMMEDIATE; ALTER TABLE exercises ADD COLUMN beat_offset REAL; PRAGMA user_version=11; COMMIT;`);
+  if (version < 12) db.exec(`BEGIN IMMEDIATE; ALTER TABLE routine_steps ADD COLUMN audio_mode TEXT; PRAGMA user_version=12; COMMIT;`);
   // An unclosed run is preserved, never promoted to a completed session.
   db.prepare("UPDATE sessions SET status='interrupted', ended_at=updated_at WHERE status='running'").run();
   /** @param {string} id */
@@ -109,7 +110,7 @@ export async function openLibrary(root) {
     blocks: db.prepare('SELECT * FROM routine_blocks WHERE routine_id=? ORDER BY position').all(String(row.id)).map(block => ({
       ...(block.count_in ? { countIn: JSON.parse(String(block.count_in)) } : {}), id: String(block.id), exerciseId: String(block.exercise_id),
       steps: db.prepare('SELECT * FROM routine_steps WHERE block_id=? ORDER BY position').all(String(block.id)).map(step => ({
-        ...(step.bars == null ? {} : { bars: Number(step.bars) }), id: String(step.id), repetitions: Number(step.repetitions), bpm: Number(step.bpm),
+        ...(step.audio_mode === 'metronome' ? {audioMode:/** @type {'audio'|'metronome'} */ ('metronome')} : {}), ...(step.bars == null ? {} : { bars: Number(step.bars) }), id: String(step.id), repetitions: Number(step.repetitions), bpm: Number(step.bpm),
         ...(step.fragment_id ? { fragmentId: String(step.fragment_id), fragmentName: String(step.fragment_name) } : {}),
         start: step.start === null ? null : Number(step.start), end: step.end === null ? null : Number(step.end),
       })),
@@ -264,7 +265,7 @@ export async function openLibrary(root) {
         db.prepare('DELETE FROM routine_blocks WHERE routine_id=?').run(id);
         clean.blocks.forEach((block, index) => {
           db.prepare('INSERT INTO routine_blocks (id,routine_id,exercise_id,position,count_in) VALUES (?,?,?,?,?)').run(block.id, id, block.exerciseId, index, block.countIn || clean.countIn ? JSON.stringify(block.countIn ?? clean.countIn) : null);
-          block.steps.forEach((step, position) => db.prepare('INSERT INTO routine_steps VALUES (?,?,?,?,?,?,?,?,?,?)').run(step.id, block.id, position, step.repetitions, step.bpm, step.start, step.end, step.fragmentId ?? null, step.fragmentName ?? null, step.bars ?? null));
+          block.steps.forEach((step, position) => db.prepare('INSERT INTO routine_steps VALUES (?,?,?,?,?,?,?,?,?,?,?)').run(step.id, block.id, position, step.repetitions, step.bpm, step.start, step.end, step.fragmentId ?? null, step.fragmentName ?? null, step.bars ?? null, step.audioMode ?? null));
         });
         db.exec('COMMIT;');
       } catch (error) { db.exec('ROLLBACK;'); throw error; }
@@ -359,18 +360,20 @@ export async function openLibrary(root) {
       db.exec('BEGIN IMMEDIATE;');
       try {
         let routineVersion = String(row.routine_version);
-        if (evaluation.delta !== 0) {
+        const previousModes = evaluations.filter(/** @param {import('./session-model.mjs').Evaluation} item */ item => item.block === evaluation.block && item.audioModes).at(-1)?.audioModes ?? snapshot.routine.blocks[evaluation.block].steps.map(/** @param {import('./routine-model.mjs').RoutineStep} step */ step => step.audioMode ?? 'audio');
+        const soundChanged = evaluation.audioModes?.some((mode, index) => mode !== previousModes[index]) ?? false;
+        if (evaluation.delta !== 0 || soundChanged) {
           const saved = db.prepare('SELECT * FROM routines WHERE id=?').get(snapshot.routine.id);
-          if (!saved || saved.updated_at !== routineVersion) throw new LocalizedError("De sessie is intussen gewijzigd. Bewaar deze evaluatie zonder BPM-aanpassing en pas de sessie daarna aan in de editor.");
+          if (!saved || saved.updated_at !== routineVersion) throw new LocalizedError("De sessie is intussen gewijzigd. Bewaar deze evaluatie zonder tempo- of klankwijziging en pas de sessie daarna aan in de editor.");
           const routine = routineFrom(saved);
           const block = routine.blocks.find(item => item.id === snapshot.routine.blocks[evaluation.block].id);
           if (!block) throw new LocalizedError("Deze oefening staat niet meer in de sessie.");
-          block.steps = block.steps.map(step => ({ ...step, bpm: Math.round((step.bpm + evaluation.delta) * 1000000) / 1000000 }));
+          block.steps = block.steps.map((step,index) => ({ ...step, ...(evaluation.audioModes ? {audioMode:evaluation.audioModes[index]} : {}), bpm: Math.round((step.bpm + evaluation.delta) * 1000000) / 1000000 }));
           validateRoutine(routine, this.list());
           // Monotonic version even when two saves happen in the same millisecond.
           routineVersion = new Date(Math.max(Date.now(), Date.parse(routineVersion) + 1)).toISOString();
           db.prepare('UPDATE routines SET updated_at=? WHERE id=?').run(routineVersion, routine.id);
-          block.steps.forEach(step => db.prepare('UPDATE routine_steps SET bpm=? WHERE id=? AND block_id=?').run(step.bpm, step.id, block.id));
+          block.steps.forEach(step => db.prepare('UPDATE routine_steps SET bpm=?, audio_mode=? WHERE id=? AND block_id=?').run(step.bpm, step.audioMode ?? null, step.id, block.id));
         }
         const savedEvaluation = { ...evaluation, savedAt: new Date().toISOString() };
         db.prepare('UPDATE sessions SET evaluations=?, routine_version=?, updated_at=? WHERE id=?').run(JSON.stringify([...evaluations, savedEvaluation]), routineVersion, savedEvaluation.savedAt, id);

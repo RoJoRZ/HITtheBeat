@@ -65,7 +65,7 @@ test('checkpoints ignore old sequences, reject invalid context and never label s
 }));
 test('migration from schema 2 preserves routines and exercises', async () => fixture(async ({ library, root, routine, reopen }) => {
   library.close();
-  const db = new DatabaseSync(path.join(root, 'library.sqlite')); db.exec('ALTER TABLE exercises DROP COLUMN beat_offset; ALTER TABLE exercises DROP COLUMN credit; DROP TABLE sessions; ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN fragments; ALTER TABLE routine_steps DROP COLUMN fragment_id; ALTER TABLE routine_steps DROP COLUMN fragment_name; ALTER TABLE exercises DROP COLUMN normalization_db; ALTER TABLE exercises DROP COLUMN normalize_audio; PRAGMA user_version=2;'); db.close();
+  const db = new DatabaseSync(path.join(root, 'library.sqlite')); db.exec('ALTER TABLE routine_steps DROP COLUMN audio_mode; ALTER TABLE exercises DROP COLUMN beat_offset; ALTER TABLE exercises DROP COLUMN credit; DROP TABLE sessions; ALTER TABLE routine_blocks DROP COLUMN count_in; ALTER TABLE routines DROP COLUMN count_in; ALTER TABLE exercises DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN kind; ALTER TABLE exercises DROP COLUMN meter; ALTER TABLE routine_steps DROP COLUMN bars; ALTER TABLE exercises DROP COLUMN fragments; ALTER TABLE routine_steps DROP COLUMN fragment_id; ALTER TABLE routine_steps DROP COLUMN fragment_name; ALTER TABLE exercises DROP COLUMN normalization_db; ALTER TABLE exercises DROP COLUMN normalize_audio; PRAGMA user_version=2;'); db.close();
   // fixture reopen closes the already closed handle safely.
   library = await reopen();
   assert.equal(library.list().length, 1); assert.deepEqual(library.listRoutines().find(item => item.id === routine.id), routine);
@@ -92,17 +92,36 @@ test('dashboard remains unchanged after editing and deleting current routines an
   assert.deepEqual(buildDashboard(library.listSessions(), options), before);
 }));
 
-test('audio mode choices are session-local, validated and preserve mixed audio/metronome history', async()=>fixture(async({library,routine,reopen})=>{
+test('audio mode choices apply to the next session, preserve the current snapshot, validate and survive reopening', async()=>fixture(async({library,routine,reopen})=>{
   const session=library.startSession(routine.id), progress=reviewProgress(session);
   library.saveSession(session.id,progress);
   const modes=['audio','metronome','audio'];
   library.reviewSession(session.id,{...evaluation(0),audioModes:modes});
-  assert.deepEqual(library.listRoutines().find(r=>r.id===routine.id),routine);
+  const updated=library.listRoutines().find(r=>r.id===routine.id);
+  assert.equal(updated.blocks[0].steps[1].audioMode,'metronome');assert.deepEqual(updated.blocks[1],routine.blocks[1]);
+  assert.deepEqual(library.listSessions()[0].routine,routine);
   assert.throws(()=>library.reviewSession(session.id,{...evaluation(0),audioModes:['audio']}),/audio\/metronoom/);
   assert.throws(()=>library.reviewSession(session.id,{...evaluation(0),audioModes:['audio','invalid','audio']}),/audio\/metronoom/);
-  const next={...progress,seq:2,played:progress.played.map((p,i)=>i===1?{...p,sound:'metronome'}:p)};
-  library.saveSession(session.id,next,'stopped');
-  library=await reopen(); const saved=library.listSessions()[0];
+  library.saveSession(session.id,{...progress,seq:2},'stopped');
+  const next=library.startSession(routine.id), played=reviewProgress(next);
+  played.played[1].sound='metronome';library.saveSession(next.id,played,'stopped');
+  library=await reopen(); const saved=library.listSessions().find(s=>s.id===next.id),old=library.listSessions().find(s=>s.id===session.id);
   assert.equal(saved.progress.played[1].sound,'metronome');assert.equal(saved.progress.played[0].sound,undefined);
-  assert.deepEqual(saved.evaluations[0].audioModes,modes);assert.deepEqual(saved.routine,routine);
+  assert.deepEqual(old.evaluations[0].audioModes,modes);assert.deepEqual(old.routine,routine);
+  assert.equal(saved.routine.blocks[0].steps[1].audioMode,'metronome');
+  // Editing the saved build must preserve the choice too.
+  library.saveRoutine({...updated,title:'Andere naam'});assert.equal(library.listRoutines().find(r=>r.id===routine.id).blocks[0].steps[1].audioMode,'metronome');
+  const reset=library.startSession(routine.id);library.saveSession(reset.id,reviewProgress(reset));
+  library.reviewSession(reset.id,{...evaluation(0),audioModes:['audio','audio','audio']});
+  assert.equal(library.listRoutines().find(r=>r.id===routine.id).blocks[0].steps[1].audioMode,undefined);
+  assert.equal(library.listSessions().find(s=>s.id===reset.id).routine.blocks[0].steps[1].audioMode,'metronome');
+}));
+
+
+test('a concurrent plan edit rejects sound changes atomically and unchanged review preserves that edit', async()=>fixture(async({library,routine})=>{
+  const session=library.startSession(routine.id);library.saveSession(session.id,reviewProgress(session));
+  const edited=library.saveRoutine({...routine,title:'Andere editor'});
+  assert.throws(()=>library.reviewSession(session.id,{...evaluation(0),audioModes:['metronome','audio','audio']}),/intussen gewijzigd/);
+  assert.deepEqual(library.listRoutines().find(r=>r.id===routine.id),edited);assert.deepEqual(library.listSessions()[0].evaluations,[]);
+  library.reviewSession(session.id,{...evaluation(0),audioModes:['audio','audio','audio']});assert.deepEqual(library.listRoutines().find(r=>r.id===routine.id),edited);
 }));
