@@ -54,3 +54,12 @@ De gebruiker zegt ‘vanaf de volgende herhaling van de oefensessie, zoals snelh
 Build/typecheck en 44 gerichte Node-controles geslaagd (opslag/migraties, schema 11→12, opbouw, sessies, conflicten, delen, taal). Vijf gerichte desktopcontroles geslaagd (54,6s): huidige herhaling blijft audio, volgende sessie neemt metronoom over, ander stap behoudt audio; bestaande evaluatie-/editorroutes en renderthreadmeting behouden. Zelfreview op toepassingsmoment, conflictrollback, herstellen audio en immutable snapshots. Geen onafhankelijke menselijke review. Productwijziging vereist nieuwe native volledige regressie en opnieuw opgebouwde ontwikkelapp; nog geen menselijk eindakkoord of installers.
 
 De automatische goedkeuringscontrole heeft alleen het heropenen van #52 geweigerd wegens volgens haar ontbrekende expliciete statusautorisatie. De gesloten issuestatus is daarom behouden; de aanvullende correctie blijft via een PR met Refs #52 herleidbaar. Geen omweg gebruikt om de afgewezen statuswijziging uit te voeren.
+
+
+## Windows-hercontrole na #52-toepassingscorrectie
+
+Run 40921291027 op 0878094: Mac volledig groen (130 Node/38 desktop), Windows 130 Node en 37/38 desktop. De nieuwe tweede-sessiestarttest verwachtte na 5s muurkloktijd het einde van twee seconden audio. De Windows-foutopname toont de juiste Alleen metronoom-stap nog spelend, circa twee seconden geregistreerd en geen app-/bewaarfout. Dezelfde bron is in de gerichte native Windows-run 40921118281 geslaagd. Vertraagde audiostart/runner-timing is een mogelijke oorzaak; geen bewezen productfout. De meting op de renderthread voor exacte klikafstand/duur slaagt.
+
+De laatste GUI-eindassertie krijgt dezelfde 12s-ruimte als de bestaande sessietest, met behoud van de vereiste fragment-evaluatie. Extra bescherming: werkelijk gespeelde bronduur moet twee seconden zijn en precies één herhaling afgerond; bij fout wordt de sessiecheckpoint gelogd. Geen productcodewijziging of verwijderd criterium. Gerichte hercontrole en daarna definitieve native releasegroep volgen; app op 0878094 blijft product-identiek. De mislukte releasecontrole heeft installer-/publicatiejobs overgeslagen.
+
+Gerichte hercontrole geslaagd: beide klanktests (18,2s), tweede sessie-einde waargenomen na 2371ms met twee seconden gespeelde tijd en één afgeronde herhaling. Exacte renderthread-klikken blijven 0,000125 en 1,000125s, stilte tussen klikken en na pauze/einde blijft nul. Appbron 0878094 en packageversie blijven ongewijzigd.

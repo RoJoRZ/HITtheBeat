@@ -52,10 +52,15 @@ test('evaluation saves sound for the next session and keeps current repeats, sna
     await expect(page.getByTestId('playback-sound')).toHaveText('Alleen metronoom');
     await expect(page.getByRole('button',{name:'Afspelen',exact:true})).toBeEnabled();
     await page.getByRole('button',{name:'Afspelen',exact:true}).click();
-    await expect(page.getByRole('heading',{name:'Fragmentserie afgerond',exact:true})).toBeVisible();
+    const started=Date.now();
+    try { await expect(page.getByRole('heading',{name:'Fragmentserie afgerond',exact:true})).toBeVisible({timeout:12000}); }
+    catch (reason) { console.log('Second-session end checkpoint',await page.evaluate(async()=>{const s=(await window.hitthebeat!.listSessions())[0];return {phase:s.progress.phase,times:s.progress.times,played:s.progress.played};}));throw reason; }
+    console.log('Second-session end observed after ms',Date.now()-started);
     const current=(await page.evaluate(()=>window.hitthebeat!.listSessions()))[0];
     expect(current.routine.blocks[0].steps[0].audioMode).toBe('metronome');
     expect(current.progress.played[0].sound).toBe('metronome');
+    expect(current.progress.played[0].seconds).toBeCloseTo(2,1);
+    expect(current.progress.played[0].completed).toBe(1);
     expect(saved.routine.blocks[0].steps[0].audioMode).toBeUndefined();
   } finally {await app.close();await rm(root,{recursive:true,force:true});}
 });
