@@ -421,7 +421,6 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .waveform-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
 .waveform-tools .secondary { font-size: 14px; min-height: 38px; padding: 7px 10px; }
 .interactive-waveform { touch-action: none; user-select: none; cursor: crosshair; overflow: visible; }
-.interactive-waveform.panning { cursor: grab; }
 .interactive-waveform [data-handle] { cursor: ew-resize; outline: none; }
 .interactive-waveform [data-handle]:focus-visible { filter: drop-shadow(0 0 4px white); }
 .waveform-pan { display: flex; align-items: center; gap: 8px; }
@@ -467,3 +466,6 @@ main, .screen-stack, .audio-lab { min-width: 0; }
 .progress-dashboard .panel { min-width: 0; }
 .progress-dashboard .activity-chart { gap: 4px; }
 @media (max-width: 700px) { .progress-dashboard .stats-grid { grid-template-columns: 1fr; } }
+
+.tap-tempo-dialog { max-width: 680px; }
+.tap-tempo-dialog .row-actions { flex-wrap: wrap; }

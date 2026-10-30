@@ -27,6 +27,7 @@ for (const captureFails of [false, true]) test(`capture ${captureFails ? 'fallba
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
     await expect(page.getByRole('button', { name: 'Fragment beluisteren', exact: true })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Verschuiven', exact: true })).toHaveCount(0);
+    await page.getByRole('button', {name:'Vastklikken op tel',exact:true}).click();
     await drag(page, .2, .5);
     await expect(page.getByText('Vrij fragment oefenen', { exact: true })).toBeVisible();
     const a = page.getByLabel('Begin A (seconden)', { exact: true }), b = page.getByLabel('Einde B (seconden)', { exact: true });
@@ -72,6 +73,7 @@ for (const captureFails of [false, true]) test(`capture ${captureFails ? 'fallba
     await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click(); await page.getByRole('button', { name: 'Stoppen en terug', exact: true }).click();
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click(); await page.getByRole('button', { name: /Selecteren/ }).click();
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
+    await page.getByRole('button', {name:'Vastklikken op tel',exact:true}).click();
     await drag(page, .15, .35);
     await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
     const svgBox = (await page.locator('.interactive-waveform').boundingBox())!;
@@ -121,7 +123,7 @@ test('first beat is saved with the exercise and reused by both players, with fre
     },bytes);
     await page.getByRole('button',{name:'Oefeningen',exact:true}).click();
     await page.getByRole('button',{name:'Bewerken',exact:true}).click();
-    await page.getByLabel('Eerste tel (seconden, optioneel)',{exact:true}).fill('.2');
+    await page.getByLabel('Telpositie (seconden)',{exact:true}).fill('.2');
     await page.getByRole('button',{name:'Oefening opslaan',exact:true}).click();
     await expect(page.getByRole('button',{name:'Vastklikken op tel',exact:true})).toBeEnabled();
     await drag(page,.2,.5);

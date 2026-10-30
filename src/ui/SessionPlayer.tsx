@@ -136,7 +136,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
         if (isMetronome(selected.exercise)) {
           audio?.dispose(); audio = new MetronomeEngine(selected.exercise.duration, selected.exercise.meter ?? '4/4', selected.exercise.bpm); audio.setVolume(outputVolume()); audioRef.current = audio; setWave(null);
         } else {
-          audio?.dispose(); audio = new AudioEngine(selected.exercise.beatOffset ?? null); audio.setVolume(outputVolume()); audioRef.current = audio; assetId.current = ''; setLoaded(false); setWave(null);
+          audio?.dispose(); audio = new AudioEngine(selected.exercise.beatOffset ?? 0); audio.setVolume(outputVolume()); audioRef.current = audio; assetId.current = ''; setLoaded(false); setWave(null);
           const bytes = await window.hitthebeat!.readAudio(selected.exercise.id);
           if (!alive.current || token !== generation.current) return;
           const buffer = await audio.load(new Uint8Array(bytes.bytes).buffer, selected.exercise.normalizeAudio !== false ? selected.exercise.normalizationDb ?? null : null);

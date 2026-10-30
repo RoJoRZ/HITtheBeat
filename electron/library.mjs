@@ -150,7 +150,7 @@ export async function openLibrary(root) {
       const normalizeAudio = kind === 'metronome' ? false : input.normalizeAudio === undefined ? Boolean(old?.normalize_audio ?? true) : input.normalizeAudio;
       if ((normalizationDb !== null && (typeof normalizationDb !== 'number' || !Number.isFinite(normalizationDb) || normalizationDb < -60 || normalizationDb > 12 + 1e-9)) || typeof normalizeAudio !== 'boolean') throw new LocalizedError("Ongeldige volumenormalisatie.");
       if (kind === 'audio' && !old && !input.audio) throw new LocalizedError("Kies een MP3- of M4A-bestand.");
-      if (old && input.audio) {
+      if (old && (input.audio || bpm !== old.bpm)) {
         const fragments = present(old).fragments;
         if (fragments.some(fragment => fragment.end > duration)) throw new LocalizedError("De nieuwe audio is korter dan een opgeslagen fragment. Pas eerst de fragmentgrenzen aan.");
         const sources = this.list().map(item => item.id === old.id ? { ...item, bpm, duration } : item);

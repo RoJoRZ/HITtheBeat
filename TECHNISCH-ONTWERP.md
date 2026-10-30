@@ -408,3 +408,11 @@ AudioLab en FragmentLibrary zijn siblings met verschillende React-keyprefixen (`
 ### Waveformacties (#65)
 
 WaveformEditor heeft geen pan-modus of previewcallback meer. Schuif/pijlen blijven viewportRange gebruiken; pointercapture/terugval en A/B-selecties behouden de bestaande route. AudioLab/SessionPlayer verwijderen uitsluitend de ongebruikte previewparameter en -aansluiting. Geen IPC-, opslag- of audioklokwijziging; unieke bibliotheeksiblingkeys van #51 blijven behouden.
+
+### Gezamenlijke tikmeting (#66)
+
+`tap-tempo.mjs` past tempo en fase samen op maximaal 16 bronposities. Vanaf drie tikken vergelijkbare intervallen; bij 3–4 geen weggooien van meetpunten. Langere reeksen vragen minstens 75% steun (minstens vier); verwerpen uitsluitend duidelijk afwijkende punten. Controleer RMS (5% kwartnootduur, begrensd 15–40 ms), intervalafwijkingen en drift. De norm beschrijft consistentie, geen bewezen absolute nauwkeurigheid. Behoud interne BPM/faseprecisie; toon BPM als geheel getal. Fase wordt equivalent binnen één periode opgeslagen. Default voor ontbrekende positie is effectief 0 in waveform en nieuwe sessiespelers; bestaande databasevelden/snapshots worden niet gemigreerd of herschreven.
+
+TapPlayer bezit één AudioContext, één lokale AudioBufferSource en optionele klikken op dezelfde audioklok. Kalibratie speelt 100%, preview maximaal 16 kwartnoten; gedeeld volume/dempen blijft gelden. Toetstijdstempel wordt waar beschikbaar via getOutputTimestamp naar uitvoerklok vertaald, anders huidige audioklok. De dialoog onderschept Spatie zonder toetsherhaling en Escape; geen globale toetsenhandler. Sluiten/annuleren/overnemen ruimt bronnen, klikken en context op, ook tijdens asynchroon laden/starten. Geen nieuwe preload/IPC, netwerkafhankelijkheid of package.
+
+Overnemen wijzigt uitsluitend het formulier; expliciete oefeningopslag bewaart BPM en beatOffset via bestaande API. De bestaande sessiereferentievalidatie geldt nu ook bij alleen een BPM-wijziging, zodat een nieuwe bron-BPM geen onbruikbare tempoverhouding in bestaande opbouwen veroorzaakt. Sessiedoel-BPM, fragmenten en historie worden niet aangepast. Telpositie gebruikt bestaande NumberField-weergave/draft, zodat meetprecisie niet door native step-validatie wordt afgewezen of stilzwijgend afgerond.
