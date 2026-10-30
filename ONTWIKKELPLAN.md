@@ -314,3 +314,5 @@ Bron 430ac0863dabd51899fd77d42e5c925ba940ce1d; run 40923261862: Mac/Windows elk 
 ### Release 1.3.0: #51 opnieuw in uitvoering — 30 oktober 2026
 
 Overige functies door gebruiker geaccepteerd; #51 blokkeert release. Lokale gebruikersreproductie en synthetische regressie tonen een achtergebleven bibliotheekspeler door dubbele siblingkeys. Gerichte reparatie en controles staan in docs/RELEASE-1.3.0.md. Na samenvoegen gewijzigde vaste bron opnieuw native valideren en aanbieden voor menselijke eindcontrole; geen installers of goedkeuring op de eerdere bron.
+
+30 oktober: gebruiker autoriseert #65 en #66 als uitbreiding van de nog te publiceren 1.3.0, met behoud van #51-fix. Volgorde #65 werkbalk vereenvoudigen → #66 BPM/fase meetikken → vaste bron/native regressie → ontwikkelapp/eindcontrole → pas na akkoord installers. Bestaande reviews zijn geen akkoord voor de nieuwe productbron.

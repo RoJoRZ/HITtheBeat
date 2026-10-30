@@ -404,3 +404,7 @@ AudioEngine gebruikt voor klikweergave dezelfde broncoördinaten, rate, audioklo
 ### Audio-eigenaarschap bij bibliotheekwissel (#51, 30 oktober 2026)
 
 AudioLab en FragmentLibrary zijn siblings met verschillende React-keyprefixen (`audio:` en `fragments:`). Gelijke oefenidentiteiten mogen geen gelijke siblingkeys opleveren: bij reconciliatie bleef anders een AudioLab-context met zijn globale toetsenhandler achter. De bestaande unmountcleanup sluit bij unieke keys de oude context en verwijdert de toetsenhandler. De gerichte Electron-regressie wisselt oefeningen, verlaat een spelende bibliotheekspeler en start/pauzeert een sessie via toetsen/knop. Zij controleert dat oude contexten daadwerkelijk gesloten zijn. Geen extra runtimecoördinator, IPC, afhankelijkheid of opslagmigratie.
+
+### Waveformacties (#65)
+
+WaveformEditor heeft geen pan-modus of previewcallback meer. Schuif/pijlen blijven viewportRange gebruiken; pointercapture/terugval en A/B-selecties behouden de bestaande route. AudioLab/SessionPlayer verwijderen uitsluitend de ongebruikte previewparameter en -aansluiting. Geen IPC-, opslag- of audioklokwijziging; unieke bibliotheeksiblingkeys van #51 blijven behouden.
