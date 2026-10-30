@@ -3,6 +3,7 @@ import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 async function drag(page: Page, from: number, to: number) {
+  await expect(page.getByRole('slider', {name:'Beginmarkering A',exact:true})).toHaveAttribute('aria-disabled','false');
   const wave = page.locator('.interactive-waveform'); await wave.scrollIntoViewIfNeeded(); const box = (await wave.boundingBox())!;
   await page.mouse.move(box.x + box.width * from, box.y + box.height * .6); await page.mouse.down();
   await page.mouse.move(box.x + box.width * to, box.y + box.height * .6, { steps: 8 }); await page.mouse.up();
@@ -23,7 +24,9 @@ for (const captureFails of [false, true]) test(`capture ${captureFails ? 'fallba
     }, bytes);
     await page.reload(); await page.context().setOffline(true);
     await page.getByRole('article', { name: 'Visueel oefenen' }).getByRole('button', { name: 'Starten', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Fragment beluisteren' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Fragment beluisteren', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Verschuiven', exact: true })).toHaveCount(0);
     await drag(page, .2, .5);
     await expect(page.getByText('Vrij fragment oefenen', { exact: true })).toBeVisible();
     const a = page.getByLabel('Begin A (seconden)', { exact: true }), b = page.getByLabel('Einde B (seconden)', { exact: true });
@@ -31,10 +34,8 @@ for (const captureFails of [false, true]) test(`capture ${captureFails ? 'fallba
     const before = [Number(await a.inputValue()), Number(await b.inputValue())];
     await page.getByRole('button', { name: 'Waveform inzoomen' }).click();
     const visibleBeforePan = await page.getByTestId('waveform-range').textContent();
-    await page.getByRole('button', { name: 'Verschuiven', exact: true }).click();
-    await drag(page, .6, .4);
+    await page.getByRole('slider', { name: 'Zichtbaar begin (seconden)', exact: true }).fill('0.1');
     await expect(page.getByTestId('waveform-range')).not.toHaveText(visibleBeforePan!);
-    await page.getByRole('button', { name: 'Verschuiven', exact: true }).click();
     await page.getByRole('button', { name: 'Waveform naar rechts' }).click();
     await page.getByRole('button', { name: 'Waveform naar links' }).click();
     expect([Number(await a.inputValue()), Number(await b.inputValue())]).toEqual(before);
@@ -52,7 +53,7 @@ for (const captureFails of [false, true]) test(`capture ${captureFails ? 'fallba
     await expect.poll(async () => Number(await b.inputValue())).toBeCloseTo(4.8, 1);
     await a.fill('2.25'); await a.press('Enter');
     await expect(page.getByTestId('waveform-range')).toContainText('A 2.250');
-    await page.getByRole('button', { name: 'Fragment beluisteren' }).click();
+    await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeEnabled();
     await expect(page.getByTestId('time-fragment')).not.toHaveText('0:00', { timeout: 4000 });
     await page.getByRole('button', { name: 'Pauzeren', exact: true }).click();
@@ -70,9 +71,9 @@ for (const captureFails of [false, true]) test(`capture ${captureFails ? 'fallba
     await expect(page.locator('.waveform-editor')).toHaveCount(0);
     await page.getByRole('button', { name: 'Mijn oefensessies', exact: true }).click(); await page.getByRole('button', { name: 'Stoppen en terug', exact: true }).click();
     await page.getByRole('button', { name: 'Oefeningen', exact: true }).click(); await page.getByRole('button', { name: /Selecteren/ }).click();
-    await expect(page.getByRole('button', { name: 'Fragment beluisteren' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
     await drag(page, .15, .35);
-    await expect(page.getByRole('button', { name: 'Fragment beluisteren' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
     const svgBox = (await page.locator('.interactive-waveform').boundingBox())!;
     await page.mouse.move(svgBox.x + svgBox.width * .35, svgBox.y + svgBox.height * .6);
     await page.mouse.down();
@@ -81,7 +82,7 @@ for (const captureFails of [false, true]) test(`capture ${captureFails ? 'fallba
     await expect.poll(async () => Number(await b.inputValue())).toBeCloseTo(4.8, 1);
     // A release without a preceding move still carries the final coordinate.
     const boundary = page.getByLabel('Begin A (seconden)', { exact: true });
-    await expect(page.getByRole('button', { name: 'Fragment beluisteren' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
     const previous = await boundary.inputValue();
     await page.locator('.interactive-waveform').evaluate(svg => {
       const box = svg.getBoundingClientRect();
@@ -89,7 +90,7 @@ for (const captureFails of [false, true]) test(`capture ${captureFails ? 'fallba
       send('pointerdown', .5); send('pointerup', .7);
     });
     await expect(boundary).not.toHaveValue(previous);
-    await expect(page.getByRole('button', { name: 'Fragment beluisteren' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Afspelen', exact: true })).toBeEnabled();
     const committed = await boundary.inputValue();
     // A click or cancelled gesture must leave the committed loop alone.
     for (const cancel of [false, true]) {
@@ -102,7 +103,7 @@ for (const captureFails of [false, true]) test(`capture ${captureFails ? 'fallba
       }, cancel);
       await expect(boundary).toHaveValue(committed);
     }
-    await page.getByRole('button', { name: 'Fragment beluisteren' }).click();
+    await page.getByRole('button', { name: 'Afspelen', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Pauzeren', exact: true })).toBeEnabled();
     expect(errors).toEqual([]);
   } finally { await app.close(); await rm(root, { recursive: true, force: true }); }

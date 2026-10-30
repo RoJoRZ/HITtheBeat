@@ -296,3 +296,7 @@ Bestaande queue-vakken zijn native buttons met aria-current en disabled bij lade
 ## Evaluatie met klankkeuze — #52
 
 Audioblokken krijgen een compact beginmenu Tempo aanpassen / Audio-metronoom kiezen. Enter behoudt de eenvoudige doorgaande route. De klankroute toont herkenbare stapnummers/BPM met Alleen metronoom-checkboxen en toelichting over de volgende sessie-uitvoering en duur. De speler toont Audio of Alleen metronoom. Native focus, toetsen en bestaande donker/Mandarijn-componenten behouden.
+
+### Waveform vereenvoudigd (#65, 30 oktober 2026)
+
+Verschuiven en Fragment beluisteren vervallen uit de gedeelde werkbalk. Selectie/A/B, zoom, Hele track, Toon selectie en onderste schuif/pijlen blijven. De bestaande transportbediening speelt af/pauzeert; in sessies blijft vrije fragmenttraining herkenbaar. Geen nieuwe modus of verborgen vervangende sneltoets.

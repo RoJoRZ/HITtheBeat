@@ -96,12 +96,11 @@ export function AudioLab({ saved, onFragmentSaved }: { saved: Exercise; onFragme
     setSource(values.source); setTarget(values.target); setPitch(values.pitch); setA(values.a); setB(values.b); setLoop(values.loop); setError('');
     command(audio.configure(values.target / values.source, values.pitch, values.a, values.b, values.loop));
   }
-  async function selectFragment(range: { a: number; b: number }, preview = false) {
+  async function selectFragment(range: { a: number; b: number }) {
     const audio = engine.current; if (!audio || busy) return;
     setBusy(true); setError('');
     try {
       await audio.pause(); settings({ ...range, loop: true }); await audio.seek(range.a);
-      if (preview) await audio.playPause();
     } catch (reason) { setError(reason instanceof Error ? errorMessage(reason) : m("Fragment afspelen is niet gelukt.")); }
     finally { if (engine.current === audio) setBusy(false); }
   }
@@ -110,7 +109,7 @@ export function AudioLab({ saved, onFragmentSaved }: { saved: Exercise; onFragme
     {error && <p role="alert" className="error">{messageText(error)}</p>}
     <div className="player-card" aria-busy={busy}>
       <p className="eyebrow">{t("SPELER · EIGEN OEFENING")}</p><h2>{busy ? t("Audio laden…") : name || t("Kies een track om te beginnen")}</h2>
-      <WaveformEditor bpm={saved.bpm} beatOffset={saved.beatOffset} wave={wave} duration={duration} position={position} a={a} b={b} disabled={!duration || busy} select={range => void selectFragment(range)} preview={() => void selectFragment({ a, b }, true)} label={t("Golfvorm van de track")} />
+      <WaveformEditor bpm={saved.bpm} beatOffset={saved.beatOffset} wave={wave} duration={duration} position={position} a={a} b={b} disabled={!duration || busy} select={range => void selectFragment(range)} label={t("Golfvorm van de track")} />
       <input className="seek" aria-label={t("Afspeelpositie")} type="range" min="0" max={duration || 1} step="0.01" value={position} disabled={!duration || busy} onChange={event => command(engine.current?.seek(event.target.valueAsNumber))} />
       <div className="time-row"><span>{time(position)}</span><span>{time(duration)}{t(" · bij dit tempo ")}{time(duration * source / target)}</span></div>
       <div className="playback-controls"><div className="transport"><button className="secondary" aria-label={t("Terug naar start")} disabled={!duration || busy} onClick={restart}><RotateCcw size={21} /></button><button className="primary play-button" disabled={!duration || busy} onClick={toggle}>{playing ? <Pause size={23} /> : <Play size={23} />}{playing ? t("Pauzeren") : t("Afspelen")}</button><button className="secondary" aria-pressed={loop} disabled={!duration || busy} onClick={() => settings({ loop: !loop })}><Repeat2 size={21} />{t(" Loop")}</button></div>

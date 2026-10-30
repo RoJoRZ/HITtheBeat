@@ -3,15 +3,15 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react';
 import { minimumSelection, snapBeat, selectionRange, timeAt, viewportRange, visiblePeaks, type Waveform } from '../audio/waveform.mjs';
 type Range = { a: number; b: number };
-export function WaveformEditor({ wave, duration, position, a, b, disabled, select, preview, label, bpm, beatOffset }: {
+export function WaveformEditor({ wave, duration, position, a, b, disabled, select, label, bpm, beatOffset }: {
   bpm?: number; beatOffset?: number | null; wave: Waveform | null; duration: number; position: number; a: number; b: number; disabled: boolean;
-  select: (range: Range) => void; preview: () => void; label: string;
+  select: (range: Range) => void; label: string;
 }) {
-  const [view, setView] = useState({ start: 0, end: duration }), [draft, setDraft] = useState<Range | null>(null), [pan, setPan] = useState(false);
+  const [view, setView] = useState({ start: 0, end: duration }), [draft, setDraft] = useState<Range | null>(null);
   const [snap, setSnap] = useState(true);
   const useGrid = snap && bpm != null && beatOffset != null;
   const quantize = (value: number, min: number, max: number) => useGrid ? snapBeat(value, bpm!, beatOffset!, min, max) : Math.max(min, Math.min(max, value));
-  const drag = useRef<{ id: number; kind: 'a'|'b'|'select'|'pan'; anchor: number; initial: Range; view: typeof view; moved: boolean } | null>(null);
+  const drag = useRef<{ id: number; kind: 'a'|'b'|'select' ; anchor: number; initial: Range; view: typeof view; moved: boolean } | null>(null);
   const latest = useRef<Range | null>(null);
   const fallbackCleanup = useRef<(() => void) | null>(null);
   useEffect(() => () => fallbackCleanup.current?.(), []);
@@ -24,7 +24,7 @@ export function WaveformEditor({ wave, duration, position, a, b, disabled, selec
   function down(event: PointerEvent<SVGSVGElement>) {
     if (!allowed || event.button !== 0 || drag.current) return;
     const target = (event.target as Element).closest('[data-handle]')?.getAttribute('data-handle');
-    const kind = target === 'a' || target === 'b' ? target : pan ? 'pan' : 'select';
+    const kind = target === 'a' || target === 'b' ? target : 'select';
     drag.current = { id: event.pointerId, kind, anchor: coordinate(event), initial: { a, b }, view, moved: false }; latest.current = null;
     event.preventDefault();
     try { event.currentTarget.setPointerCapture(event.pointerId); }
@@ -53,7 +53,6 @@ export function WaveformEditor({ wave, duration, position, a, b, disabled, selec
   function move(event: Pick<PointerEvent<SVGSVGElement>, 'pointerId' | 'clientX' | 'currentTarget'>) {
     const gesture = drag.current; if (!gesture || gesture.id !== event.pointerId) return;
     const at = coordinate(event); gesture.moved ||= Math.abs(at - gesture.anchor) > span / 880 * 2;
-    if (gesture.kind === 'pan') { setView(viewportRange(gesture.view.start + gesture.anchor - at, gesture.view.end - gesture.view.start, duration)); return; }
     const next = gesture.kind === 'a' ? { a: quantize(at, 0, gesture.initial.b - minimumSelection), b: gesture.initial.b }
       : gesture.kind === 'b' ? { a: gesture.initial.a, b: quantize(at, gesture.initial.a + minimumSelection, duration) }
       : selectionRange(quantize(gesture.anchor, 0, duration), quantize(at, 0, duration), duration);
@@ -66,7 +65,7 @@ export function WaveformEditor({ wave, duration, position, a, b, disabled, selec
   function finish(event: Pick<PointerEvent<SVGSVGElement>, 'pointerId' | 'clientX' | 'currentTarget'>, cancelled = false) {
     const gesture = drag.current; if (!gesture || gesture.id !== event.pointerId) return;
     if (!cancelled) move(event); // Release can arrive without a final pointermove.
-    if (!cancelled && gesture.kind !== 'pan' && latest.current && gesture.moved) select(latest.current);
+    if (!cancelled && latest.current && gesture.moved) select(latest.current);
     drag.current = null; latest.current = null; setDraft(null); fallbackCleanup.current?.();
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   }
@@ -82,8 +81,8 @@ export function WaveformEditor({ wave, duration, position, a, b, disabled, selec
     select(kind === 'a' ? { a: quantize(value, 0, b - minimumSelection), b } : { a, b: quantize(value, a + minimumSelection, duration) });
   }
   return <div className="waveform-editor">
-    <div className="waveform-tools">{beatOffset != null && bpm != null && <button className="secondary" aria-pressed={snap} disabled={!allowed} onClick={() => setSnap(value => !value)}>{t("Vastklikken op tel")}</button>}<button className="icon-button" aria-label={t("Waveform uitzoomen")} disabled={!allowed || span >= duration} onClick={() => zoom(2)}><Minus size={18} /></button><span>{Math.round(duration / (span || 1))}{t("×")}</span><button className="icon-button" aria-label={t("Waveform inzoomen")} disabled={!allowed || span <= duration / 64} onClick={() => zoom(.5)}><Plus size={18} /></button><button className="secondary" disabled={!allowed} onClick={() => setView({ start: 0, end: duration })}>{t("Hele track")}</button><button className="secondary" disabled={!allowed} onClick={() => setView(viewportRange(a - (b - a) * .15, (b - a) * 1.3, duration))}>{t("Toon selectie")}</button><button className="secondary" aria-pressed={pan} disabled={!allowed} onClick={() => setPan(value => !value)}>{t("Verschuiven")}</button><button className="secondary" disabled={!allowed} onClick={preview}>{t("Fragment beluisteren")}</button></div>
-    <svg className={`waveform interactive-waveform${pan ? ' panning' : ''}`} viewBox="0 0 880 140" role="group" aria-label={t("Waveformselectie")} preserveAspectRatio="none" onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={event => finish(event, true)} onLostPointerCapture={event => finish(event, true)}>
+    <div className="waveform-tools">{beatOffset != null && bpm != null && <button className="secondary" aria-pressed={snap} disabled={!allowed} onClick={() => setSnap(value => !value)}>{t("Vastklikken op tel")}</button>}<button className="icon-button" aria-label={t("Waveform uitzoomen")} disabled={!allowed || span >= duration} onClick={() => zoom(2)}><Minus size={18} /></button><span>{Math.round(duration / (span || 1))}{t("×")}</span><button className="icon-button" aria-label={t("Waveform inzoomen")} disabled={!allowed || span <= duration / 64} onClick={() => zoom(.5)}><Plus size={18} /></button><button className="secondary" disabled={!allowed} onClick={() => setView({ start: 0, end: duration })}>{t("Hele track")}</button><button className="secondary" disabled={!allowed} onClick={() => setView(viewportRange(a - (b - a) * .15, (b - a) * 1.3, duration))}>{t("Toon selectie")}</button></div>
+    <svg className="waveform interactive-waveform" viewBox="0 0 880 140" role="group" aria-label={t("Waveformselectie")} preserveAspectRatio="none" onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={event => finish(event, true)} onLostPointerCapture={event => finish(event, true)}>
       <defs><clipPath id={`wave-clip-${label.replaceAll(' ', '-')}`}><rect width="880" height="140" /></clipPath></defs>
       <g role="img" aria-label={label} clipPath={`url(#wave-clip-${label.replaceAll(' ', '-')})`}>
         <rect width="880" height="140" fill="transparent" />
@@ -98,6 +97,6 @@ export function WaveformEditor({ wave, duration, position, a, b, disabled, selec
       </g>; })}
     </svg>
     <div className="waveform-pan"><button className="icon-button" aria-label={t("Waveform naar links")} disabled={!allowed || view.start <= 0} onClick={() => setView(viewportRange(view.start - span / 2, span, duration))}><ChevronLeft size={18} /></button><input aria-label={t("Zichtbaar begin (seconden)")} type="range" min="0" max={Math.max(0, duration - span)} step=".001" value={view.start} disabled={!allowed || span >= duration} onChange={event => setView(viewportRange(event.target.valueAsNumber, span, duration))} /><button className="icon-button" aria-label={t("Waveform naar rechts")} disabled={!allowed || view.end >= duration} onClick={() => setView(viewportRange(view.start + span / 2, span, duration))}><ChevronRight size={18} /></button></div>
-    <p className="caption" data-testid="waveform-range">{t("Zichtbaar ")}{view.start.toFixed(3)}–{view.end.toFixed(3)}{t(" s · Selectie A ")}{chosen.a.toFixed(3)}{t("–B ")}{chosen.b.toFixed(3)}{t(" s")}</p><p className="caption">{t("Sleep een selectie of de A/B-markeringen. Verschuiven sleept het beeld. Beluisteren speelt de selectie als loop; pauze stopt de preview.")}</p>
+    <p className="caption" data-testid="waveform-range">{t("Zichtbaar ")}{view.start.toFixed(3)}–{view.end.toFixed(3)}{t(" s · Selectie A ")}{chosen.a.toFixed(3)}{t("–B ")}{chosen.b.toFixed(3)}{t(" s")}</p><p className="caption">{t("Sleep een selectie of de A/B-markeringen. Gebruik de schuif of pijlen om het beeld te verplaatsen.")}</p>
   </div>;
 }
