@@ -318,3 +318,10 @@ Overige functies door gebruiker geaccepteerd; #51 blokkeert release. Lokale gebr
 30 oktober: gebruiker autoriseert #65 en #66 als uitbreiding van de nog te publiceren 1.3.0, met behoud van #51-fix. Volgorde #65 werkbalk vereenvoudigen → #66 BPM/fase meetikken → vaste bron/native regressie → ontwikkelapp/eindcontrole → pas na akkoord installers. Bestaande reviews zijn geen akkoord voor de nieuwe productbron.
 
 Uitbreiding #65/#66 geleverd via PR #67/#68, met behoud van #51-fix. Nieuwe vaste bron eb4d5e19f8e3eb646fa614926d499277a1d4124b heeft volledige native releasegroep doorstaan (137 Node/40 desktop per platform, run 41031746818). Ontwikkelapp/launchers staan klaar voor menselijke eindcontrole; daarna pas bij expliciet akkoord installers. #51 bevestiging blijft onderdeel van controle; milestone nog open.
+
+
+### Release 1.3.0 gepubliceerd — 30 oktober 2026
+
+Na expliciet gebruikersakkoord is versie 1.3.0 gepubliceerd vanuit bron `eb4d5e19f8e3eb646fa614926d499277a1d4124b` (schema 12). Run [41031746818](https://github.com/RoJoRZ/HITtheBeat/actions/runs/41031746818) is volledig geslaagd: native Mac/Windows elk 137 Node- en 40 desktop-/audiotests; daadwerkelijke geïnstalleerde pakketten elk vier controles geslaagd. Mac arm64 DMG/ZIP en Windows x64 NSIS/ZIP beschikbaar, plus checksums, release-instructies en derdenvermeldingen. Alle zeven assets/digests gecontroleerd; tag v1.3.0 verwijst exact naar de goedgekeurde bron. Installerjobs 124136802228/124136802375 en publicatiejob 124138461150 geslaagd. Publicatie 15:08:15 UTC.
+
+[Downloads](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.3.0). Issue #51 na eindakkoord gesloten; milestone 4 gesloten met zes gesloten issues (#50–#53/#65/#66) en nul open issues. Gelijke kwartnootklikken zonder maataccent behouden; maatsoort geldt alleen voor aftellen. Persoonlijke bibliotheek niet gewijzigd. Fysieke Windows-/muzikale luisterbeoordeling volgt niet uit CI; ad-hoc Mac-handtekening en ongetekende Windows-distributie blijven de bestaande beperkingen. Geen nieuwe milestone starten zonder opdracht.

@@ -689,3 +689,14 @@ Resultaat beluisteren speelt de bron met maximaal 16 klikken. Annuleren/Escape b
 ### Uitgebreide 1.3.0 gereed voor eindcontrole
 
 PR #67/#68 leveren #65/#66 boven op de gerepareerde dubbele audio (#51/PR #63). Vaste bron `eb4d5e19f8e3eb646fa614926d499277a1d4124b`, versie 1.3.0/schema 12. Run 41031746818: native Mac/Windows elk 137 Node- en 40 desktop-/audiotests groen, build/typecheck groen. Nieuwe ontwikkelapp en bestaande reviewlaunchers gebruiken dezelfde aparte bibliotheekkopie. Wacht op menselijke eindcontrole, inclusief hoorbare tikmeting en #51-bevestiging; geen eindakkoord/installers/tag/publicatie.
+
+### Releaseakkoord 1.3.0 — 30 oktober 2026
+
+De gebruiker bevestigt behoud van de huidige gelijke kwartnootklikken zonder maataccent bij Alleen metronoom; maatsoort geldt alleen voor het aftellen. Na eindcontrole van de ontwikkelversie geeft hij opdracht de installatiebestanden af te ronden. Akkoord geldt voor vaste bron eb4d5e19f8e3eb646fa614926d499277a1d4124b. De gate is vrijgegeven voor native installerbuilds/pakketcontroles en publicatie uitsluitend bij geslaagde controles. Geen nieuwe productwijziging.
+
+
+### Release 1.3.0 gepubliceerd — 30 oktober 2026
+
+Na expliciet gebruikersakkoord is versie 1.3.0 gepubliceerd vanuit bron `eb4d5e19f8e3eb646fa614926d499277a1d4124b` (schema 12). Run [41031746818](https://github.com/RoJoRZ/HITtheBeat/actions/runs/41031746818) is volledig geslaagd: native Mac/Windows elk 137 Node- en 40 desktop-/audiotests; daadwerkelijke geïnstalleerde pakketten elk vier controles geslaagd. Mac arm64 DMG/ZIP en Windows x64 NSIS/ZIP beschikbaar, plus checksums, release-instructies en derdenvermeldingen. Alle zeven assets/digests gecontroleerd; tag v1.3.0 verwijst exact naar de goedgekeurde bron. Installerjobs 124136802228/124136802375 en publicatiejob 124138461150 geslaagd. Publicatie 15:08:15 UTC.
+
+[Downloads](https://github.com/RoJoRZ/HITtheBeat/releases/tag/v1.3.0). Issue #51 na eindakkoord gesloten; milestone 4 gesloten met zes gesloten issues (#50–#53/#65/#66) en nul open issues. Gelijke kwartnootklikken zonder maataccent behouden; maatsoort geldt alleen voor aftellen. Persoonlijke bibliotheek niet gewijzigd. Fysieke Windows-/muzikale luisterbeoordeling volgt niet uit CI; ad-hoc Mac-handtekening en ongetekende Windows-distributie blijven de bestaande beperkingen. Geen nieuwe milestone starten zonder opdracht.
