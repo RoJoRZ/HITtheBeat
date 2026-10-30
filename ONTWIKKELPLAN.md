@@ -310,3 +310,7 @@ Alle vier issues zijn uitgevoerd en samengevoegd (PR #54–#57). Nu versievoorbe
 ### 1.3.0 — gereed voor de ene eindcontrole
 
 Bron 430ac0863dabd51899fd77d42e5c925ba940ce1d; run 40923261862: Mac/Windows elk 130 Node en 38 desktop/audio geslaagd. #52 geldt voor volgende sessie-uitvoering zoals BPM; schema 12. Ontwikkelapp en aparte reviewkopie gereed (docs/RELEASE-1.3.0.md). Wacht op expliciet gebruikersakkoord; keur release-approval niet zelfstandig goed. Daarna dezelfde bron verpakken, daadwerkelijke pakketten controleren en publiceren. Milestone 4 pas na publicatie sluiten.
+
+### Release 1.3.0: #51 opnieuw in uitvoering — 30 oktober 2026
+
+Overige functies door gebruiker geaccepteerd; #51 blokkeert release. Lokale gebruikersreproductie en synthetische regressie tonen een achtergebleven bibliotheekspeler door dubbele siblingkeys. Gerichte reparatie en controles staan in docs/RELEASE-1.3.0.md. Na samenvoegen gewijzigde vaste bron opnieuw native valideren en aanbieden voor menselijke eindcontrole; geen installers of goedkeuring op de eerdere bron.
