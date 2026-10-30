@@ -119,3 +119,22 @@ test('first beat survives edits, sharing and schema 10 migration without moving 
     lib.close();const old11=new DatabaseSync(path.join(root,'library.sqlite'));old11.exec('ALTER TABLE routine_steps DROP COLUMN audio_mode; PRAGMA user_version=11;');old11.close();lib=await openLibrary(root);assert.equal(lib.list()[0].beatOffset,.234);
   } finally { lib?.close(); await rm(root,{recursive:true,force:true}); }
 });
+
+test('joint tapped BPM and phase preserve target tempos, fragments and historical snapshots',async()=>{
+ const root=await mkdtemp(path.join(tmpdir(),'hitthebeat-tapped-'));let lib;
+ try {
+  lib=await openLibrary(root);const e=await lib.save({...input,beatOffset:null});
+  lib.saveFragment(e.id,{name:'Behoud',start:1.123,end:3.456});
+  const routine=lib.saveRoutine({title:'Doeltempo',blocks:[{id:crypto.randomUUID(),exerciseId:e.id,steps:[{id:crypto.randomUUID(),bpm:100,repetitions:1,start:1.123,end:3.456}]}]});
+  const session=lib.startSession(routine.id),before=lib.listSessions();
+  const changed=await lib.save({...lib.list()[0],bpm:123.456789,beatOffset:.213456789});
+  assert.equal(changed.bpm,123.456789);assert.equal(changed.beatOffset,.213456789);
+  const {encodeExercise,decodeExercise}=await import('../electron/exercise-sharing.mjs');
+  const shared=decodeExercise(encodeExercise(await lib.exportExercise(e.id),null));assert.equal(shared.input.bpm,123.456789);assert.equal(shared.input.beatOffset,.213456789);
+  assert.deepEqual(lib.listRoutines()[0].blocks,routine.blocks);assert.deepEqual(lib.listSessions(),before);
+  assert.equal(lib.listSessions()[0].id,session.id);assert.equal(changed.fragments[0].start,1.123);
+  await assert.rejects(lib.save({...changed,bpm:1000,beatOffset:.1}),/Doeltempo/);
+  assert.equal(lib.list()[0].bpm,123.456789);assert.equal(lib.list()[0].beatOffset,.213456789);
+  lib.close();lib=await openLibrary(root);assert.equal(lib.list()[0].bpm,123.456789);assert.equal(lib.list()[0].beatOffset,.213456789);
+ }finally{lib?.close();await rm(root,{recursive:true,force:true});}
+});

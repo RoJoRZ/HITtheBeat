@@ -300,3 +300,7 @@ Audioblokken krijgen een compact beginmenu Tempo aanpassen / Audio-metronoom kie
 ### Waveform vereenvoudigd (#65, 30 oktober 2026)
 
 Verschuiven en Fragment beluisteren vervallen uit de gedeelde werkbalk. Selectie/A/B, zoom, Hele track, Toon selectie en onderste schuif/pijlen blijven. De bestaande transportbediening speelt af/pauzeert; in sessies blijft vrije fragmenttraining herkenbaar. Geen nieuwe modus of verborgen vervangende sneltoets.
+
+### Bepaal BPM (#66, 30 oktober 2026)
+
+Bij Oefening aanmaken/bewerken staat Bepaal BPM naast de precieze Telpositie-bediening. De bestaande Hier begint een tel/audio-controls vervallen. Een lokaal modaal venster toont uitleg voor kwartnoten, Start meetikken/Opnieuw tikken, maximaal 16 tikken met voortgang, Stop meetikken / beluisteren, Resultaat beluisteren, gedeeld volume en Annuleren/Overnemen. Korte meting en geen stabiel tempo worden expliciet benoemd. Studio donker/Mandarijn blijft leidend. Na Overnemen staat het resultaat in het formulier; Oefening opslaan blijft de definitieve actie.

@@ -9,8 +9,8 @@ export function WaveformEditor({ wave, duration, position, a, b, disabled, selec
 }) {
   const [view, setView] = useState({ start: 0, end: duration }), [draft, setDraft] = useState<Range | null>(null);
   const [snap, setSnap] = useState(true);
-  const useGrid = snap && bpm != null && beatOffset != null;
-  const quantize = (value: number, min: number, max: number) => useGrid ? snapBeat(value, bpm!, beatOffset!, min, max) : Math.max(min, Math.min(max, value));
+  const useGrid = snap && bpm != null;
+  const quantize = (value: number, min: number, max: number) => useGrid ? snapBeat(value, bpm!, beatOffset ?? 0, min, max) : Math.max(min, Math.min(max, value));
   const drag = useRef<{ id: number; kind: 'a'|'b'|'select' ; anchor: number; initial: Range; view: typeof view; moved: boolean } | null>(null);
   const latest = useRef<Range | null>(null);
   const fallbackCleanup = useRef<(() => void) | null>(null);
@@ -81,7 +81,7 @@ export function WaveformEditor({ wave, duration, position, a, b, disabled, selec
     select(kind === 'a' ? { a: quantize(value, 0, b - minimumSelection), b } : { a, b: quantize(value, a + minimumSelection, duration) });
   }
   return <div className="waveform-editor">
-    <div className="waveform-tools">{beatOffset != null && bpm != null && <button className="secondary" aria-pressed={snap} disabled={!allowed} onClick={() => setSnap(value => !value)}>{t("Vastklikken op tel")}</button>}<button className="icon-button" aria-label={t("Waveform uitzoomen")} disabled={!allowed || span >= duration} onClick={() => zoom(2)}><Minus size={18} /></button><span>{Math.round(duration / (span || 1))}{t("×")}</span><button className="icon-button" aria-label={t("Waveform inzoomen")} disabled={!allowed || span <= duration / 64} onClick={() => zoom(.5)}><Plus size={18} /></button><button className="secondary" disabled={!allowed} onClick={() => setView({ start: 0, end: duration })}>{t("Hele track")}</button><button className="secondary" disabled={!allowed} onClick={() => setView(viewportRange(a - (b - a) * .15, (b - a) * 1.3, duration))}>{t("Toon selectie")}</button></div>
+    <div className="waveform-tools">{bpm != null && <button className="secondary" aria-pressed={snap} disabled={!allowed} onClick={() => setSnap(value => !value)}>{t("Vastklikken op tel")}</button>}<button className="icon-button" aria-label={t("Waveform uitzoomen")} disabled={!allowed || span >= duration} onClick={() => zoom(2)}><Minus size={18} /></button><span>{Math.round(duration / (span || 1))}{t("×")}</span><button className="icon-button" aria-label={t("Waveform inzoomen")} disabled={!allowed || span <= duration / 64} onClick={() => zoom(.5)}><Plus size={18} /></button><button className="secondary" disabled={!allowed} onClick={() => setView({ start: 0, end: duration })}>{t("Hele track")}</button><button className="secondary" disabled={!allowed} onClick={() => setView(viewportRange(a - (b - a) * .15, (b - a) * 1.3, duration))}>{t("Toon selectie")}</button></div>
     <svg className="waveform interactive-waveform" viewBox="0 0 880 140" role="group" aria-label={t("Waveformselectie")} preserveAspectRatio="none" onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={event => finish(event, true)} onLostPointerCapture={event => finish(event, true)}>
       <defs><clipPath id={`wave-clip-${label.replaceAll(' ', '-')}`}><rect width="880" height="140" /></clipPath></defs>
       <g role="img" aria-label={label} clipPath={`url(#wave-clip-${label.replaceAll(' ', '-')})`}>
