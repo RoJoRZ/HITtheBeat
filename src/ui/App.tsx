@@ -35,6 +35,8 @@ export function App() {
     else { if (page === 'session') setOverviewKey(value => value + 1); setSession(null); setPage(next); window.scrollTo(0, 0); }
   }
   const [page, setPage] = useState<Page>('routines');
+  const main = useRef<HTMLElement>(null);
+  useEffect(() => { main.current?.focus({ preventScroll: true }); }, [page]);
   const [version, setVersion] = useState('');
   const [desktopError, setDesktopError] = useState(false);
   useEffect(() => {
@@ -57,7 +59,7 @@ export function App() {
         </nav>
         <div className="sidebar-bottom"><AboutDialog version={version} /><span className="local-label"><FolderOpen size={17} aria-hidden="true" />{t(" Jouw muziek, dichtbij")}</span><span className="version">{version ? t("HITtheBeat · v{0}", version) : t("HITtheBeat · Voorvertoning")}</span></div>
       </aside>
-      <main id="main" tabIndex={-1}>
+      <main ref={main} id="main" tabIndex={-1}>
         <header className="page-header"><div><p className="eyebrow">{t("JOUW MUZIEKMOMENT")}</p><h1>{current.title}</h1><p className="subtitle">{current.subtitle}</p></div><span className="header-mark"><AudioLines size={27} aria-hidden="true" /></span></header>
         {sessionError && <p role="alert" className="error">{messageText(sessionError)}</p>}
         {desktopError && <p role="alert" className="error">{t("De appgegevens konden niet worden geladen. Sluit de app en probeer opnieuw.")}</p>}

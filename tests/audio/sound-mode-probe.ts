@@ -1,6 +1,6 @@
 import { AudioEngine } from '../../src/audio/engine';
 import { waitAudio } from './audio-clock';
-export async function soundModeProbe() {
+export async function soundModeProbe(meter = '4/4') {
   const engine=new AudioEngine(), state=engine as unknown as {context:AudioContext;output:GainNode};
   const ctx=state.context, analyser=ctx.createAnalyser();analyser.fftSize=512;state.output.connect(analyser);
   await ctx.audioWorklet.addModule(new URL('./capture-worklet.js',import.meta.url).href);
@@ -14,7 +14,7 @@ export async function soundModeProbe() {
     for(let i=0;i<channel.length;i++)channel[i]=.3*Math.sin(2*Math.PI*440*i/ctx.sampleRate);
     await engine.loadBuffer(buffer);
     await record('start');
-    await engine.playSegment(.2,1.2,.5,0,true,undefined,60,true); // 2 quarter beats, exactly 2 seconds.
+    await engine.playSegment(.2,1.2,.5,0,true,undefined,60,true,meter); // Two quarter beats (four eighths in 6/8), exactly two seconds.
     const start=engine.playbackStart, pulses:number[]=[];let wasLoud=false,between=0;
     await waitAudio(ctx,2.15);
     const chunks=await record('flush');

@@ -145,7 +145,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
         }
         assetId.current = `${selected.block.id}:${isMetronome(selected.exercise) ? selected.exercise.duration : ''}`; setLoaded(true);
       }
-      await audio.playSegment(selected.step.start ?? 0, selected.step.end ?? audio.duration, selected.step.bpm / selected.exercise.bpm, 0, ['playing','countin'].includes(snapshot.phase), snapshot.phase === 'countin' ? countInForBlock(snapshot.routine, selected.block) : undefined, selected.step.bpm, soundFor(snapshot) === 'metronome');
+      await audio.playSegment(selected.step.start ?? 0, selected.step.end ?? audio.duration, selected.step.bpm / selected.exercise.bpm, 0, ['playing','countin'].includes(snapshot.phase), snapshot.phase === 'countin' ? countInForBlock(snapshot.routine, selected.block) : undefined, selected.step.bpm, soundFor(snapshot) === 'metronome', countInForBlock(snapshot.routine, selected.block)?.meter);
       if (!alive.current || token !== generation.current) return;
       if (!activeRef.current && ['playing','countin'].includes(state.current.phase)) { await audio.pause(); commit(advance(state.current, 'pause')); }
       setPosition(audio.position); setCountRemaining(audio.countRemaining); measure();
@@ -168,7 +168,7 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
     else {
       const wasPlaying = ['playing','countin'].includes(state.current.phase), next = advance(state.current, wasPlaying ? 'pause' : 'play');
       if (wasPlaying) await audio.pause();
-      else if (next.phase === 'countin') { const selected = current(next); await audio.playSegment(selected.step.start ?? 0, selected.step.end ?? audio.duration, selected.step.bpm / selected.exercise.bpm, 0, true, countInForBlock(next.routine, selected.block), selected.step.bpm, soundFor(next) === 'metronome'); }
+      else if (next.phase === 'countin') { const selected = current(next); await audio.playSegment(selected.step.start ?? 0, selected.step.end ?? audio.duration, selected.step.bpm / selected.exercise.bpm, 0, true, countInForBlock(next.routine, selected.block), selected.step.bpm, soundFor(next) === 'metronome', countInForBlock(next.routine, selected.block)?.meter); }
       else await audio.playPause();
       commit(next);
     }
@@ -235,7 +235,13 @@ export function SessionPlayer({ session, active, leave, finished, stopRef }: { s
   }, [active]);
   useEffect(() => {
     function key(event: KeyboardEvent) {
-      if (!active || event.repeat || event.ctrlKey || event.metaKey || event.altKey || (event.target as HTMLElement).closest('input,textarea,select,button,a,[contenteditable],dialog') || !['ready', 'playing', 'countin', 'paused', 'fragment'].includes(state.current.phase)) return;
+      if (!active || event.defaultPrevented || event.repeat || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || document.querySelector('dialog[open]')) return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest('input,textarea,select,button,a,[contenteditable],[role="slider"]')) return;
+      if (event.key === 'Enter' && state.current.phase === 'complete' && !locked.current && !saveError) {
+        event.preventDefault(); leave(); return;
+      }
+      if (!['ready', 'playing', 'countin', 'paused', 'fragment'].includes(state.current.phase)) return;
       if (event.code === 'Space') { event.preventDefault(); void toggle(); }
       if (event.key === '1') { event.preventDefault(); void restart(); }
     }

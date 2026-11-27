@@ -14,6 +14,14 @@ test('audio metronome uses exact source beat count with audible clicks, silent t
     expect(result.pulses).toHaveLength(2);expect(result.pulses[0]).toBeLessThan(.08);expect(result.pulses[1]).toBeCloseTo(1,1);
     expect(result.between).toBeLessThan(.00001);expect(result.end).toBeCloseTo(1.2,4);expect(result.ended).toBe(true);expect(result.after).toBeLessThan(.00001);
     expect(result.restored).toBeGreaterThan(.1);expect(result.paused).toBeLessThan(.00001);
+    const sixEight = await page.evaluate(async () => {
+      const { soundModeProbe } = await import('/tests/audio/sound-mode-probe.ts');
+      return soundModeProbe('6/8');
+    });
+    expect(sixEight.pulses).toHaveLength(4);
+    sixEight.pulses.forEach((at, index) => expect(at).toBeCloseTo(index * .5, 1));
+    expect(sixEight.end).toBeCloseTo(1.2, 4);
+
   } finally {await app.close();await server.close();await rm(root,{recursive:true,force:true});}
 });
 

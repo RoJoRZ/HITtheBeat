@@ -21,6 +21,14 @@ export function AboutDialog({ version }: { version: string }) {
         <li><strong>{t('Oefeningen delen met erkenning.')}</strong> {t('Exporteer één oefening met audio, tablatuur, opdracht, instellingen en fragmenten. Voeg een makernaam en boodschap toe; importeren maakt een nieuwe oefening zonder bestaande gegevens te overschrijven.')}</li>
         <li><strong>{t('Lokaal, in jouw taal en met toetsen.')}</strong> {t('Oefen volledig offline zonder account. Kies Nederlands of Engels. Gebruik Spatie voor afspelen/pauzeren, 1 voor opnieuw beginnen en cijfers plus Enter bij evaluaties; de muis blijft ook beschikbaar.')}</li>
       </ul>
+      <h3>{t("Sneltoetsen")}</h3>
+      <ul>
+        <li>{t("Sessies: ←/→ kiest een sessie, Enter opent de gekozen of eerste beschikbare sessie.")}</li>
+        <li>{t("Speler: Spatie speelt af of pauzeert; 1 gaat naar het begin van de herhaling.")}</li>
+        <li>{t("Evaluatie: 1 kiest tempo, 2 kiest klank indien beschikbaar. Volg de getoonde cijfertoetsen en gebruik Enter om door te gaan.")}</li>
+        <li>{t("Afgeronde sessie: Enter keert terug naar Mijn oefensessies.")}</li>
+        <li>{t("Tab en Shift+Tab verplaatsen de focus. Enter of Spatie activeert een knop; Escape sluit een dialoog.")}</li>
+      </ul>
       <footer className="about-footer"><span>{version ? t('HITtheBeat · v{0}', version) : t('HITtheBeat · Voorvertoning')}</span><button className="primary" onClick={() => dialog.current?.close()}>{t('Terug naar mijn muziekmoment')}</button></footer>
     </dialog>
   </>;

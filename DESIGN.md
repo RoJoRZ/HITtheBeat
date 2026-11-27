@@ -304,3 +304,7 @@ Verschuiven en Fragment beluisteren vervallen uit de gedeelde werkbalk. Selectie
 ### Bepaal BPM (#66, 30 oktober 2026)
 
 Bij Oefening aanmaken/bewerken staat Bepaal BPM naast de precieze Telpositie-bediening. De bestaande Hier begint een tel/audio-controls vervallen. Een lokaal modaal venster toont uitleg voor kwartnoten, Start meetikken/Opnieuw tikken, maximaal 16 tikken met voortgang, Stop meetikken / beluisteren, Resultaat beluisteren, gedeeld volume en Annuleren/Overnemen. Korte meting en geen stabiel tempo worden expliciet benoemd. Studio donker/Mandarijn blijft leidend. Na Overnemen staat het resultaat in het formulier; Oefening opslaan blijft de definitieve actie.
+
+### Sessies in 1.4.0
+
+Het overzicht toont de met pijltjestoetsen gekozen sessie via de toetsenbordfocus op Starten. Info over HITtheBeat bevat een overzicht van sneltoetsen. Sessie bewerken toont een kolom Klank voor audiostappen en houdt de maatsoort bereikbaar wanneer aftellen uitstaat.
