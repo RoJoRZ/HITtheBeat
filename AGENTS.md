@@ -181,3 +181,5 @@ Na expliciet gebruikersakkoord is versie 1.3.0 gepubliceerd vanuit bron `eb4d5e1
 ### Release 1.4.0
 
 De gebruiker start milestone 5 met #71–#73 en vraagt om één geteste app voor eindcontrole. Werk documentatie en GitHub bij. De bestaande procedure vereist expliciet akkoord vóór installerbuilds en publicatie. Zie docs/RELEASE-1.4.0.md.
+
+Release 1.4.0 is op 27 november 2026 gepubliceerd na expliciet gebruikersakkoord op bron `139bbd424fac2bf3e04ddb82d8b9aaceae9b2b6e`. Native regressie en installercontroles zijn geslaagd. Issues #71–#73 en milestone 5 zijn gesloten. Het bewijs staat in docs/RELEASE-1.4.0.md.
