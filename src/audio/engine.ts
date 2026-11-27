@@ -1,6 +1,7 @@
 import { LocalizedError } from '../../electron/i18n.mjs';
 import { scheduleCountIn, type CountIn } from './count-in';
 import { scheduleClick } from './click';
+import { clickFrequency, clickInterval } from './metronome';
 import { createStretch } from './stretch';
 import type { StretchNode } from 'signalsmith-stretch';
 
@@ -19,6 +20,7 @@ export class AudioEngine {
   private queue: Promise<unknown> = Promise.resolve();
   private disposed = false;
   private metronomeBpm: number | null = null;
+  private metronomeMeter = '4/4';
   constructor(private beatOffset: number | null = null) {
     this.gain.connect(this.output);
     this.output.connect(this.context.destination);
@@ -99,12 +101,13 @@ export class AudioEngine {
     catch (reason) { this.cancelCountIn(); this.playing = false; throw reason; }
     if (this.disposed) return;
     if (this.playing && this.metronomeBpm !== null) {
-      const interval = 60 / (this.metronomeBpm / this.rate);
+      const interval = clickInterval(this.metronomeMeter, this.metronomeBpm / this.rate);
       const origin = this.beatOffset ?? this.segmentStart, end = this.segmentEnd ?? this.duration;
       const first = Math.ceil((this.anchorPosition - origin) / interval - 1e-9);
+      const downbeat = Math.ceil((this.segmentStart - origin) / interval - 1e-9);
       for (let i = first; origin + i * interval < end - 1e-9; i++) {
         const position = origin + i * interval;
-        this.countTones.push(scheduleClick(this.context, this.output, this.anchorTime + Math.max(0, position - this.anchorPosition) / this.rate, 1000, Math.min(.035, (end - position) / this.rate)));
+        this.countTones.push(scheduleClick(this.context, this.output, this.anchorTime + Math.max(0, position - this.anchorPosition) / this.rate, clickFrequency(this.metronomeMeter, i - downbeat), Math.min(.035, (end - position) / this.rate)));
       }
     }
     // Gate the output on the audio clock, including in background windows.
@@ -148,12 +151,13 @@ export class AudioEngine {
       this.anchorPosition = this.position; this.playing = false; await this.schedule();
     });
   }
-  playSegment(a: number, b: number, rate: number, semitones = 0, playing = true, countIn?: CountIn, countBpm = 1, metronomeOnly = false) {
+  playSegment(a: number, b: number, rate: number, semitones = 0, playing = true, countIn?: CountIn, countBpm = 1, metronomeOnly = false, meter = '4/4') {
     return this.serialize(async () => {
       validateAudioSettings(rate, semitones, a, b, this.duration);
       if (playing) await this.context.resume();
       if (metronomeOnly && (!Number.isFinite(countBpm) || countBpm <= 0)) throw new LocalizedError("Vul een BPM groter dan nul in.");
       this.metronomeBpm = metronomeOnly ? countBpm : null;
+      this.metronomeMeter = meter;
       this.segmentStart = a; this.segmentEnd = b;
       this.a = a; this.b = b; this.rate = rate; this.semitones = semitones; this.loop = false;
       this.anchorPosition = a; this.playing = playing; await this.schedule(countIn, countBpm);

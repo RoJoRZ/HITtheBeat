@@ -4,11 +4,20 @@ export { scheduleClick } from './click.ts';
 import { scheduleCountIn, type CountIn } from './count-in.ts';
 import { meterBeats } from '../../electron/exercise-model.mjs';
 
+export function clickInterval(meter: string, bpm: number) {
+  return 60 / bpm * (meter === '6/8' ? .5 : 1);
+}
+
+export function clickFrequency(meter: string, index: number) {
+  const beat = index % meterBeats(meter);
+  return beat === 0 ? 1800 : meter === '6/8' && beat === 3 ? 1400 : 1000;
+}
+
 /** Finite click schedule on the audio clock; quarter-note BPM, also in compound meters. */
 export function clickPlan(meter: string, bpm: number, duration: number) {
-  const beats = meterBeats(meter), interval = 60 / bpm * (meter === '6/8' ? .5 : 1);
+  const interval = clickInterval(meter, bpm);
   const count = Math.round(duration / interval);
-  return Array.from({ length: count }, (_, index) => ({ position: index * interval, frequency: index % beats === 0 ? 1800 : meter === '6/8' && index % beats === 3 ? 1400 : 1000 }));
+  return Array.from({ length: count }, (_, index) => ({ position: index * interval, frequency: clickFrequency(meter, index) }));
 }
 
 
@@ -52,7 +61,7 @@ export class MetronomeEngine {
   playPause() { return this.serialize(async () => { await this.context.resume(); const ended = this.ended; this.anchorPosition = ended ? 0 : this.position; this.playing = ended || !this.playing; this.schedule(); }); }
   pause() { return this.serialize(async () => { this.anchorPosition = this.position; this.playing = false; this.schedule(); }); }
   seek(value: number) { return this.serialize(async () => { this.anchorPosition = Math.max(0, Math.min(this.end, value)); this.schedule(); }); }
-  playSegment(a: number, b: number, rate: number, pitch = 0, playing = true, countIn?: CountIn, _countBpm?: number, _metronomeOnly?: boolean) {
+  playSegment(a: number, b: number, rate: number, pitch = 0, playing = true, countIn?: CountIn, _countBpm?: number, _metronomeOnly?: boolean, _meter?: string) {
     return this.serialize(async () => {
       if (a !== 0 || b !== this.duration || pitch !== 0 || !Number.isFinite(rate) || rate <= 0) throw new LocalizedError("Ongeldige metronoomstap.");
       if (playing) await this.context.resume();

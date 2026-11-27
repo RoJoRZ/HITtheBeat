@@ -1,13 +1,13 @@
 import { t, locale, errorMessage } from '../../electron/i18n.mjs';
 import { plannedPreparation, hasCountIn } from '../../electron/count-in-model.mjs';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Exercise, Routine, SessionRecord } from '../library/types';
 import { plannedSeconds, validateRoutine } from '../../electron/routine-model.mjs';
 import { durationLabel } from './controls';
 
-export function RoutineOverview({ items, exercises, sessions, edit, start, create, loading }: {
+export function RoutineOverview({ items, exercises, sessions, edit, start, create, loading, active }: {
   items: Routine[]; exercises: Exercise[]; sessions: SessionRecord[]; edit: (item: Routine) => void;
-  start: (item: Routine, exercises: Exercise[]) => void; create: () => void; loading: boolean;
+  start: (item: Routine, exercises: Exercise[]) => void; create: () => void; loading: boolean; active: boolean;
 }) {
   const [all, setAll] = useState(false), [query, setQuery] = useState('');
   const lastPlayed = new Map<string, string>();
@@ -17,6 +17,27 @@ export function RoutineOverview({ items, exercises, sessions, edit, start, creat
   }
   const sorted = [...items].sort((a, b) => (lastPlayed.get(b.id) ?? b.updatedAt).localeCompare(lastPlayed.get(a.id) ?? a.updatedAt) || a.title.localeCompare(b.title, 'nl') || a.id.localeCompare(b.id));
   const visible = all ? sorted.filter(item => item.title.toLocaleLowerCase('nl').includes(query.trim().toLocaleLowerCase('nl'))) : sorted.slice(0, 10);
+  const startButtons = useRef(new Map<string, HTMLButtonElement>());
+  useEffect(() => {
+    function select(event: KeyboardEvent) {
+      if (!active || loading || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || document.querySelector('dialog[open]')) return;
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' && event.key !== 'Enter') return;
+      const target = event.target instanceof Element ? event.target : null;
+      const buttons = visible.map(item => startButtons.current.get(item.id)).filter(button => button && !button.disabled);
+      const index = buttons.findIndex(button => button === target);
+      if (index === -1 && target?.closest('input,textarea,select,button,a,[contenteditable],[role="slider"]')) return;
+      if (!buttons.length || (event.key === 'Enter' && index !== -1)) return;
+      event.preventDefault();
+      if (event.key === 'Enter') {
+        if (!event.repeat) buttons[0]?.click();
+      } else {
+        const next = index === -1 ? event.key === 'ArrowRight' ? 0 : buttons.length - 1 : index + (event.key === 'ArrowRight' ? 1 : -1);
+        buttons[Math.max(0, Math.min(buttons.length - 1, next))]?.focus();
+      }
+    }
+    window.addEventListener('keydown', select);
+    return () => window.removeEventListener('keydown', select);
+  });
   return <section className="screen-stack" aria-label={t("Overzicht oefensessies")}>
     <div className="round-heading"><div><h2>{all ? t("Alle oefensessies") : t("Recente oefensessies")}</h2><p className="caption">{t("Kies wat je vandaag wilt oefenen.")}</p></div><button className="primary" disabled={loading || !exercises.length} onClick={create}>{t("Nieuwe oefensessie")}</button></div>
     {all && <div className="round-heading"><label className="routine-name">{t("Zoek op naam")}<input type="search" value={query} onChange={event => setQuery(event.target.value)} /></label><button className="secondary" onClick={() => { setAll(false); setQuery(''); }}>{t("Terug naar recente sessies")}</button></div>}
@@ -31,7 +52,7 @@ export function RoutineOverview({ items, exercises, sessions, edit, start, creat
         <h3>{item.title}</h3><p>{item.blocks.length} {item.blocks.length === 1 ? t('oefening') : t('oefeningen')} · {invalid ? t("Duur niet beschikbaar") : t("{0} gepland", durationLabel(seconds + plannedPreparation(item)))}</p>{hasCountIn(item) && !invalid && <p className="caption">{t("Waarvan ")}{durationLabel(plannedPreparation(item))}{t(" aftellen · per oefening ingesteld")}</p>}
         <p className="caption">{played ? <>{t("Laatst geoefend: ")}<time dateTime={played}>{new Date(played).toLocaleString(locale(), { dateStyle: 'medium', timeStyle: 'short' })}</time></> : t("Nog niet geoefend")}</p>
         {invalid && <p className="error">{invalid}</p>}
-        <div className="row-actions"><button className="primary" disabled={loading || Boolean(invalid)} onClick={() => start(item, exercises)}>{t("Starten")}</button><button className="secondary" disabled={loading} onClick={() => edit(item)}>{t("Bewerken")}</button></div>
+        <div className="row-actions"><button ref={button => { if (button) startButtons.current.set(item.id, button); else startButtons.current.delete(item.id); }} className="primary" disabled={loading || Boolean(invalid)} onClick={() => start(item, exercises)}>{t("Starten")}</button><button className="secondary" disabled={loading} onClick={() => edit(item)}>{t("Bewerken")}</button></div>
       </article>;
     })}</div>
     {!all && items.length > 10 && <div><button className="secondary" onClick={() => setAll(true)}>{t("Alle oefensessies")}</button></div>}
